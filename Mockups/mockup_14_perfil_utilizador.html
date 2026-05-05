@@ -1,0 +1,231 @@
+<!doctype html><html lang='pt'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Perfil Utilizador</title><style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    :root{
+      --bg-page:#060E1F;--bg-primary:#0D1B3E;--bg-surface:#162448;--bg-border:#1E3260;
+      --orange:#F57C00;--green:#4CAF50;--text-primary:#fff;--text-secondary:#8A9BB8;--text-muted:#4A5C7A;
+    }
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg-page);font-family:'Poppins',sans-serif;color:var(--text-primary)}
+    .phone{width:300px;height:620px;background:var(--bg-primary);border:2px solid var(--bg-border);border-radius:36px;overflow:hidden;position:relative}
+    .phone.landscape{width:580px;height:300px}
+    .status{display:flex;justify-content:space-between;padding:10px 18px 4px;font-size:10px;color:var(--text-secondary)}
+    .content{height:calc(100% - 26px);padding:10px 14px 14px;overflow-y:auto}
+    .content::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:3px}.content::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#1E3260;border-radius:2px}
+    .content,.scroll{scrollbar-width:thin;scrollbar-color:#1E3260 transparent}
+    .card{background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:12px;padding:12px 14px}
+    .title{font-size:17px;font-weight:700}.sub{font-size:12px;color:var(--text-secondary)}
+    .btn{width:100%;padding:13px;border-radius:12px;border:none;background:var(--orange);color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+    .btn.green{background:var(--green)}
+    .btn.secondary{background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}.gap8{display:grid;gap:8px}.gap10{display:grid;gap:10px}.gap12{display:grid;gap:12px}
+    .badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
+    .live{background:var(--orange);color:#fff}.open{border:1px solid var(--green);color:var(--green);background:var(--bg-primary)}.done{background:var(--bg-border);color:var(--text-secondary)}
+    .tabs,.chips{display:flex;gap:6px;flex-wrap:wrap}
+    .tab,.chip{padding:7px 10px;border-radius:10px;background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary);font-size:11px;cursor:pointer}
+    .tab.active,.chip.active{border-color:var(--orange);color:var(--orange);background:var(--bg-primary)}
+    .fade{animation:fadeIn .35s ease}
+    @keyframes fadeIn{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    input,select,textarea{width:100%;padding:10px 12px;background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:10px;color:#fff;font-size:12px;font-family:'Poppins',sans-serif}
+    input::placeholder,textarea::placeholder{color:var(--text-muted)}
+    .nav{position:absolute;left:10px;right:10px;bottom:10px;height:64px;border:1.5px solid #1E3260;border-radius:18px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,#132554 0%,#0F2048 100%);box-shadow:0 10px 24px rgba(0,0,0,.28)}.nav-item{flex:1;background:transparent;border:none;color:#4A5C7A;display:grid;justify-items:center;gap:3px;font-size:9px;font-weight:500;cursor:pointer;padding:3px 0}.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.nav-item.active{color:#F57C00}.nav-item.active svg{filter:drop-shadow(0 0 6px rgba(245,124,0,.35))}
+    .avatar{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:8px;font-weight:700}
+    .progress{height:6px;background:#0F2048;border-radius:999px;overflow:hidden}.fill{height:100%;background:var(--orange)}
+    .ic{width:12px;height:12px;display:inline-block;vertical-align:-2px;margin-right:4px;color:#F57C00}
+    .rank-badge{display:inline-block;min-width:22px;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700;color:#fff;margin-right:6px;text-align:center}
+    .rank-badge.gold{background:#EF9F27}.rank-badge.silver{background:#378ADD}.rank-badge.bronze{background:#D85A30}
+    .profile-hero{background:linear-gradient(180deg,#132554 0%,#162448 100%);border:1.5px solid #1E3260;border-radius:14px;padding:12px}
+    .avatar-lg{width:74px;height:74px;border-radius:22px;background:#1A2F5C;border:1.5px solid #1E3260;display:grid;place-items:center;font-weight:700;font-size:22px}
+    .tag{font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid #1E3260;color:#8A9BB8;background:#0D1B3E;display:inline-flex;align-items:center;gap:5px}
+    .section-title{font-size:11px;font-weight:600;color:#F57C00;letter-spacing:.08em;text-transform:uppercase}
+    .stats-hub{background:linear-gradient(180deg,#132554 0%,#162448 100%);border:1.5px solid #1E3260;border-radius:14px;padding:10px}
+    .kpi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .kpi{background:#162448;border:1.5px solid #1E3260;border-radius:12px;padding:10px;min-height:104px;display:flex;flex-direction:column;justify-content:space-between}
+    .kpi b{font-size:22px}
+    .item{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid #1E3260}
+    .item:first-child{border-top:none}
+    .dot{width:8px;height:8px;border-radius:50%}
+    .mini{font-size:10px;color:#8A9BB8}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .stats-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .select-wrap{position:relative}
+    .select-wrap:after{content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#8A9BB8;font-size:12px;pointer-events:none}
+    .stats-filters select{width:100%;padding:10px 34px 10px 12px;background:#162448;border:1.5px solid #1E3260;border-radius:12px;color:#fff;font-size:12px;font-family:'Poppins',sans-serif;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:none}
+    .team-entry{border-top:1px solid #1E3260;padding:10px 0}
+    .team-entry:first-of-type{border-top:none}
+    .team-head{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;cursor:pointer}
+    .team-chevron{font-size:12px;color:#8A9BB8}
+    .team-detail{display:none;margin-top:8px;padding:8px;border:1px solid #1E3260;border-radius:10px;background:#10244A}
+    .team-detail.show{display:block;animation:fadeIn .25s ease}
+    .comp-item{padding:7px 0;border-top:1px solid #1E3260}
+    .comp-item:first-child{border-top:none;padding-top:0}
+</style></head><body><div class='phone'><div class='status'><span>9:41</span><span>●●●</span></div><div class='content'>
+<div class='gap10' style='padding-bottom:94px'>
+  <div class='profile-hero'>
+    <div class='row' style='align-items:flex-start'>
+      <div class='row' style='justify-content:flex-start;gap:10px'>
+        <div class='avatar-lg'>GT</div>
+        <div>
+          <div style='font-size:22px;font-weight:700;line-height:1.1'>Gonçalo Teixeira</div>
+          <div class='sub'>Jogador</div>
+          <div class='row' style='justify-content:flex-start;margin-top:6px'><span class='tag'>Jogador</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class='stats-filters'>
+    <div class='select-wrap'>
+      <select id='statsPeriod'>
+        <option value='semana'>Esta semana</option>
+        <option value='mes' selected>Este mês</option>
+        <option value='epoca'>Época atual</option>
+        <option value='sempre'>Desde sempre</option>
+      </select>
+    </div>
+    <div class='select-wrap'>
+      <select id='statsScope'>
+        <option value='geral' selected>Geral</option>
+        <option value='liga'>Liga</option>
+        <option value='torneio'>Torneio Verão 2025</option>
+      </select>
+    </div>
+  </div>
+
+  <div class='stats-hub'>
+    <div class='section-title' style='margin-bottom:8px'>Estatísticas</div>
+    <div class='kpi-grid'>
+      <div class='kpi'><div class='sub'>Golos</div><b id='statGoals'>18</b><div class='mini' id='statGoalsMeta'>+3 esta semana</div></div>
+      <div class='kpi'><div class='sub'>Jogos</div><b id='statGames'>24</b><div class='mini' id='statGamesMeta'>22 titular</div></div>
+      <div class='kpi'><div class='sub'>MVPs</div><b id='statMvps'>5</b><div class='mini' id='statMvpsMeta'>Top 3 da liga</div></div>
+    </div>
+    <div class='card' style='margin-top:8px;padding:10px 12px'>
+      <div class='item'><span class='mini'>•</span><div class='sub'>Assistências</div><b id='statAssists'>11</b></div>
+      <div class='item'><span class='mini'>•</span><div class='sub'>Cartões amarelos</div><b id='statYellow'>2</b></div>
+      <div class='item'><span class='mini'>•</span><div class='sub'>Minutos jogados</div><b id='statMinutes'>1 820</b></div>
+      <div class='item'><span class='mini'>•</span><div class='sub'>Melhor período</div><b id='statPeak'>45'–70'</b></div>
+    </div>
+  </div>
+
+  <div class='card'>
+    <div class='section-title'>As minhas equipas</div>
+    <div class='team-entry'>
+      <div class='team-head team-toggle'>
+        <span class='dot' style='background:#E84C3D'></span>
+        <div>
+          <div style='font-weight:600'>FC Malcata</div>
+          <div class='mini'>Capitão: Gonçalo Teixeira</div>
+        </div>
+        <span class='team-chevron'>▾</span>
+      </div>
+      <div class='team-detail'>
+        <div class='comp-item'>
+          <div class='sub' style='color:#fff;font-weight:600'>Torneio Verão 2025</div>
+          <div class='mini'>Liga · Jornada 4/7 · 8 equipas · Campo da Várzea</div>
+        </div>
+        <div class='comp-item'>
+          <div class='sub' style='color:#fff;font-weight:600'>Copa Alto Minho</div>
+          <div class='mini'>Eliminatórias · Quartos de final · Próximo jogo 12/05</div>
+        </div>
+      </div>
+    </div>
+    <div class='team-entry'>
+      <div class='team-head team-toggle'>
+        <span class='dot' style='background:#3498DB'></span>
+        <div>
+          <div style='font-weight:600'>Turbo FC</div>
+          <div class='mini'>Jogador do plantel</div>
+        </div>
+        <span class='team-chevron'>▾</span>
+      </div>
+      <div class='team-detail'>
+        <div class='comp-item'>
+          <div class='sub' style='color:#fff;font-weight:600'>Copa Alto Minho</div>
+          <div class='mini'>Fase de grupos · Grupo B · 2 jogos realizados</div>
+        </div>
+        <div class='comp-item'>
+          <div class='sub' style='color:#fff;font-weight:600'>Liga Inverno 2026</div>
+          <div class='mini'>Pré-inscrição confirmada · Início previsto: Junho</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class='card'>
+    <div class='section-title'>Últimas conquistas</div>
+    <div class='item'><svg class='ic' viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='14' r='4' fill='none' stroke='currentColor' stroke-width='2'/><path d='M10 4l2 4 2-4h3l-3 6H10L7 4z' fill='currentColor'/></svg><div><div style='font-weight:600'>MVP do jogo · FC Malcata vs Os Putos</div><div class='mini'>14/04/2026</div></div><span class='tag'>MVP</span></div>
+    <div class='item'><svg class='ic' viewBox='0 0 24 24' aria-hidden='true'><path d='M8 4h8v3a4 4 0 01-8 0z' fill='none' stroke='currentColor' stroke-width='2'/><path d='M12 11v4M9 19h6' fill='none' stroke='currentColor' stroke-width='2'/></svg><div><div style='font-weight:600'>Liga Verão 2025</div><div class='mini'>FC Malcata</div></div><span class='tag'>1º</span></div>
+  </div>
+
+  <div class='actions'>
+    <button class='btn secondary'>Editar perfil</button>
+    <button class='btn secondary'>Definições</button>
+  </div>
+</div>
+</div><div class='nav'><button class='nav-item' onclick="sendPrompt('mockup_04_dashboard_jogador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M3 10.5L12 4l9 6.5'></path><path d='M6 9.5V20h12V9.5'></path></svg><span>Início</span></button><button class='nav-item' onclick="sendPrompt('mockup_06_lista_torneios.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><rect x='4' y='5' width='16' height='15' rx='2'></rect><path d='M8 3v4M16 3v4M4 10h16'></path></svg><span>Torneios</span></button><button class='nav-item' onclick="sendPrompt('mockup_12_rankings.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M5 19V10'></path><path d='M12 19V6'></path><path d='M19 19v-8'></path></svg><span>Rankings</span></button><button class='nav-item active' onclick="sendPrompt('mockup_14_perfil_utilizador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='8' r='3.5'></circle><path d='M5 20a7 7 0 0114 0'></path></svg><span>Perfil</span></button></div></div>
+<script>
+function sendPrompt(target){ if(target) location.href = target; }
+document.querySelectorAll('.tabs').forEach(group=>{
+  group.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>{
+    group.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const panelId=tab.dataset.panel; if(!panelId) return;
+    const wrap=group.parentElement.querySelector('.tab-panels');
+    if(!wrap) return;
+    wrap.querySelectorAll('[data-tab]').forEach(p=>p.style.display='none');
+    const panel=wrap.querySelector('[data-tab="'+panelId+'"]');
+    if(panel){panel.style.display='block';panel.classList.remove('fade');void panel.offsetWidth;panel.classList.add('fade');}
+  });
+});
+document.querySelectorAll('.chips').forEach(group=>{
+  group.querySelectorAll('.chip').forEach(chip=>chip.onclick=()=>{
+    group.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+const statsData = {
+  geral: {
+    semana: { goals: '3', games: '2', mvps: '1', goalsMeta: '+3 esta semana', gamesMeta: '2 titular', mvpsMeta: '1 votação ganha', assists:'2', yellow:'0', minutes:'180', peak:"45'–70'" },
+    mes: { goals: '18', games: '24', mvps: '5', goalsMeta: '+3 esta semana', gamesMeta: '22 titular', mvpsMeta: 'Top 3 da liga', assists:'11', yellow:'2', minutes:'1 820', peak:"45'–70'" },
+    epoca: { goals: '27', games: '31', mvps: '7', goalsMeta: 'Média 0.87/jogo', gamesMeta: '29 titular', mvpsMeta: 'Top 2 da época', assists:'16', yellow:'3', minutes:'2 360', peak:"30'–60'" },
+    sempre: { goals: '64', games: '89', mvps: '14', goalsMeta: 'Histórico total', gamesMeta: '84 titular', mvpsMeta: 'Desde 2024', assists:'34', yellow:'9', minutes:'6 740', peak:"45'–70'" }
+  },
+  liga: {
+    semana: { goals: '2', games: '1', mvps: '0', goalsMeta: 'Liga principal', gamesMeta: '1 titular', mvpsMeta: 'Sem MVP nesta semana', assists:'1', yellow:'0', minutes:'90', peak:"45'–70'" },
+    mes: { goals: '12', games: '14', mvps: '3', goalsMeta: 'Torneio Verão 2025', gamesMeta: '13 titular', mvpsMeta: 'Top 3 da liga', assists:'7', yellow:'2', minutes:'1 080', peak:"45'–70'" },
+    epoca: { goals: '19', games: '22', mvps: '5', goalsMeta: 'Liga principal', gamesMeta: '20 titular', mvpsMeta: '5 distinções', assists:'11', yellow:'3', minutes:'1 680', peak:"30'–60'" },
+    sempre: { goals: '44', games: '56', mvps: '10', goalsMeta: 'Todas as ligas', gamesMeta: '52 titular', mvpsMeta: 'Histórico em ligas', assists:'24', yellow:'7', minutes:'4 320', peak:"45'–70'" }
+  },
+  torneio: {
+    semana: { goals: '1', games: '1', mvps: '0', goalsMeta: 'Jornada 4/7', gamesMeta: '1 titular', mvpsMeta: 'Votação pendente', assists:'1', yellow:'0', minutes:'90', peak:"45'–70'" },
+    mes: { goals: '8', games: '9', mvps: '2', goalsMeta: 'Torneio Verão 2025', gamesMeta: '8 titular', mvpsMeta: '2 MVPs no torneio', assists:'5', yellow:'1', minutes:'720', peak:"45'–70'" },
+    epoca: { goals: '8', games: '9', mvps: '2', goalsMeta: 'No torneio atual', gamesMeta: '8 titular', mvpsMeta: 'Top 2 no torneio', assists:'5', yellow:'1', minutes:'720', peak:"45'–70'" },
+    sempre: { goals: '8', games: '9', mvps: '2', goalsMeta: 'Desde início do torneio', gamesMeta: '8 titular', mvpsMeta: 'Torneio atual', assists:'5', yellow:'1', minutes:'720', peak:"45'–70'" }
+  }
+};
+function refreshStats(){
+  const period=document.getElementById('statsPeriod').value;
+  const scope=document.getElementById('statsScope').value;
+  const d=statsData[scope][period];
+  document.getElementById('statGoals').textContent=d.goals;
+  document.getElementById('statGames').textContent=d.games;
+  document.getElementById('statMvps').textContent=d.mvps;
+  document.getElementById('statGoalsMeta').textContent=d.goalsMeta;
+  document.getElementById('statGamesMeta').textContent=d.gamesMeta;
+  document.getElementById('statMvpsMeta').textContent=d.mvpsMeta;
+  document.getElementById('statAssists').textContent=d.assists;
+  document.getElementById('statYellow').textContent=d.yellow;
+  document.getElementById('statMinutes').textContent=d.minutes;
+  document.getElementById('statPeak').textContent=d.peak;
+}
+document.getElementById('statsPeriod').addEventListener('change', refreshStats);
+document.getElementById('statsScope').addEventListener('change', refreshStats);
+refreshStats();
+document.querySelectorAll('.team-toggle').forEach(toggle=>{
+  toggle.addEventListener('click', ()=>{
+    const detail = toggle.parentElement.querySelector('.team-detail');
+    detail.classList.toggle('show');
+    const chev = toggle.querySelector('.team-chevron');
+    chev.textContent = detail.classList.contains('show') ? '▴' : '▾';
+  });
+});
+</script>
+</body></html>

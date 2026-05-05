@@ -1,0 +1,84 @@
+<!doctype html><html lang='pt'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Criar Torneio</title><style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    :root{
+      --bg-page:#060E1F;--bg-primary:#0D1B3E;--bg-surface:#162448;--bg-border:#1E3260;
+      --orange:#F57C00;--green:#4CAF50;--text-primary:#fff;--text-secondary:#8A9BB8;--text-muted:#4A5C7A;
+    }
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg-page);font-family:'Poppins',sans-serif;color:var(--text-primary)}
+    .phone{width:300px;height:620px;background:var(--bg-primary);border:2px solid var(--bg-border);border-radius:36px;overflow:hidden;position:relative}
+    .phone.landscape{width:580px;height:300px}
+    .status{display:flex;justify-content:space-between;padding:10px 18px 4px;font-size:10px;color:var(--text-secondary)}
+    .content{height:calc(100% - 26px);padding:10px 14px 14px;overflow-y:auto}
+    .content::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:3px}.content::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#1E3260;border-radius:2px}
+    .content,.scroll{scrollbar-width:thin;scrollbar-color:#1E3260 transparent}
+    .card{background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:12px;padding:12px 14px}
+    .title{font-size:17px;font-weight:700}.sub{font-size:12px;color:var(--text-secondary)}
+    .btn{width:100%;padding:13px;border-radius:12px;border:none;background:var(--orange);color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+    .btn.green{background:var(--green)}
+    .btn.secondary{background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}.gap8{display:grid;gap:8px}.gap10{display:grid;gap:10px}.gap12{display:grid;gap:12px}
+    .badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
+    .live{background:var(--orange);color:#fff}.open{border:1px solid var(--green);color:var(--green);background:var(--bg-primary)}.done{background:var(--bg-border);color:var(--text-secondary)}
+    .tabs,.chips{display:flex;gap:6px;flex-wrap:wrap}
+    .tab,.chip{padding:7px 10px;border-radius:10px;background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary);font-size:11px;cursor:pointer}
+    .tab.active,.chip.active{border-color:var(--orange);color:var(--orange);background:var(--bg-primary)}
+    .fade{animation:fadeIn .35s ease}
+    @keyframes fadeIn{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    input,select,textarea{width:100%;padding:10px 12px;background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:10px;color:#fff;font-size:12px;font-family:'Poppins',sans-serif}
+    input::placeholder,textarea::placeholder{color:var(--text-muted)}
+    input[type='date']{color:#8A9BB8}
+    input[type='date']::-webkit-calendar-picker-indicator{filter:invert(.75);cursor:pointer}
+    .nav{position:absolute;left:10px;right:10px;bottom:10px;height:64px;border:1.5px solid #1E3260;border-radius:18px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,#132554 0%,#0F2048 100%);box-shadow:0 10px 24px rgba(0,0,0,.28)}.nav-item{flex:1;background:transparent;border:none;color:#4A5C7A;display:grid;justify-items:center;gap:3px;font-size:9px;font-weight:500;cursor:pointer;padding:3px 0}.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.nav-item.active{color:#F57C00}.nav-item.active svg{filter:drop-shadow(0 0 6px rgba(245,124,0,.35))}
+    .avatar{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:8px;font-weight:700}
+    .progress{height:3px;background:var(--bg-primary);border-radius:2px;overflow:hidden}.fill{height:100%;background:var(--orange)}.ic{width:12px;height:12px;display:inline-block;vertical-align:-2px;margin-right:4px;color:#F57C00}.rank-badge{display:inline-block;min-width:22px;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700;color:#fff;margin-right:6px;text-align:center}.rank-badge.gold{background:#EF9F27}.rank-badge.silver{background:#378ADD}.rank-badge.bronze{background:#D85A30}
+    .stepper{display:flex;align-items:center;gap:8px}
+    .stepper-btn{width:26px;height:26px;border-radius:7px;background:#0D1B3E;border:1.5px solid #1E3260;color:#fff;font-weight:700;display:grid;place-items:center;cursor:pointer}
+    .stepper-value{min-width:22px;text-align:center;font-size:14px;font-weight:700;color:#fff}
+</style></head><body><div class='phone'><div class='status'><span>9:41</span><span>●●●</span></div><div class='content'>
+<div class='gap10 scroll' style='max-height:520px;overflow-y:auto;padding-right:4px;padding-bottom:84px'>
+<div class='title'>Criar torneio</div>
+<div class='sub' style='color:#F57C00;font-weight:600'>INFORMAÇÃO GERAL</div><input placeholder='Nome do torneio*'><div class='chips'><button class='chip'>Fut5</button><button class='chip active'>Fut7</button><button class='chip'>Fut11</button><button class='chip'>Personalizado</button></div><input placeholder='Nº personalizado (se aplicável)'><div class='chips'><button class='chip active'>Liga</button><button class='chip'>Eliminatórias</button><button class='chip'>Grupos+Elim.</button><button class='chip'>Todos vs todos</button></div>
+<div class='sub' style='color:#F57C00;font-weight:600'>EQUIPAS E PARTICIPANTES</div><div class='row card'><span>Nº máximo de equipas</span><div class='stepper'><button class='stepper-btn' data-step='-1' data-target='max-equipas' data-min='2' data-max='32'>−</button><span class='stepper-value' id='max-equipas'>8</span><button class='stepper-btn' data-step='1' data-target='max-equipas' data-min='2' data-max='32'>+</button></div></div><div class='row card'><span>Jogadores por equipa</span><div class='stepper'><button class='stepper-btn' data-step='-1' data-target='jogadores-equipa' data-min='5' data-max='25'>−</button><span class='stepper-value' id='jogadores-equipa'>12</span><button class='stepper-btn' data-step='1' data-target='jogadores-equipa' data-min='5' data-max='25'>+</button></div></div>
+<div class='sub' style='color:#F57C00;font-weight:600'>DATAS</div>
+<div class='sub'>Início das inscrições</div><input type='date' aria-label='Início inscrições*'>
+<div class='sub'>Fim das inscrições</div><input type='date' aria-label='Fim inscrições*'>
+<div class='sub'>Data de início do torneio</div><input type='date' aria-label='Início torneio*'>
+<div class='sub'>Data de fim prevista</div><input type='date' aria-label='Fim prevista'>
+<div class='sub' style='color:#F57C00;font-weight:600'>LOCALIZAÇÃO</div><input placeholder='Nome do campo ou morada'><div class='sub'>Ou cola um link do Google Maps</div>
+<div class='sub' style='color:#F57C00;font-weight:600'>REGRAS E DESEMPATE</div><div class='chips'><button class='chip active'>Prolongamento</button><button class='chip'>Penalidades</button><button class='chip'>Golo de ouro</button></div><div class='row card'><span>Amarelos para suspensão</span><div class='stepper'><button class='stepper-btn' data-step='-1' data-target='amarelos-suspensao' data-min='1' data-max='5'>−</button><span class='stepper-value' id='amarelos-suspensao'>3</span><button class='stepper-btn' data-step='1' data-target='amarelos-suspensao' data-min='1' data-max='5'>+</button></div></div>
+<div class='sub' style='color:#F57C00;font-weight:600'>VISIBILIDADE E ACESSO</div><div class='chips'><button class='chip active'>Público</button><button class='chip'>Privado</button></div><div class='row card'><span>Permitir espectadores</span><span class='badge live'>ON</span></div><div class='row card'><span>Votação MVP ativa</span><span class='badge live'>ON</span></div>
+<div class='sub' style='color:#F57C00;font-weight:600'>DESCRIÇÃO</div><textarea rows='4' placeholder='Regulamento e notas'></textarea>
+<button class='btn'>Criar torneio</button>
+</div>
+</div><div class='nav'><button class='nav-item' onclick="sendPrompt('mockup_04_dashboard_jogador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M3 10.5L12 4l9 6.5'></path><path d='M6 9.5V20h12V9.5'></path></svg><span>Início</span></button><button class='nav-item active' onclick="sendPrompt('mockup_06_lista_torneios.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><rect x='4' y='5' width='16' height='15' rx='2'></rect><path d='M8 3v4M16 3v4M4 10h16'></path></svg><span>Torneios</span></button><button class='nav-item' onclick="sendPrompt('mockup_12_rankings.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M5 19V10'></path><path d='M12 19V6'></path><path d='M19 19v-8'></path></svg><span>Rankings</span></button><button class='nav-item' onclick="sendPrompt('mockup_14_perfil_utilizador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='8' r='3.5'></circle><path d='M5 20a7 7 0 0114 0'></path></svg><span>Perfil</span></button></div></div>
+<script>
+function sendPrompt(target){ if(target) location.href = target; }
+document.querySelectorAll('.tabs').forEach(group=>{
+  group.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>{
+    group.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const panelId=tab.dataset.panel; if(!panelId) return;
+    const wrap=group.parentElement.querySelector('.tab-panels');
+    if(!wrap) return;
+    wrap.querySelectorAll('[data-tab]').forEach(p=>p.style.display='none');
+    const panel=wrap.querySelector('[data-tab="'+panelId+'"]');
+    if(panel){panel.style.display='block';panel.classList.remove('fade');void panel.offsetWidth;panel.classList.add('fade');}
+  });
+});
+document.querySelectorAll('.chips').forEach(group=>{
+  group.querySelectorAll('.chip').forEach(chip=>chip.onclick=()=>{
+    group.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+document.querySelectorAll('.stepper-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    const target=document.getElementById(btn.dataset.target);
+    const min=Number(btn.dataset.min), max=Number(btn.dataset.max), step=Number(btn.dataset.step);
+    let value=Number(target.textContent||0);
+    value=Math.max(min,Math.min(max,value+step));
+    target.textContent=String(value);
+  };
+});
+</script>
+</body></html>

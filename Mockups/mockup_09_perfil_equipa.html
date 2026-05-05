@@ -1,0 +1,138 @@
+<!doctype html><html lang='pt'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Perfil Equipa</title><style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    :root{
+      --bg-page:#060E1F;--bg-primary:#0D1B3E;--bg-surface:#162448;--bg-border:#1E3260;
+      --orange:#F57C00;--green:#4CAF50;--text-primary:#fff;--text-secondary:#8A9BB8;--text-muted:#4A5C7A;
+    }
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg-page);font-family:'Poppins',sans-serif;color:var(--text-primary)}
+    .phone{width:300px;height:620px;background:var(--bg-primary);border:2px solid var(--bg-border);border-radius:36px;overflow:hidden;position:relative}
+    .phone.landscape{width:580px;height:300px}
+    .status{display:flex;justify-content:space-between;padding:10px 18px 4px;font-size:10px;color:var(--text-secondary)}
+    .content{height:calc(100% - 26px);padding:10px 14px 14px;overflow-y:auto}
+    .content::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:3px}.content::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#1E3260;border-radius:2px}
+    .content,.scroll{scrollbar-width:thin;scrollbar-color:#1E3260 transparent}
+    .card{background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:12px;padding:12px 14px}
+    .title{font-size:17px;font-weight:700}.sub{font-size:12px;color:var(--text-secondary)}
+    .btn{width:100%;padding:13px;border-radius:12px;border:none;background:var(--orange);color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+    .btn.green{background:var(--green)}
+    .btn.secondary{background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}.gap8{display:grid;gap:8px}.gap10{display:grid;gap:10px}.gap12{display:grid;gap:12px}
+    .badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
+    .live{background:var(--orange);color:#fff}.open{border:1px solid var(--green);color:var(--green);background:var(--bg-primary)}.done{background:var(--bg-border);color:var(--text-secondary)}
+    .tabs,.chips{display:flex;gap:6px;flex-wrap:wrap}
+    .tab,.chip{padding:7px 10px;border-radius:10px;background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary);font-size:11px;cursor:pointer}
+    .tab.active,.chip.active{border-color:var(--orange);color:var(--orange);background:var(--bg-primary)}
+    .fade{animation:fadeIn .35s ease}
+    @keyframes fadeIn{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    input,select,textarea{width:100%;padding:10px 12px;background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:10px;color:#fff;font-size:12px;font-family:'Poppins',sans-serif}
+    input::placeholder,textarea::placeholder{color:var(--text-muted)}
+    .nav{position:absolute;left:10px;right:10px;bottom:10px;height:64px;border:1.5px solid #1E3260;border-radius:18px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,#132554 0%,#0F2048 100%);box-shadow:0 10px 24px rgba(0,0,0,.28)}.nav-item{flex:1;background:transparent;border:none;color:#4A5C7A;display:grid;justify-items:center;gap:3px;font-size:9px;font-weight:500;cursor:pointer;padding:3px 0}.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.nav-item.active{color:#F57C00}.nav-item.active svg{filter:drop-shadow(0 0 6px rgba(245,124,0,.35))}
+    .avatar{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:8px;font-weight:700}
+    .progress{height:3px;background:var(--bg-primary);border-radius:2px;overflow:hidden}.fill{height:100%;background:var(--orange)}.ic{width:12px;height:12px;display:inline-block;vertical-align:-2px;margin-right:4px;color:#F57C00}.rank-badge{display:inline-block;min-width:22px;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700;color:#fff;margin-right:6px;text-align:center}.rank-badge.gold{background:#EF9F27}.rank-badge.silver{background:#378ADD}.rank-badge.bronze{background:#D85A30}
+    .hero{display:grid;gap:10px}
+    .hero-head{display:flex;align-items:center;justify-content:space-between}
+    .shield{width:52px;height:52px;border-radius:14px;background:#E84C3D;display:grid;place-items:center;font-size:14px;font-weight:700}
+    .pill{font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid #1E3260;color:#8A9BB8;background:#0D1B3E}
+    .stat{background:#162448;border:1.5px solid #1E3260;border-radius:12px;padding:10px}
+    .section-title{font-size:11px;font-weight:600;color:#F57C00;letter-spacing:.08em;text-transform:uppercase}
+    .player{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1E3260}
+    .player:last-child{border-bottom:none}
+    .dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px}
+    .timeline-item{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #1E3260}
+    .timeline-item:last-child{border-bottom:none}
+    .bar-row{display:grid;grid-template-columns:64px 1fr auto;gap:8px;align-items:center}
+    .muted-sm{font-size:10px;color:#8A9BB8}
+    .hidden-player{display:none}
+    .hidden-player.show{display:flex}
+    .more-link{width:100%;margin-top:8px;padding:9px 10px;background:#0D1B3E;border:1.5px solid #1E3260;border-radius:10px;color:#8A9BB8;font-size:11px;font-weight:600;cursor:pointer}
+</style></head><body><div class='phone'><div class='status'><span>9:41</span><span>●●●</span></div><div class='content'>
+<div class='gap10' style='padding-bottom:78px'>
+<div class='card hero'>
+  <div class='hero-head'>
+    <div class='row' style='justify-content:flex-start'>
+      <span class='shield'>FM</span>
+      <div>
+        <div style='font-size:15px;font-weight:700'>FC Malcata</div>
+        <div class='sub'>Capitão: Gonçalo Teixeira</div>
+      </div>
+    </div>
+    <span class='pill'>Ativa</span>
+  </div>
+  <div class='row'><span class='sub'>Cidade</span><b>Viana do Castelo</b></div>
+  <div class='row'><span class='sub'>Torneios em curso</span><b>2</b></div>
+  <div class='row'><span class='sub'>Forma recente</span><span><span class='dot' style='background:#4CAF50'></span><span class='dot' style='background:#4CAF50'></span><span class='dot' style='background:#F57C00'></span><span class='dot' style='background:#4CAF50'></span><span class='dot' style='background:#1E3260'></span></span></div>
+</div>
+<div class='row'><div class='stat' style='flex:1'><div class='sub'>Jogos</div><b style='font-size:20px'>22</b></div><div class='stat' style='flex:1'><div class='sub'>Vitórias</div><b style='font-size:20px'>15</b></div><div class='stat' style='flex:1'><div class='sub'>Golos</div><b style='font-size:20px'>48</b></div></div>
+<div class='tabs'><button class='tab active' data-panel='jog'>Jogadores</button><button class='tab' data-panel='tor'>Torneios</button><button class='tab' data-panel='est'>Estatísticas</button></div>
+<div class='tab-panels'>
+<div data-tab='jog' class='card fade'>
+  <div class='section-title'>Plantel Principal</div>
+  <div class='player'><span class='sub'>Gonçalo Teixeira <span class='muted-sm'>· Capitão</span></span><span class='pill'>12 golos</span></div>
+  <div class='player'><span class='sub'>João M.</span><span class='sub'>9 golos</span></div>
+  <div class='player'><span class='sub'>Rui F.</span><span class='sub'>7 golos</span></div>
+  <div class='player'><span class='sub'>Nuno T.</span><span class='sub'>5 golos</span></div>
+  <div class='player'><span class='sub'>Miguel L.</span><span class='sub'>4 golos</span></div>
+  <div class='player hidden-player'><span class='sub'>Carlos P.</span><span class='sub'>3 golos</span></div>
+  <div class='player hidden-player'><span class='sub'>Tiago F.</span><span class='sub'>2 golos</span></div>
+  <div class='player hidden-player'><span class='sub'>André N.</span><span class='sub'>2 golos</span></div>
+  <div class='player hidden-player'><span class='sub'>Bruno D.</span><span class='sub'>1 golo</span></div>
+  <div class='player hidden-player'><span class='sub'>Pedro L.</span><span class='sub'>1 golo</span></div>
+  <div class='player hidden-player'><span class='sub'>Diogo C.</span><span class='sub'>0 golos</span></div>
+  <div class='player hidden-player'><span class='sub'>Hugo V.</span><span class='sub'>0 golos</span></div>
+  <button class='more-link' id='morePlayersBtn'>Ver mais jogadores (7)</button>
+  <div class='row' style='margin-top:8px'><span class='sub'>Total jogadores</span><b>12</b></div>
+</div>
+<div data-tab='tor' class='card' style='display:none'>
+  <div class='section-title'>Histórico de Torneios</div>
+  <div class='timeline-item'><span class='rank-badge gold'>1º</span><span class='sub'>Torneio Primavera 2025</span><span class='sub'>36 pts</span></div>
+  <div class='timeline-item'><span class='rank-badge silver'>2º</span><span class='sub'>Torneio Verão 2024</span><span class='sub'>29 pts</span></div>
+  <div class='timeline-item'><span class='rank-badge bronze'>3º</span><span class='sub'>Taça Alto Minho 2024</span><span class='sub'>18 pts</span></div>
+  <div class='timeline-item'><span class='pill'>QF</span><span class='sub'>Copa Inverno 2023</span><span class='sub'>Elim.</span></div>
+</div>
+<div data-tab='est' class='card' style='display:none'>
+  <div class='section-title'>Indicadores da Equipa</div>
+  <div class='bar-row'><span class='sub'>Golos</span><div class='progress'><div class='fill' style='width:82%'></div></div><span class='sub'>48</span></div>
+  <div class='bar-row'><span class='sub'>Jogos</span><div class='progress'><div class='fill' style='width:74%'></div></div><span class='sub'>22</span></div>
+  <div class='bar-row'><span class='sub'>Vitórias</span><div class='progress'><div class='fill' style='width:68%'></div></div><span class='sub'>15</span></div>
+  <div class='bar-row'><span class='sub'>Derrotas</span><div class='progress'><div class='fill' style='width:32%;background:#8A9BB8'></div></div><span class='sub'>4</span></div>
+  <div class='card' style='margin-top:10px;padding:10px 12px'>
+    <div class='sub'>Top marcador: <b style='color:#fff'>Gonçalo Teixeira</b> · 12 golos</div>
+    <div class='sub'>Jogador com mais jogos: <b style='color:#fff'>João M.</b> · 22 jogos</div>
+    <div class='sub'>Histórico recente: 3 vitórias · 1 empate · 1 derrota</div>
+  </div>
+</div>
+</div>
+</div>
+</div><div class='nav'><button class='nav-item' onclick="sendPrompt('mockup_04_dashboard_jogador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M3 10.5L12 4l9 6.5'></path><path d='M6 9.5V20h12V9.5'></path></svg><span>Início</span></button><button class='nav-item' onclick="sendPrompt('mockup_06_lista_torneios.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><rect x='4' y='5' width='16' height='15' rx='2'></rect><path d='M8 3v4M16 3v4M4 10h16'></path></svg><span>Torneios</span></button><button class='nav-item' onclick="sendPrompt('mockup_12_rankings.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M5 19V10'></path><path d='M12 19V6'></path><path d='M19 19v-8'></path></svg><span>Rankings</span></button><button class='nav-item active' onclick="sendPrompt('mockup_14_perfil_utilizador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='8' r='3.5'></circle><path d='M5 20a7 7 0 0114 0'></path></svg><span>Perfil</span></button></div></div>
+<script>
+function sendPrompt(target){ if(target) location.href = target; }
+document.querySelectorAll('.tabs').forEach(group=>{
+  group.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>{
+    group.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const panelId=tab.dataset.panel; if(!panelId) return;
+    const wrap=group.parentElement.querySelector('.tab-panels');
+    if(!wrap) return;
+    wrap.querySelectorAll('[data-tab]').forEach(p=>p.style.display='none');
+    const panel=wrap.querySelector('[data-tab="'+panelId+'"]');
+    if(panel){panel.style.display='block';panel.classList.remove('fade');void panel.offsetWidth;panel.classList.add('fade');}
+  });
+});
+document.querySelectorAll('.chips').forEach(group=>{
+  group.querySelectorAll('.chip').forEach(chip=>chip.onclick=()=>{
+    group.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+const moreBtn=document.getElementById('morePlayersBtn');
+if(moreBtn){
+  moreBtn.onclick=()=>{
+    const hidden=document.querySelectorAll('.hidden-player');
+    const expanded=moreBtn.dataset.expanded==='1';
+    hidden.forEach(el=>el.classList.toggle('show',!expanded));
+    moreBtn.dataset.expanded=expanded?'0':'1';
+    moreBtn.textContent=expanded?'Ver mais jogadores (7)':'Ver menos jogadores';
+  };
+}
+</script>
+</body></html>

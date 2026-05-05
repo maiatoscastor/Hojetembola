@@ -1,0 +1,200 @@
+<!doctype html><html lang='pt'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Votação MVP</title><style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    :root{
+      --bg-page:#060E1F;--bg-primary:#0D1B3E;--bg-surface:#162448;--bg-border:#1E3260;
+      --orange:#F57C00;--green:#4CAF50;--text-primary:#fff;--text-secondary:#8A9BB8;--text-muted:#4A5C7A;
+    }
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg-page);font-family:'Poppins',sans-serif;color:var(--text-primary)}
+    .phone{width:300px;height:620px;background:var(--bg-primary);border:2px solid var(--bg-border);border-radius:36px;overflow:hidden;position:relative}
+    .phone.landscape{width:580px;height:300px}
+    .status{display:flex;justify-content:space-between;padding:10px 18px 4px;font-size:10px;color:var(--text-secondary)}
+    .content{height:calc(100% - 26px);padding:10px 14px 104px;overflow-y:auto}
+    .content::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:3px}.content::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#1E3260;border-radius:2px}
+    .content,.scroll{scrollbar-width:thin;scrollbar-color:#1E3260 transparent}
+    .card{background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:12px;padding:12px 14px}
+    .title{font-size:17px;font-weight:700}.sub{font-size:12px;color:var(--text-secondary)}
+    .btn{width:100%;padding:13px;border-radius:12px;border:none;background:var(--orange);color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+    .btn.green{background:var(--green)}
+    .btn.secondary{background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}.gap8{display:grid;gap:8px}.gap10{display:grid;gap:10px}.gap12{display:grid;gap:12px}
+    .badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:600;white-space:nowrap}
+    .live{background:var(--orange);color:#fff}.open{border:1px solid var(--green);color:var(--green);background:var(--bg-primary)}.done{background:var(--bg-border);color:var(--text-secondary)}
+    .tabs,.chips{display:flex;gap:6px;flex-wrap:wrap}
+    .tab,.chip{padding:7px 10px;border-radius:10px;background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary);font-size:11px;cursor:pointer}
+    .tab.active,.chip.active{border-color:var(--orange);color:var(--orange);background:var(--bg-primary)}
+    .fade{animation:fadeIn .35s ease}
+    @keyframes fadeIn{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    input,select,textarea{width:100%;padding:10px 12px;background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:10px;color:#fff;font-size:12px;font-family:'Poppins',sans-serif}
+    input::placeholder,textarea::placeholder{color:var(--text-muted)}
+    .nav{position:absolute;left:10px;right:10px;bottom:10px;height:64px;border:1.5px solid #1E3260;border-radius:18px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,#132554 0%,#0F2048 100%);box-shadow:0 10px 24px rgba(0,0,0,.28)}.nav-item{flex:1;background:transparent;border:none;color:#4A5C7A;display:grid;justify-items:center;gap:3px;font-size:9px;font-weight:500;cursor:pointer;padding:3px 0}.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.nav-item.active{color:#F57C00}.nav-item.active svg{filter:drop-shadow(0 0 6px rgba(245,124,0,.35))}
+    .avatar{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:8px;font-weight:700}
+    .progress{height:6px;background:#0F2048;border-radius:999px;overflow:hidden}.fill{height:100%;background:#F57C00}
+    .vote-header{background:linear-gradient(180deg,#132554 0%,#162448 100%);border:1.5px solid #1E3260;border-radius:14px;padding:10px 12px}
+    .scoreline{font-size:13px;font-weight:700;color:#fff}
+    .score-sub{font-size:11px;color:#8A9BB8}
+    .tabs.clean .tab{padding:8px 12px;font-weight:600}
+    .mvp-card{background:#162448;border:1.5px solid #1E3260;border-radius:12px;padding:10px}
+    .mvp-top{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-bottom:6px}
+    .mvp-avatar{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff}
+    .mvp-name{font-size:13px;font-weight:700;line-height:1.1}
+    .mvp-meta{font-size:10px;color:#8A9BB8}
+    .pct{font-size:16px;font-weight:700}
+    .vote-actions{display:flex;gap:8px;margin-top:8px}
+    .vote-actions .btn{padding:10px;font-size:12px}
+    .vote-actions .btn.secondary{color:#8A9BB8}
+    .note{font-size:11px;color:#8A9BB8;line-height:1.4}
+    .more-btn{width:100%;padding:10px;border-radius:10px;border:1.5px solid #1E3260;background:#0D1B3E;color:#8A9BB8;font-size:11px;font-weight:600;cursor:pointer}
+    .extra-player{display:none}
+    .extra-player.show{display:block}
+</style></head><body><div class='phone'><div class='status'><span>9:41</span><span>●●●</span></div><div class='content'>
+<div class='gap12' style='padding-bottom:104px'>
+<div class='vote-header'>
+  <div class='row'><div class='scoreline'>Torneio Verão 2025 · Jornada 4</div><span class='badge live'>Votação aberta</span></div>
+  <div class='row' style='margin-top:6px'><div class='score-sub'>FC Malcata 2 — 1 Os Putos</div><div class='score-sub'>47:18 · 2ª Parte</div></div>
+</div>
+<div class='tabs clean'><button class='tab active' data-panel='jog'>Jogadores</button><button class='tab' data-panel='pub'>Público</button><button class='tab' data-panel='org'>Organizador</button></div>
+<div class='tab-panels'>
+<div data-tab='jog' class='fade gap8'>
+  <div class='card' style='padding:8px 10px'><div class='sub' style='color:#F57C00;font-weight:600'>FC MALCATA</div></div>
+  <div class='mvp-card'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#3498DB'>JM</span><div><div class='mvp-name'>João M.</div><div class='mvp-meta'>2 golos · 1 remate enquadrado</div></div><span class='pct'>46%</span></div>
+    <div class='progress'><div class='fill' style='width:46%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <div class='mvp-card'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#E84C3D'>GT</span><div><div class='mvp-name'>Gonçalo Teixeira</div><div class='mvp-meta'>1 golo · 1 assistência</div></div><span class='pct'>39%</span></div>
+    <div class='progress'><div class='fill' style='width:39%'></div></div>
+    <div class='vote-actions'><button class='btn secondary'>Votado</button><button class='btn secondary'>Alterar voto</button></div>
+  </div>
+  <div class='mvp-card'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#2ECC71'>PS</span><div><div class='mvp-name'>Pedro S.</div><div class='mvp-meta'>1 assistência · 3 recuperações</div></div><span class='pct'>15%</span></div>
+    <div class='progress'><div class='fill' style='width:15%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <button class='more-btn' id='moreJogBtn'>Ver mais jogadores</button>
+  <div class='mvp-card extra-player'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#E67E22'>RF</span><div><div class='mvp-name'>Rui F.</div><div class='mvp-meta'>1 assistência · 2 passes-chave</div></div><span class='pct'>12%</span></div>
+    <div class='progress'><div class='fill' style='width:12%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <div class='mvp-card extra-player'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#1ABC9C'>NT</span><div><div class='mvp-name'>Nuno T.</div><div class='mvp-meta'>1 recuperação · 2 interceções</div></div><span class='pct'>6%</span></div>
+    <div class='progress'><div class='fill' style='width:6%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <div class='mvp-card extra-player'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#D35400'>ML</span><div><div class='mvp-name'>Miguel L.</div><div class='mvp-meta'>2 cortes · 1 passe-chave</div></div><span class='pct'>4%</span></div>
+    <div class='progress'><div class='fill' style='width:4%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <div class='mvp-card extra-player'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#2980B9'>CV</span><div><div class='mvp-name'>Carlos V.</div><div class='mvp-meta'>4 desarmes · 1 bloqueio</div></div><span class='pct'>3%</span></div>
+    <div class='progress'><div class='fill' style='width:3%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <div class='card' style='padding:8px 10px'><div class='sub' style='color:#F57C00;font-weight:600'>OS PUTOS</div></div>
+  <div class='mvp-card'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#16A085'>DR</span><div><div class='mvp-name'>Diogo R.</div><div class='mvp-meta'>1 golo · 4 duelos ganhos</div></div><span class='pct'>18%</span></div>
+    <div class='progress'><div class='fill' style='width:18%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <div class='mvp-card'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#F39C12'>PS</span><div><div class='mvp-name'>Pedro S.</div><div class='mvp-meta'>1 assistência · 2 recuperações</div></div><span class='pct'>9%</span></div>
+    <div class='progress'><div class='fill' style='width:9%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <div class='mvp-card'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#8E44AD'>TL</span><div><div class='mvp-name'>Tiago L.</div><div class='mvp-meta'>3 cortes · 1 interceção</div></div><span class='pct'>7%</span></div>
+    <div class='progress'><div class='fill' style='width:7%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <div class='mvp-card extra-player'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#27AE60'>BS</span><div><div class='mvp-name'>Bruno S.</div><div class='mvp-meta'>2 remates · 1 ocasião criada</div></div><span class='pct'>6%</span></div>
+    <div class='progress'><div class='fill' style='width:6%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <div class='mvp-card extra-player'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#34495E'>DV</span><div><div class='mvp-name'>Diogo V.</div><div class='mvp-meta'>3 recuperações · 2 duelos ganhos</div></div><span class='pct'>5%</span></div>
+    <div class='progress'><div class='fill' style='width:5%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <div class='mvp-card extra-player'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#C0392B'>HF</span><div><div class='mvp-name'>Hugo F.</div><div class='mvp-meta'>1 corte · 1 assistência defensiva</div></div><span class='pct'>4%</span></div>
+    <div class='progress'><div class='fill' style='width:4%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+  <div class='mvp-card extra-player'>
+    <div class='mvp-top'><span class='mvp-avatar' style='background:#7F8C8D'>MP</span><div><div class='mvp-name'>Miguel P.</div><div class='mvp-meta'>2 desarmes · 1 recuperação alta</div></div><span class='pct'>3%</span></div>
+    <div class='progress'><div class='fill' style='width:3%'></div></div>
+    <div class='vote-actions'><button class='btn'>Votar</button></div>
+  </div>
+</div>
+<div data-tab='pub' style='display:none' class='fade gap8'>
+  <div class='card' style='padding:8px 10px'><div class='sub' style='color:#F57C00;font-weight:600'>FC MALCATA</div></div>
+  <div class='mvp-card'><div class='mvp-top'><span class='mvp-avatar' style='background:#3498DB'>JM</span><div><div class='mvp-name'>João M.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>41%</span></div><div class='progress'><div class='fill' style='width:41%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='mvp-card'><div class='mvp-top'><span class='mvp-avatar' style='background:#E84C3D'>GT</span><div><div class='mvp-name'>Gonçalo Teixeira</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>34%</span></div><div class='progress'><div class='fill' style='width:34%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='mvp-card'><div class='mvp-top'><span class='mvp-avatar' style='background:#2ECC71'>PS</span><div><div class='mvp-name'>Pedro S.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>25%</span></div><div class='progress'><div class='fill' style='width:25%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <button class='more-btn' id='morePubBtn'>Ver mais jogadores</button>
+  <div class='mvp-card extra-player pub-extra'><div class='mvp-top'><span class='mvp-avatar' style='background:#E67E22'>RF</span><div><div class='mvp-name'>Rui F.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>14%</span></div><div class='progress'><div class='fill' style='width:14%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='mvp-card extra-player pub-extra'><div class='mvp-top'><span class='mvp-avatar' style='background:#1ABC9C'>NT</span><div><div class='mvp-name'>Nuno T.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>12%</span></div><div class='progress'><div class='fill' style='width:12%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='mvp-card extra-player pub-extra'><div class='mvp-top'><span class='mvp-avatar' style='background:#D35400'>ML</span><div><div class='mvp-name'>Miguel L.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>10%</span></div><div class='progress'><div class='fill' style='width:10%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='mvp-card extra-player pub-extra'><div class='mvp-top'><span class='mvp-avatar' style='background:#2980B9'>CV</span><div><div class='mvp-name'>Carlos V.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>8%</span></div><div class='progress'><div class='fill' style='width:8%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='card' style='padding:8px 10px'><div class='sub' style='color:#F57C00;font-weight:600'>OS PUTOS</div></div>
+  <div class='mvp-card'><div class='mvp-top'><span class='mvp-avatar' style='background:#16A085'>DR</span><div><div class='mvp-name'>Diogo R.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>21%</span></div><div class='progress'><div class='fill' style='width:21%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='mvp-card'><div class='mvp-top'><span class='mvp-avatar' style='background:#F39C12'>PS</span><div><div class='mvp-name'>Pedro S.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>18%</span></div><div class='progress'><div class='fill' style='width:18%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='mvp-card'><div class='mvp-top'><span class='mvp-avatar' style='background:#8E44AD'>TL</span><div><div class='mvp-name'>Tiago L.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>14%</span></div><div class='progress'><div class='fill' style='width:14%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='mvp-card extra-player pub-extra'><div class='mvp-top'><span class='mvp-avatar' style='background:#27AE60'>BS</span><div><div class='mvp-name'>Bruno S.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>12%</span></div><div class='progress'><div class='fill' style='width:12%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='mvp-card extra-player pub-extra'><div class='mvp-top'><span class='mvp-avatar' style='background:#34495E'>DV</span><div><div class='mvp-name'>Diogo V.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>10%</span></div><div class='progress'><div class='fill' style='width:10%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='mvp-card extra-player pub-extra'><div class='mvp-top'><span class='mvp-avatar' style='background:#C0392B'>HF</span><div><div class='mvp-name'>Hugo F.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>9%</span></div><div class='progress'><div class='fill' style='width:9%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+  <div class='mvp-card extra-player pub-extra'><div class='mvp-top'><span class='mvp-avatar' style='background:#7F8C8D'>MP</span><div><div class='mvp-name'>Miguel P.</div><div class='mvp-meta'>Votação do público</div></div><span class='pct'>7%</span></div><div class='progress'><div class='fill' style='width:7%'></div></div><div class='vote-actions'><button class='btn'>Votar</button></div></div>
+</div>
+<div data-tab='org' style='display:none' class='fade gap8'>
+  <div class='mvp-card'><div class='sub'>Voto do organizador: pendente</div><div class='vote-actions'><button class='btn'>Votar em João M.</button><button class='btn secondary'>Votar em Gonçalo</button></div></div>
+  <div class='mvp-card'><div class='note'>Em caso de empate no resultado final, o voto do organizador define o MVP.</div></div>
+</div>
+</div>
+<div class='note'>O MVP será revelado após o apito final. Os resultados são apresentados sempre em percentagem.</div>
+</div>
+</div><div class='nav'><button class='nav-item active' onclick="sendPrompt('mockup_04_dashboard_jogador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M3 10.5L12 4l9 6.5'></path><path d='M6 9.5V20h12V9.5'></path></svg><span>Início</span></button><button class='nav-item' onclick="sendPrompt('mockup_06_lista_torneios.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><rect x='4' y='5' width='16' height='15' rx='2'></rect><path d='M8 3v4M16 3v4M4 10h16'></path></svg><span>Torneios</span></button><button class='nav-item' onclick="sendPrompt('mockup_12_rankings.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M5 19V10'></path><path d='M12 19V6'></path><path d='M19 19v-8'></path></svg><span>Rankings</span></button><button class='nav-item' onclick="sendPrompt('mockup_14_perfil_utilizador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='8' r='3.5'></circle><path d='M5 20a7 7 0 0114 0'></path></svg><span>Perfil</span></button></div></div>
+<script>
+function sendPrompt(target){ if(target) location.href = target; }
+document.querySelectorAll('.tabs').forEach(group=>{
+  group.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>{
+    group.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const panelId=tab.dataset.panel; if(!panelId) return;
+    const wrap=group.parentElement.querySelector('.tab-panels');
+    if(!wrap) return;
+    wrap.querySelectorAll('[data-tab]').forEach(p=>p.style.display='none');
+    const panel=wrap.querySelector('[data-tab="'+panelId+'"]');
+    if(panel){panel.style.display='block';panel.classList.remove('fade');void panel.offsetWidth;panel.classList.add('fade');}
+  });
+});
+document.querySelectorAll('.chips').forEach(group=>{
+  group.querySelectorAll('.chip').forEach(chip=>chip.onclick=()=>{
+    group.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+const moreJogBtn=document.getElementById('moreJogBtn');
+if(moreJogBtn){
+  moreJogBtn.onclick=()=>{
+    const extras=document.querySelectorAll('[data-tab=\"jog\"] .extra-player');
+    const expanded=moreJogBtn.dataset.expanded==='1';
+    extras.forEach(el=>el.classList.toggle('show',!expanded));
+    moreJogBtn.dataset.expanded=expanded?'0':'1';
+    moreJogBtn.textContent=expanded?'Ver mais jogadores':'Ver menos jogadores';
+  };
+}
+const morePubBtn=document.getElementById('morePubBtn');
+if(morePubBtn){
+  morePubBtn.onclick=()=>{
+    const extras=document.querySelectorAll('.pub-extra');
+    const expanded=morePubBtn.dataset.expanded==='1';
+    extras.forEach(el=>el.classList.toggle('show',!expanded));
+    morePubBtn.dataset.expanded=expanded?'0':'1';
+    morePubBtn.textContent=expanded?'Ver mais jogadores':'Ver menos jogadores';
+  };
+}
+</script>
+</body></html>

@@ -1,0 +1,80 @@
+<!doctype html><html lang='pt'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Login</title><style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    :root{
+      --bg-page:#060E1F;--bg-primary:#0D1B3E;--bg-surface:#162448;--bg-border:#1E3260;
+      --orange:#F57C00;--green:#4CAF50;--text-primary:#fff;--text-secondary:#8A9BB8;--text-muted:#4A5C7A;
+    }
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg-page);font-family:'Poppins',sans-serif;color:var(--text-primary)}
+    .phone{width:300px;height:620px;background:var(--bg-primary);border:2px solid var(--bg-border);border-radius:36px;overflow:hidden;position:relative}
+    .phone.landscape{width:580px;height:300px}
+    .status{display:flex;justify-content:space-between;padding:10px 18px 4px;font-size:10px;color:var(--text-secondary)}
+    .content{height:calc(100% - 26px);padding:10px 14px 14px;overflow-y:auto}
+    .content::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:3px}.content::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#1E3260;border-radius:2px}
+    .content,.scroll{scrollbar-width:thin;scrollbar-color:#1E3260 transparent}
+    .card{background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:12px;padding:12px 14px}
+    .title{font-size:17px;font-weight:700}.sub{font-size:12px;color:var(--text-secondary)}
+    .btn{width:100%;padding:13px;border-radius:12px;border:none;background:var(--orange);color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+    .btn.green{background:var(--green)}
+    .btn.secondary{background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}.gap8{display:grid;gap:8px}.gap10{display:grid;gap:10px}.gap12{display:grid;gap:12px}
+    .badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
+    .live{background:var(--orange);color:#fff}.open{border:1px solid var(--green);color:var(--green);background:var(--bg-primary)}.done{background:var(--bg-border);color:var(--text-secondary)}
+    .tabs,.chips{display:flex;gap:6px;flex-wrap:wrap}
+    .tab,.chip{padding:7px 10px;border-radius:10px;background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary);font-size:11px;cursor:pointer}
+    .tab.active,.chip.active{border-color:var(--orange);color:var(--orange);background:var(--bg-primary)}
+    .fade{animation:fadeIn .35s ease}
+    @keyframes fadeIn{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    input,select,textarea{width:100%;padding:10px 12px;background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:10px;color:#fff;font-size:12px;font-family:'Poppins',sans-serif}
+    input::placeholder,textarea::placeholder{color:var(--text-muted)}
+    .nav{position:absolute;left:0;right:0;bottom:0;border-top:1.5px solid var(--bg-border);padding:10px 0 14px;display:flex;justify-content:space-around;background:var(--bg-primary)}
+    .nav span{font-size:9px;color:var(--text-muted)}.nav .active{color:var(--orange)}
+    .avatar{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:8px;font-weight:700}
+    .progress{height:3px;background:var(--bg-primary);border-radius:2px;overflow:hidden}.fill{height:100%;background:var(--orange)}.ic{width:12px;height:12px;display:inline-block;vertical-align:-2px;margin-right:4px;color:#F57C00}.rank-badge{display:inline-block;min-width:22px;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700;color:#fff;margin-right:6px;text-align:center}.rank-badge.gold{background:#EF9F27}.rank-badge.silver{background:#378ADD}.rank-badge.bronze{background:#D85A30}
+    .auth-tabs{display:flex;justify-content:center;margin:4px 0 6px}
+    .auth-tabs .tabs{width:100%;max-width:220px;background:#162448;border:1.5px solid #1E3260;border-radius:14px;padding:4px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+    .auth-tabs .tab{padding:10px 0;border-radius:10px;font-size:12px;font-weight:600;background:transparent;color:#8A9BB8;border:1.5px solid transparent}
+    .auth-tabs .tab.active{background:#F57C00;color:#fff;border-color:#F57C00;box-shadow:0 4px 14px rgba(245,124,0,.25)}
+</style></head><body><div class='phone'><div class='status'><span>9:41</span><span>●●●</span></div>
+<div class='content gap10'>
+  <div style='text-align:center' class='gap8'>
+    <div style='width:104px;height:104px;margin:auto;border-radius:24px;background:#FFFFFF;border:1.5px solid #1E3260;display:grid;place-items:center;padding:8px;overflow:hidden'><img src='logo.png' alt='HojeTemBola' style='width:75%;height:75%;object-fit:contain;transform:scale(2.7);transform-origin:center center'></div>
+    <div style='font-size:20px;font-weight:700'>HojeTemBola</div><div class='sub' style='font-size:11px'>Gestão de Eventos Desportivos</div>
+  </div>
+  <div class='auth-tabs'><div class='tabs'><button class='tab active' data-panel='login'>Entrar</button><button class='tab' data-panel='reg'>Registar</button></div></div>
+  <div class='tab-panels'>
+    <div data-tab='login' class='gap10 fade'>
+      <input placeholder='Email'><input type='password' placeholder='Password'>
+      <div style='text-align:right;font-size:11px;color:#F57C00'>Esqueci a password</div>
+      <button class='btn'>Entrar</button>
+      <div class='sub' style='text-align:center'>ou continua com</div>
+      <button class='btn secondary'>Continuar com Google</button>
+    </div>
+    <div data-tab='reg' class='gap10' style='display:none'>
+      <input placeholder='Nome completo'><input placeholder='Email'><input type='password' placeholder='Password'><input type='password' placeholder='Confirmação password'>
+      <select><option>Jogador</option><option>Capitão de equipa</option><option>Organizador</option></select><button class='btn'>Criar conta</button>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+function sendPrompt(target){ if(target) location.href = target; }
+document.querySelectorAll('.tabs').forEach(group=>{
+  group.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>{
+    group.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const panelId=tab.dataset.panel; if(!panelId) return;
+    const wrap=group.parentElement.querySelector('.tab-panels');
+    if(!wrap) return;
+    wrap.querySelectorAll('[data-tab]').forEach(p=>p.style.display='none');
+    const panel=wrap.querySelector('[data-tab="'+panelId+'"]');
+    if(panel){panel.style.display='block';panel.classList.remove('fade');void panel.offsetWidth;panel.classList.add('fade');}
+  });
+});
+document.querySelectorAll('.chips').forEach(group=>{
+  group.querySelectorAll('.chip').forEach(chip=>chip.onclick=()=>{
+    group.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+</script>
+</body></html>

@@ -1,0 +1,173 @@
+<!doctype html><html lang='pt'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Detalhe Torneio</title><style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    :root{
+      --bg-page:#060E1F;--bg-primary:#0D1B3E;--bg-surface:#162448;--bg-border:#1E3260;
+      --orange:#F57C00;--green:#4CAF50;--text-primary:#fff;--text-secondary:#8A9BB8;--text-muted:#4A5C7A;
+    }
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg-page);font-family:'Poppins',sans-serif;color:var(--text-primary)}
+    .phone{width:300px;height:620px;background:var(--bg-primary);border:2px solid var(--bg-border);border-radius:36px;overflow:hidden;position:relative}
+    .phone.landscape{width:580px;height:300px}
+    .status{display:flex;justify-content:space-between;padding:10px 18px 4px;font-size:10px;color:var(--text-secondary)}
+    .content{height:calc(100% - 26px);padding:10px 14px 14px;overflow-y:auto}
+    .content::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:3px}.content::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#1E3260;border-radius:2px}
+    .content,.scroll{scrollbar-width:thin;scrollbar-color:#1E3260 transparent}
+    .card{background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:12px;padding:12px 14px}
+    .title{font-size:17px;font-weight:700}.sub{font-size:12px;color:var(--text-secondary)}
+    .btn{width:100%;padding:13px;border-radius:12px;border:none;background:var(--orange);color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+    .btn.green{background:var(--green)}
+    .btn.secondary{background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}.gap8{display:grid;gap:8px}.gap10{display:grid;gap:10px}.gap12{display:grid;gap:12px}
+    .badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
+    .live{background:var(--orange);color:#fff}.open{border:1px solid var(--green);color:var(--green);background:var(--bg-primary)}.done{background:var(--bg-border);color:var(--text-secondary)}
+    .tabs,.chips{display:flex;gap:6px;flex-wrap:wrap}
+    .tab,.chip{padding:7px 10px;border-radius:10px;background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary);font-size:11px;cursor:pointer}
+    .tab.active,.chip.active{border-color:var(--orange);color:var(--orange);background:var(--bg-primary)}
+    .fade{animation:fadeIn .35s ease}
+    @keyframes fadeIn{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    input,select,textarea{width:100%;padding:10px 12px;background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:10px;color:#fff;font-size:12px;font-family:'Poppins',sans-serif}
+    input::placeholder,textarea::placeholder{color:var(--text-muted)}
+    .nav{position:absolute;left:10px;right:10px;bottom:10px;height:64px;border:1.5px solid #1E3260;border-radius:18px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,#132554 0%,#0F2048 100%);box-shadow:0 10px 24px rgba(0,0,0,.28)}.nav-item{flex:1;background:transparent;border:none;color:#4A5C7A;display:grid;justify-items:center;gap:3px;font-size:9px;font-weight:500;cursor:pointer;padding:3px 0}.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.nav-item.active{color:#F57C00}.nav-item.active svg{filter:drop-shadow(0 0 6px rgba(245,124,0,.35))}
+    .avatar{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:8px;font-weight:700}
+    .progress{height:3px;background:var(--bg-primary);border-radius:2px;overflow:hidden}.fill{height:100%;background:var(--orange)}.ic{width:12px;height:12px;display:inline-block;vertical-align:-2px;margin-right:4px;color:#F57C00}.rank-badge{display:inline-block;min-width:22px;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700;color:#fff;margin-right:6px;text-align:center}.rank-badge.gold{background:#EF9F27}.rank-badge.silver{background:#378ADD}.rank-badge.bronze{background:#D85A30}
+    .table-wrap{background:#162448;border:1.5px solid #1E3260;border-radius:12px;overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    th,td{font-size:11px;padding:8px 6px;text-align:center}
+    th{color:#8A9BB8;font-weight:600;background:#132554}
+    td{color:#FFFFFF;border-top:1px solid #1E3260}
+    tr:nth-child(even) td{background:#132554}
+    td.team{text-align:left;font-weight:600}
+    .section-title{font-size:11px;font-weight:600;color:#F57C00;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+    .match-card{background:#162448;border:1.5px solid #1E3260;border-radius:12px;padding:10px;margin-bottom:8px}
+    .match-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+    .match-row b:last-child{text-align:right}
+    .accordion{display:grid;gap:8px}
+    .team-item{border:1.5px solid #1E3260;border-radius:12px;background:#162448;overflow:hidden}
+    .team-head{width:100%;background:transparent;border:none;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;cursor:pointer}
+    .team-meta{display:flex;align-items:center;gap:8px}
+    .team-body{display:none;padding:8px 12px 12px;background:#10224C;border-top:1px solid #1E3260}
+    .team-body.open{display:block;animation:fadeIn .35s ease}
+    .team-player{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1E3260}
+    .team-player:last-child{border-bottom:none}
+    .plantel-btn{padding:6px 10px;border-radius:10px;border:1.5px solid #1E3260;background:#0D1B3E;color:#8A9BB8;font-size:10px;font-weight:600}
+    .info-grid{display:grid;gap:8px}
+    .info-row{display:grid;grid-template-columns:42% 58%;gap:8px;align-items:start}
+    .info-key{font-size:11px;color:#8A9BB8}
+    .info-value{font-size:11px;color:#fff;font-weight:500}
+    .spacer-md{height:8px}
+    .pill{font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid #1E3260;color:#8A9BB8}
+</style></head><body><div class='phone'><div class='status'><span>9:41</span><span>●●●</span></div><div class='content'>
+<div class='gap10' style='padding-bottom:80px'>
+<div class='card'><div class='row'><b>Torneio Verão 2025</b><span class='badge live'>A decorrer</span></div><div class='sub'>Liga · Fut7 · Jornada 4/7</div><div class='sub'>8 equipas · Público · MVP ativo</div></div>
+<div class='tabs'><button class='tab active' data-panel='class'>Classificação</button><button class='tab' data-panel='jorn'>Jornadas</button><button class='tab' data-panel='eq'>Equipas</button><button class='tab' data-panel='info'>Info</button></div>
+<div class='tab-panels'>
+<div data-tab='class' class='fade gap8'>
+  <div class='section-title'>Classificação Geral</div>
+  <div class='table-wrap'>
+    <table>
+      <thead><tr><th>Pos</th><th style='text-align:left'>Equipa</th><th>J</th><th>V</th><th>E</th><th>D</th><th>Pts</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class='team'>FC Malcata</td><td>4</td><td>3</td><td>1</td><td>0</td><td><b>10</b></td></tr>
+        <tr><td>2</td><td class='team'>Os Putos</td><td>4</td><td>2</td><td>2</td><td>0</td><td><b>8</b></td></tr>
+        <tr><td>3</td><td class='team'>Turbo FC</td><td>4</td><td>2</td><td>1</td><td>1</td><td><b>7</b></td></tr>
+        <tr><td>4</td><td class='team'>Super Raia</td><td>4</td><td>1</td><td>1</td><td>2</td><td><b>4</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class='spacer-md'></div>
+  <div class='card'><div class='sub'>Critério de desempate aplicado: diferença de golos, depois confronto direto.</div></div>
+</div>
+<div data-tab='jorn' class='gap8' style='display:none'>
+  <div class='section-title'>Jornada 4</div>
+  <div class='match-card'><div class='row'><span class='pill'>Terminado</span><span class='sub'>16:00 · Campo da Várzea</span></div><div class='match-row'><b>FC Malcata</b><b style='font-size:18px'>2 — 1</b><b>Os Putos</b></div><div class='sub'>Árbitro: Rui A. · MVP em votação</div></div>
+  <div class='match-card'><div class='row'><span class='pill'>Agendado</span><span class='sub'>18:30 · Campo da Escola</span></div><div class='match-row'><b>Turbo FC</b><b style='font-size:18px'>vs</b><b>Super Raia</b></div><div class='sub'>Organizador: Gonçalo Teixeira</div></div>
+  <div class='spacer-md'></div>
+  <div class='section-title'>Jornada 5 (prévia)</div>
+  <div class='match-card'><div class='row'><span class='pill'>Agendado</span><span class='sub'>12 Mai · 19:00 · Campo da Várzea</span></div><div class='match-row'><b>Os Putos</b><b style='font-size:18px'>vs</b><b>Turbo FC</b></div><div class='sub'>Árbitro por definir · Votação MVP ativa</div></div>
+  <div class='match-card'><div class='row'><span class='pill'>Agendado</span><span class='sub'>12 Mai · 20:30 · Campo da Escola</span></div><div class='match-row'><b>Super Raia</b><b style='font-size:18px'>vs</b><b>FC Malcata</b></div><div class='sub'>Organizador: Gonçalo Teixeira</div></div>
+</div>
+<div data-tab='eq' class='gap8' style='display:none'>
+  <div class='section-title'>Equipas Inscritas</div>
+  <div class='accordion'>
+    <div class='team-item'>
+      <button class='team-head team-toggle'><span class='team-meta'><span class='avatar' style='background:#E84C3D'>FM</span><span><b>FC Malcata</b><span class='sub' style='display:block'>12 jogadores · Capitão Gonçalo</span></span></span><span class='plantel-btn'>Ver plantel</span></button>
+      <div class='team-body'>
+        <div class='team-player'><span class='sub'>Gonçalo Teixeira (Capitão)</span><span class='pill'>12 golos</span></div><div class='team-player'><span class='sub'>João M.</span><span class='sub'>8 golos</span></div><div class='team-player'><span class='sub'>Rui F.</span><span class='sub'>5 golos</span></div><div class='team-player'><span class='sub'>Nuno T.</span><span class='sub'>4 jogos</span></div><div class='team-player'><span class='sub'>Miguel L. (+7)</span><span class='sub'>Plantel</span></div>
+      </div>
+    </div>
+    <div class='team-item'>
+      <button class='team-head team-toggle'><span class='team-meta'><span class='avatar' style='background:#2ECC71'>OP</span><span><b>Os Putos</b><span class='sub' style='display:block'>11 jogadores · Capitão Diogo</span></span></span><span class='plantel-btn'>Ver plantel</span></button>
+      <div class='team-body'>
+        <div class='team-player'><span class='sub'>Diogo Sá (Capitão)</span><span class='pill'>7 golos</span></div><div class='team-player'><span class='sub'>Pedro S.</span><span class='sub'>5 golos</span></div><div class='team-player'><span class='sub'>Tiago R.</span><span class='sub'>4 golos</span></div><div class='team-player'><span class='sub'>Fábio C.</span><span class='sub'>4 jogos</span></div><div class='team-player'><span class='sub'>Bruno V. (+6)</span><span class='sub'>Plantel</span></div>
+      </div>
+    </div>
+    <div class='team-item'>
+      <button class='team-head team-toggle'><span class='team-meta'><span class='avatar' style='background:#3498DB'>TF</span><span><b>Turbo FC</b><span class='sub' style='display:block'>10 jogadores · Capitão Afonso</span></span></span><span class='plantel-btn'>Ver plantel</span></button>
+      <div class='team-body'>
+        <div class='team-player'><span class='sub'>Afonso Araújo (Capitão)</span><span class='pill'>6 golos</span></div><div class='team-player'><span class='sub'>Hugo N.</span><span class='sub'>4 golos</span></div><div class='team-player'><span class='sub'>André P.</span><span class='sub'>3 golos</span></div><div class='team-player'><span class='sub'>Luís M. (+6)</span><span class='sub'>Plantel</span></div>
+      </div>
+    </div>
+    <div class='team-item'>
+      <button class='team-head team-toggle'><span class='team-meta'><span class='avatar' style='background:#E67E22'>SR</span><span><b>Super Raia</b><span class='sub' style='display:block'>12 jogadores · Capitão Diogo M.</span></span></span><span class='plantel-btn'>Ver plantel</span></button>
+      <div class='team-body'>
+        <div class='team-player'><span class='sub'>Diogo Monteiro (Capitão)</span><span class='pill'>5 golos</span></div><div class='team-player'><span class='sub'>Carlos F.</span><span class='sub'>3 golos</span></div><div class='team-player'><span class='sub'>Vítor A.</span><span class='sub'>4 jogos</span></div><div class='team-player'><span class='sub'>Paulo D. (+8)</span><span class='sub'>Plantel</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div data-tab='info' class='gap8' style='display:none'>
+  <div class='section-title'>Informação do Torneio</div>
+  <div class='card info-grid'>
+    <div class='info-row'><div class='info-key'>Nome</div><div class='info-value'>Torneio Verão 2025</div></div>
+    <div class='info-row'><div class='info-key'>Formato</div><div class='info-value'>Liga (todos contra todos)</div></div>
+    <div class='info-row'><div class='info-key'>Modalidade</div><div class='info-value'>Fut7</div></div>
+    <div class='info-row'><div class='info-key'>Equipas / Plantel</div><div class='info-value'>Máx. 8 equipas · 12 jogadores por equipa</div></div>
+    <div class='info-row'><div class='info-key'>Local</div><div class='info-value'>Campo da Várzea, Viana do Castelo</div></div>
+    <div class='info-row'><div class='info-key'>Organizador</div><div class='info-value'>Gonçalo Teixeira</div></div>
+  </div>
+  <div class='spacer-md'></div>
+  <div class='card info-grid'>
+    <div class='info-row'><div class='info-key'>Inscrições</div><div class='info-value'>01 Mai 2026 → 09 Mai 2026</div></div>
+    <div class='info-row'><div class='info-key'>Calendário</div><div class='info-value'>Início 10 Mai 2026 · Fim previsto 30 Jun 2026</div></div>
+    <div class='info-row'><div class='info-key'>Visibilidade</div><div class='info-value'>Público</div></div>
+    <div class='info-row'><div class='info-key'>Acesso</div><div class='info-value'>Permitir espectadores: Sim · MVP ativo: Sim</div></div>
+  </div>
+  <div class='spacer-md'></div>
+  <div class='card info-grid'>
+    <div class='info-row'><div class='info-key'>Desempate</div><div class='info-value'>Prolongamento</div></div>
+    <div class='info-row'><div class='info-key'>Amarelos suspensão</div><div class='info-value'>3 cartões acumulados</div></div>
+    <div class='info-row'><div class='info-key'>Disciplina</div><div class='info-value'>Vermelho direto suspende no jogo seguinte</div></div>
+    <div class='info-row'><div class='info-key'>Regulamento</div><div class='info-value'>Desistência em jogo por realizar aplica 3-0 ao adversário.</div></div>
+  </div>
+  <button class='btn secondary'>Abrir localização no Maps</button>
+</div>
+</div>
+</div>
+</div><div class='nav'><button class='nav-item' onclick="sendPrompt('mockup_04_dashboard_jogador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M3 10.5L12 4l9 6.5'></path><path d='M6 9.5V20h12V9.5'></path></svg><span>Início</span></button><button class='nav-item active' onclick="sendPrompt('mockup_06_lista_torneios.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><rect x='4' y='5' width='16' height='15' rx='2'></rect><path d='M8 3v4M16 3v4M4 10h16'></path></svg><span>Torneios</span></button><button class='nav-item' onclick="sendPrompt('mockup_12_rankings.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M5 19V10'></path><path d='M12 19V6'></path><path d='M19 19v-8'></path></svg><span>Rankings</span></button><button class='nav-item' onclick="sendPrompt('mockup_14_perfil_utilizador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='8' r='3.5'></circle><path d='M5 20a7 7 0 0114 0'></path></svg><span>Perfil</span></button></div></div>
+<script>
+function sendPrompt(target){ if(target) location.href = target; }
+document.querySelectorAll('.tabs').forEach(group=>{
+  group.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>{
+    group.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const panelId=tab.dataset.panel; if(!panelId) return;
+    const wrap=group.parentElement.querySelector('.tab-panels');
+    if(!wrap) return;
+    wrap.querySelectorAll('[data-tab]').forEach(p=>p.style.display='none');
+    const panel=wrap.querySelector('[data-tab="'+panelId+'"]');
+    if(panel){panel.style.display='block';panel.classList.remove('fade');void panel.offsetWidth;panel.classList.add('fade');}
+  });
+});
+document.querySelectorAll('.chips').forEach(group=>{
+  group.querySelectorAll('.chip').forEach(chip=>chip.onclick=()=>{
+    group.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+document.querySelectorAll('.team-toggle').forEach(btn=>{
+  btn.onclick=()=>{
+    const body=btn.parentElement.querySelector('.team-body');
+    body.classList.toggle('open');
+  };
+});
+</script>
+</body></html>

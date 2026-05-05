@@ -1,0 +1,271 @@
+<!doctype html><html lang='pt'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Rankings</title><style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    :root{
+      --bg-page:#060E1F;--bg-primary:#0D1B3E;--bg-surface:#162448;--bg-border:#1E3260;
+      --orange:#F57C00;--green:#4CAF50;--text-primary:#fff;--text-secondary:#8A9BB8;--text-muted:#4A5C7A;
+    }
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg-page);font-family:'Poppins',sans-serif;color:var(--text-primary)}
+    .phone{width:300px;height:620px;background:var(--bg-primary);border:2px solid var(--bg-border);border-radius:36px;overflow:hidden;position:relative}
+    .phone.landscape{width:580px;height:300px}
+    .status{display:flex;justify-content:space-between;padding:10px 18px 4px;font-size:10px;color:var(--text-secondary)}
+    .content{height:calc(100% - 26px);padding:10px 14px 14px;overflow-y:auto}
+    .content::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:3px}.content::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#1E3260;border-radius:2px}
+    .content,.scroll{scrollbar-width:thin;scrollbar-color:#1E3260 transparent}
+    .card{background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:12px;padding:12px 14px}
+    .title{font-size:17px;font-weight:700}.sub{font-size:12px;color:var(--text-secondary)}
+    .btn{width:100%;padding:13px;border-radius:12px;border:none;background:var(--orange);color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+    .btn.green{background:var(--green)}
+    .btn.secondary{background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}.gap8{display:grid;gap:8px}.gap10{display:grid;gap:10px}.gap12{display:grid;gap:12px}
+    .badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
+    .live{background:var(--orange);color:#fff}.open{border:1px solid var(--green);color:var(--green);background:var(--bg-primary)}.done{background:var(--bg-border);color:var(--text-secondary)}
+    .tabs,.chips{display:flex;gap:6px;flex-wrap:wrap}
+    .tab,.chip{padding:7px 10px;border-radius:10px;background:var(--bg-surface);border:1.5px solid var(--bg-border);color:var(--text-secondary);font-size:11px;cursor:pointer}
+    .tab.active,.chip.active{border-color:var(--orange);color:var(--orange);background:var(--bg-primary)}
+    .fade{animation:fadeIn .35s ease}
+    @keyframes fadeIn{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    input,select,textarea{width:100%;padding:10px 12px;background:var(--bg-surface);border:1.5px solid var(--bg-border);border-radius:10px;color:#fff;font-size:12px;font-family:'Poppins',sans-serif}
+    input::placeholder,textarea::placeholder{color:var(--text-muted)}
+    .nav{position:absolute;left:10px;right:10px;bottom:10px;height:64px;border:1.5px solid #1E3260;border-radius:18px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,#132554 0%,#0F2048 100%);box-shadow:0 10px 24px rgba(0,0,0,.28)}.nav-item{flex:1;background:transparent;border:none;color:#4A5C7A;display:grid;justify-items:center;gap:3px;font-size:9px;font-weight:500;cursor:pointer;padding:3px 0}.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.nav-item.active{color:#F57C00}.nav-item.active svg{filter:drop-shadow(0 0 6px rgba(245,124,0,.35))}
+    .avatar{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:8px;font-weight:700}
+    .progress{height:3px;background:var(--bg-primary);border-radius:2px;overflow:hidden}.fill{height:100%;background:var(--orange)}.ic{width:12px;height:12px;display:inline-block;vertical-align:-2px;margin-right:4px;color:#F57C00}.rank-badge{display:inline-block;min-width:22px;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700;color:#fff;margin-right:6px;text-align:center}.rank-badge.gold{background:#EF9F27}.rank-badge.silver{background:#378ADD}.rank-badge.bronze{background:#D85A30}
+    .seg{display:flex;justify-content:center}
+    .seg .tabs{width:100%;max-width:250px;background:#162448;border:1.5px solid #1E3260;border-radius:14px;padding:4px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+    .seg .tab{padding:9px 0;border-radius:10px;font-size:12px;font-weight:600;background:transparent;color:#8A9BB8;border:1.5px solid transparent}
+    .seg .tab.active{background:#F57C00;color:#fff;border-color:#F57C00;box-shadow:0 4px 14px rgba(245,124,0,.25)}
+    .podium{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:'p1 p1' 'p2 p3';gap:8px;align-items:stretch}
+    .pod{background:linear-gradient(180deg,#132554 0%,#162448 100%);border:1.5px solid #1E3260;border-radius:14px;padding:9px 10px;position:relative;min-height:84px}
+    .pod.p1{grid-area:p1}
+    .pod.p2{grid-area:p2}
+    .pod.p3{grid-area:p3}
+    .pod.p1{border-color:#EF9F27}
+    .pod.p2{border-color:#378ADD}
+    .pod.p3{border-color:#D85A30}
+    .pod-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .pod-rank{font-size:12px;font-weight:700;color:#fff}
+    .pod-val{font-size:18px;font-weight:700;color:#fff}
+    .ava{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;font-weight:700;font-size:10px;color:#fff;border:1px solid #1E3260}
+    .name{font-size:12px;font-weight:700}
+    .meta{font-size:10px;color:#8A9BB8}
+    .list{background:#162448;border:1.5px solid #1E3260;border-radius:12px;overflow:hidden;margin-top:12px}
+    .li{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:10px 12px;border-top:1px solid #1E3260}
+    .li:first-child{border-top:none}
+    .pos{font-size:11px;color:#8A9BB8;text-align:center}
+    .trend{font-size:11px;font-weight:700}
+    .up{color:#4CAF50}.down{color:#F05B5B}.flat{color:#8A9BB8}
+    .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .select-wrap{position:relative}
+    .select-wrap:after{content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#8A9BB8;font-size:12px;pointer-events:none}
+    select{width:100%;padding:10px 34px 10px 12px;background:#162448;border:1.5px solid #1E3260;border-radius:12px;color:#fff;font-size:12px;font-family:'Poppins',sans-serif;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:none}
+    .hint{font-size:10px;color:#8A9BB8}
+</style></head><body><div class='phone'><div class='status'><span>9:41</span><span>●●●</span></div><div class='content'>
+<div class='gap10'>
+<div class='title'>Rankings</div>
+<div class='seg'>
+  <div class='tabs'>
+    <button class='tab active' data-panel='geral'>Geral</button>
+    <button class='tab' data-panel='torneio'>Torneio</button>
+  </div>
+</div>
+<div class='tab-panels'>
+  <div data-tab='geral' class='fade gap10'>
+    <div class='filters'>
+      <div class='select-wrap'>
+        <select id='metricGeral'>
+          <option value='m_golos' selected>Golos</option>
+          <option value='m_jogos'>Jogos disputados</option>
+          <option value='m_assist'>Assistências</option>
+          <option value='m_min'>Minutos jogados</option>
+          <option value='m_am'>Cartões amarelos</option>
+          <option value='m_vm'>Cartões vermelhos</option>
+          <option value='m_mvp'>MVPs</option>
+        </select>
+      </div>
+      <div class='select-wrap'>
+        <select id='periodGeral'>
+          <option selected>Esta jornada</option>
+          <option>Este mês</option>
+          <option>Época toda</option>
+        </select>
+      </div>
+    </div>
+    <div class='tab-panels' id='panelsGeral'>
+      <div data-tab='m_golos' class='fade'>
+        <div class='podium'>
+          <div class='pod p2'><div class='pod-top'><span class='pod-rank'>2º</span><span class='pod-val'>9</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#378ADD'>JM</span><div><div class='name'>João</div><div class='meta'>Turbo FC</div></div></div></div>
+          <div class='pod p1'><div class='pod-top'><span class='pod-rank'>1º</span><span class='pod-val'>12</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#EF9F27'>GT</span><div><div class='name'>Gonçalo</div><div class='meta'>FC Malcata</div></div></div></div>
+          <div class='pod p3'><div class='pod-top'><span class='pod-rank'>3º</span><span class='pod-val'>7</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#D85A30'>RF</span><div><div class='name'>Rui</div><div class='meta'>Os Putos</div></div></div></div>
+        </div>
+        <div class='list'>
+          <div class='li'><div class='pos'>4</div><div><div class='sub' style='color:#fff'>Pedro S.</div><div class='hint'>Os Putos</div></div><div class='trend up'>▲ 1 · 6</div></div>
+          <div class='li'><div class='pos'>5</div><div><div class='sub' style='color:#fff'>Nuno T.</div><div class='hint'>Turbo FC</div></div><div class='trend down'>▼ 2 · 5</div></div>
+          <div class='li'><div class='pos'>6</div><div><div class='sub' style='color:#fff'>Miguel L.</div><div class='hint'>FC Malcata</div></div><div class='trend flat'>— · 4</div></div>
+        </div>
+      </div>
+      <div data-tab='m_jogos' style='display:none' class='fade'>
+        <div class='podium'>
+          <div class='pod p2'><div class='pod-top'><span class='pod-rank'>2º</span><span class='pod-val'>14</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#378ADD'>JM</span><div><div class='name'>João</div><div class='meta'>Turbo FC</div></div></div></div>
+          <div class='pod p1'><div class='pod-top'><span class='pod-rank'>1º</span><span class='pod-val'>14</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#EF9F27'>GT</span><div><div class='name'>Gonçalo</div><div class='meta'>FC Malcata</div></div></div></div>
+          <div class='pod p3'><div class='pod-top'><span class='pod-rank'>3º</span><span class='pod-val'>13</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#D85A30'>RF</span><div><div class='name'>Rui</div><div class='meta'>Os Putos</div></div></div></div>
+        </div>
+        <div class='list'>
+          <div class='li'><div class='pos'>4</div><div><div class='sub' style='color:#fff'>Pedro S.</div><div class='hint'>Os Putos</div></div><div class='trend up'>▲ 1 · 12</div></div>
+          <div class='li'><div class='pos'>5</div><div><div class='sub' style='color:#fff'>Nuno T.</div><div class='hint'>Turbo FC</div></div><div class='trend flat'>— · 11</div></div>
+        </div>
+      </div>
+      <div data-tab='m_assist' style='display:none' class='fade'>
+        <div class='podium'>
+          <div class='pod p2'><div class='pod-top'><span class='pod-rank'>2º</span><span class='pod-val'>6</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#378ADD'>PS</span><div><div class='name'>Pedro</div><div class='meta'>Os Putos</div></div></div></div>
+          <div class='pod p1'><div class='pod-top'><span class='pod-rank'>1º</span><span class='pod-val'>8</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#EF9F27'>GT</span><div><div class='name'>Gonçalo</div><div class='meta'>FC Malcata</div></div></div></div>
+          <div class='pod p3'><div class='pod-top'><span class='pod-rank'>3º</span><span class='pod-val'>5</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#D85A30'>JM</span><div><div class='name'>João</div><div class='meta'>Turbo FC</div></div></div></div>
+        </div>
+        <div class='list'>
+          <div class='li'><div class='pos'>4</div><div><div class='sub' style='color:#fff'>Rui F.</div><div class='hint'>FC Malcata</div></div><div class='trend flat'>— · 4</div></div>
+        </div>
+      </div>
+      <div data-tab='m_min' style='display:none' class='fade'>
+        <div class='podium'>
+          <div class='pod p2'><div class='pod-top'><span class='pod-rank'>2º</span><span class='pod-val'>820</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#378ADD'>JM</span><div><div class='name'>João</div><div class='meta'>Turbo FC</div></div></div></div>
+          <div class='pod p1'><div class='pod-top'><span class='pod-rank'>1º</span><span class='pod-val'>860</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#EF9F27'>GT</span><div><div class='name'>Gonçalo</div><div class='meta'>FC Malcata</div></div></div></div>
+          <div class='pod p3'><div class='pod-top'><span class='pod-rank'>3º</span><span class='pod-val'>790</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#D85A30'>RF</span><div><div class='name'>Rui</div><div class='meta'>Os Putos</div></div></div></div>
+        </div>
+        <div class='list'>
+          <div class='li'><div class='pos'>4</div><div><div class='sub' style='color:#fff'>Nuno T.</div><div class='hint'>Turbo FC</div></div><div class='trend flat'>— · 760</div></div>
+        </div>
+      </div>
+      <div data-tab='m_am' style='display:none' class='fade'>
+        <div class='podium'>
+          <div class='pod p2'><div class='pod-top'><span class='pod-rank'>2º</span><span class='pod-val'>3</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#378ADD'>ML</span><div><div class='name'>Miguel</div><div class='meta'>FC Malcata</div></div></div></div>
+          <div class='pod p1'><div class='pod-top'><span class='pod-rank'>1º</span><span class='pod-val'>4</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#EF9F27'>PS</span><div><div class='name'>Pedro</div><div class='meta'>Os Putos</div></div></div></div>
+          <div class='pod p3'><div class='pod-top'><span class='pod-rank'>3º</span><span class='pod-val'>2</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#D85A30'>RF</span><div><div class='name'>Rui</div><div class='meta'>Turbo FC</div></div></div></div>
+        </div>
+        <div class='list'>
+          <div class='li'><div class='pos'>4</div><div><div class='sub' style='color:#fff'>Nuno T.</div><div class='hint'>Turbo FC</div></div><div class='trend flat'>— · 2</div></div>
+        </div>
+      </div>
+      <div data-tab='m_vm' style='display:none' class='fade'>
+        <div class='podium'>
+          <div class='pod p2'><div class='pod-top'><span class='pod-rank'>2º</span><span class='pod-val'>1</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#378ADD'>ML</span><div><div class='name'>Miguel</div><div class='meta'>FC Malcata</div></div></div></div>
+          <div class='pod p1'><div class='pod-top'><span class='pod-rank'>1º</span><span class='pod-val'>1</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#EF9F27'>PS</span><div><div class='name'>Pedro</div><div class='meta'>Os Putos</div></div></div></div>
+          <div class='pod p3'><div class='pod-top'><span class='pod-rank'>3º</span><span class='pod-val'>0</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#D85A30'>GT</span><div><div class='name'>Gonçalo</div><div class='meta'>FC Malcata</div></div></div></div>
+        </div>
+        <div class='list'>
+          <div class='li'><div class='pos'>4</div><div><div class='sub' style='color:#fff'>Rui F.</div><div class='hint'>Turbo FC</div></div><div class='trend flat'>— · 0</div></div>
+        </div>
+      </div>
+      <div data-tab='m_mvp' style='display:none' class='fade'>
+        <div class='podium'>
+          <div class='pod p2'><div class='pod-top'><span class='pod-rank'>2º</span><span class='pod-val'>3</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#378ADD'>JM</span><div><div class='name'>João</div><div class='meta'>Turbo FC</div></div></div></div>
+          <div class='pod p1'><div class='pod-top'><span class='pod-rank'>1º</span><span class='pod-val'>5</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#EF9F27'>GT</span><div><div class='name'>Gonçalo</div><div class='meta'>FC Malcata</div></div></div></div>
+          <div class='pod p3'><div class='pod-top'><span class='pod-rank'>3º</span><span class='pod-val'>2</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#D85A30'>RF</span><div><div class='name'>Rui</div><div class='meta'>Os Putos</div></div></div></div>
+        </div>
+        <div class='list'>
+          <div class='li'><div class='pos'>4</div><div><div class='sub' style='color:#fff'>Pedro S.</div><div class='hint'>Os Putos</div></div><div class='trend flat'>— · 2</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div data-tab='torneio' style='display:none' class='fade gap10'>
+    <div class='card' style='padding:10px 12px'>
+      <div class='sub'>Torneio selecionado</div>
+      <div class='row'><b>Torneio Verão 2025</b><span class='badge live'>A decorrer</span></div>
+      <div class='hint' style='margin-top:4px'>Liga · Fut7 · 8 equipas</div>
+    </div>
+    <div class='filters'>
+      <div class='select-wrap'>
+        <select id='metricTorneio'>
+          <option value='t_golos' selected>Golos</option>
+          <option value='t_assist'>Assistências</option>
+          <option value='t_mvp'>MVPs</option>
+          <option value='t_cart'>Cartões</option>
+        </select>
+      </div>
+      <div class='select-wrap'>
+        <select id='periodTorneio'>
+          <option selected>Jornada 4</option>
+          <option>Este mês</option>
+          <option>Torneio</option>
+        </select>
+      </div>
+    </div>
+    <div class='tab-panels' id='panelsTorneio'>
+      <div data-tab='t_golos' class='fade'>
+        <div class='podium'>
+          <div class='pod p2'><div class='pod-top'><span class='pod-rank'>2º</span><span class='pod-val'>3</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#378ADD'>JM</span><div><div class='name'>João M.</div><div class='meta'>Turbo FC</div></div></div></div>
+          <div class='pod p1'><div class='pod-top'><span class='pod-rank'>1º</span><span class='pod-val'>4</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#EF9F27'>GT</span><div><div class='name'>Gonçalo</div><div class='meta'>FC Malcata</div></div></div></div>
+          <div class='pod p3'><div class='pod-top'><span class='pod-rank'>3º</span><span class='pod-val'>2</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#D85A30'>PS</span><div><div class='name'>Pedro S.</div><div class='meta'>Os Putos</div></div></div></div>
+        </div>
+        <div class='list'>
+          <div class='li'><div class='pos'>4</div><div><div class='sub' style='color:#fff'>Rui F.</div><div class='hint'>FC Malcata</div></div><div class='trend flat'>— · 2</div></div>
+        </div>
+      </div>
+      <div data-tab='t_assist' style='display:none' class='fade'>
+        <div class='podium'>
+          <div class='pod p2'><div class='pod-top'><span class='pod-rank'>2º</span><span class='pod-val'>2</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#378ADD'>PS</span><div><div class='name'>Pedro S.</div><div class='meta'>Os Putos</div></div></div></div>
+          <div class='pod p1'><div class='pod-top'><span class='pod-rank'>1º</span><span class='pod-val'>3</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#EF9F27'>GT</span><div><div class='name'>Gonçalo</div><div class='meta'>FC Malcata</div></div></div></div>
+          <div class='pod p3'><div class='pod-top'><span class='pod-rank'>3º</span><span class='pod-val'>1</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#D85A30'>JM</span><div><div class='name'>João M.</div><div class='meta'>Turbo FC</div></div></div></div>
+        </div>
+      </div>
+      <div data-tab='t_mvp' style='display:none' class='fade'>
+        <div class='podium'>
+          <div class='pod p2'><div class='pod-top'><span class='pod-rank'>2º</span><span class='pod-val'>1</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#378ADD'>JM</span><div><div class='name'>João M.</div><div class='meta'>Turbo FC</div></div></div></div>
+          <div class='pod p1'><div class='pod-top'><span class='pod-rank'>1º</span><span class='pod-val'>2</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#EF9F27'>GT</span><div><div class='name'>Gonçalo</div><div class='meta'>FC Malcata</div></div></div></div>
+          <div class='pod p3'><div class='pod-top'><span class='pod-rank'>3º</span><span class='pod-val'>1</span></div><div class='row' style='justify-content:flex-start'><span class='ava' style='background:#D85A30'>PS</span><div><div class='name'>Pedro S.</div><div class='meta'>Os Putos</div></div></div></div>
+        </div>
+      </div>
+      <div data-tab='t_cart' style='display:none' class='fade'>
+        <div class='list'>
+          <div class='li'><div class='pos'>1</div><div><div class='sub' style='color:#fff'>Pedro S.</div><div class='hint'>Os Putos</div></div><div class='trend down'>🟨 4 · 🟥 1</div></div>
+          <div class='li'><div class='pos'>2</div><div><div class='sub' style='color:#fff'>Miguel L.</div><div class='hint'>FC Malcata</div></div><div class='trend flat'>🟨 3 · 🟥 0</div></div>
+          <div class='li'><div class='pos'>3</div><div><div class='sub' style='color:#fff'>Rui F.</div><div class='hint'>Turbo FC</div></div><div class='trend flat'>🟨 2 · 🟥 0</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div><div class='nav'><button class='nav-item' onclick="sendPrompt('mockup_04_dashboard_jogador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M3 10.5L12 4l9 6.5'></path><path d='M6 9.5V20h12V9.5'></path></svg><span>Início</span></button><button class='nav-item' onclick="sendPrompt('mockup_06_lista_torneios.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><rect x='4' y='5' width='16' height='15' rx='2'></rect><path d='M8 3v4M16 3v4M4 10h16'></path></svg><span>Torneios</span></button><button class='nav-item active' onclick="sendPrompt('mockup_12_rankings.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M5 19V10'></path><path d='M12 19V6'></path><path d='M19 19v-8'></path></svg><span>Rankings</span></button><button class='nav-item' onclick="sendPrompt('mockup_14_perfil_utilizador.html')"><svg viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='8' r='3.5'></circle><path d='M5 20a7 7 0 0114 0'></path></svg><span>Perfil</span></button></div></div>
+<script>
+function sendPrompt(target){ if(target) location.href = target; }
+document.querySelectorAll('.tabs').forEach(group=>{
+  group.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>{
+    group.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const panelId=tab.dataset.panel; if(!panelId) return;
+    const wrap=group.parentElement.querySelector('.tab-panels');
+    if(!wrap) return;
+    wrap.querySelectorAll('[data-tab]').forEach(p=>p.style.display='none');
+    const panel=wrap.querySelector('[data-tab="'+panelId+'"]');
+    if(panel){panel.style.display='block';panel.classList.remove('fade');void panel.offsetWidth;panel.classList.add('fade');}
+  });
+});
+document.querySelectorAll('.chips').forEach(group=>{
+  group.querySelectorAll('.chip').forEach(chip=>chip.onclick=()=>{
+    group.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+function showPanel(panelsEl, tabId){
+  if(!panelsEl) return;
+  panelsEl.querySelectorAll('[data-tab]').forEach(p=>p.style.display='none');
+  const panel=panelsEl.querySelector('[data-tab=\"'+tabId+'\"]');
+  if(panel){
+    panel.style.display='block';
+    panel.classList.remove('fade'); void panel.offsetWidth; panel.classList.add('fade');
+  }
+}
+const metricG=document.getElementById('metricGeral');
+const panelsG=document.getElementById('panelsGeral');
+if(metricG && panelsG){
+  metricG.onchange=()=>showPanel(panelsG, metricG.value);
+  showPanel(panelsG, metricG.value);
+}
+const metricT=document.getElementById('metricTorneio');
+const panelsT=document.getElementById('panelsTorneio');
+if(metricT && panelsT){
+  metricT.onchange=()=>showPanel(panelsT, metricT.value);
+  showPanel(panelsT, metricT.value);
+}
+</script>
+</body></html>
