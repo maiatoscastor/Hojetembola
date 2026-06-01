@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── App ────────────────────────────────────────────────────────────── -->
+    <string name="app_name">HojeTemBola</string>
+    <string name="app_subtitle">Sports Events Management</string>
+
+    <!-- ── Auth ───────────────────────────────────────────────────────────── -->
+    <string name="entrar">Sign In</string>
+    <string name="registar">Sign Up</string>
+    <string name="criar_conta">Create account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="nome_completo">Full name</string>
+    <string name="confirmar_password">Confirm password</string>
+    <string name="esqueci_password">Forgot password</string>
+    <string name="continuar_com_google">Continue with Google</string>
+    <string name="ou_continua_com">or continue with</string>
+    <string name="ja_tens_conta">Already have an account? Sign in</string>
+    <string name="nao_tens_conta">No account? Sign up</string>
+    <string name="email_hint">example@email.com</string>
+    <string name="password_hint">Minimum 6 characters</string>
+
+    <!-- ── Profiles ───────────────────────────────────────────────────────── -->
+    <string name="perfil">Profile</string>
+    <string name="escolhe_perfil">Choose your profile</string>
+    <string name="jogador">Player</string>
+    <string name="capitao_equipa">Team captain</string>
+    <string name="organizador">Organizer</string>
+    <string name="espectador">Spectator</string>
+    <string name="administrador">Administrator</string>
+
+    <!-- ── Sliders ────────────────────────────────────────────────────────── -->
+    <string name="slider_1_titulo">Organize your tournaments</string>
+    <string name="slider_1_descricao">League, knockout or groups. Fut5, Fut7, Fut11 or custom.</string>
+    <string name="slider_2_titulo">Live matches</string>
+    <string name="slider_2_descricao">Goals, cards and substitutions in real time for everyone.</string>
+    <string name="slider_3_titulo">Vote for the MVP</string>
+    <string name="slider_3_descricao">Players and fans vote. Results shown as percentages.</string>
+    <string name="slider_4_titulo">Rankings &amp; statistics</string>
+    <string name="slider_4_descricao">Goals and games by round, month or full season.</string>
+    <string name="slider_seguinte">Next</string>
+    <string name="slider_saltar">Skip intro</string>
+    <string name="slider_comecar">Get started</string>
+
+    <!-- ── Navigation ─────────────────────────────────────────────────────── -->
+    <string name="nav_inicio">Home</string>
+    <string name="nav_torneios">Tournaments</string>
+    <string name="nav_rankings">Rankings</string>
+    <string name="nav_perfil">Profile</string>
+
+    <!-- ── Dashboard ──────────────────────────────────────────────────────── -->
+    <string name="bom_dia">Good morning,</string>
+    <string name="boa_tarde">Good afternoon,</string>
+    <string name="boa_noite">Good evening,</string>
+    <string name="meus_torneios">My tournaments</string>
+    <string name="golos_esta_epoca">Goals this season</string>
+    <string name="torneios_ativos">Active tournaments</string>
+    <string name="total_participantes">Total participants</string>
+    <string name="proximos_jogos">Upcoming matches</string>
+    <string name="jogos_hoje">Matches today</string>
+    <string name="criar_torneio">Create tournament</string>
+    <string name="ver_todos">See all</string>
+
+    <!-- ── Tournaments ────────────────────────────────────────────────────── -->
+    <string name="torneios">Tournaments</string>
+    <string name="pesquisar_torneios">Search tournaments…</string>
+    <string name="filtro_todos">All</string>
+    <string name="filtro_a_decorrer">Ongoing</string>
+    <string name="filtro_inscricoes">Open</string>
+    <string name="filtro_terminados">Finished</string>
+    <string name="filtro_publicos">Public</string>
+    <string name="inscrever_equipa">Register team</string>
+    <string name="torneios_publicos">Public tournaments</string>
+    <string name="descobrir_torneios">Discover tournaments</string>
+
+    <!-- ── Create Tournament ──────────────────────────────────────────────── -->
+    <string name="nome_torneio">Tournament name</string>
+    <string name="modalidade">Modality</string>
+    <string name="formato">Format</string>
+    <string name="liga">League</string>
+    <string name="eliminatorias">Knockout</string>
+    <string name="grupos_eliminatorias">Groups + Knockout</string>
+    <string name="todos_vs_todos">Round Robin</string>
+    <string name="fut5">Fut5</string>
+    <string name="fut7">Fut7</string>
+    <string name="fut11">Fut11</string>
+    <string name="personalizado">Custom</string>
+    <string name="max_equipas">Maximum number of teams</string>
+    <string name="jogadores_por_equipa">Players per team / squad</string>
+    <string name="inicio_inscricoes">Registration start</string>
+    <string name="fim_inscricoes">Registration end</string>
+    <string name="data_inicio">Start date</string>
+    <string name="data_fim_prevista">Expected end date</string>
+    <string name="localizacao">Location</string>
+    <string name="localizacao_hint">Field name, address or Google Maps link</string>
+    <string name="criterio_desempate">Tiebreaker</string>
+    <string name="prolongamento">Extra time</string>
+    <string name="penalidades">Penalty shootout</string>
+    <string name="golo_de_ouro">Golden goal</string>
+    <string name="amarelos_suspensao">Yellows for suspension</string>
+    <string name="visibilidade">Visibility</string>
+    <string name="publico">Public</string>
+    <string name="privado">Private</string>
+    <string name="permitir_espectadores">Allow spectators</string>
+    <string name="votacao_mvp_ativa">Enable MVP voting</string>
+    <string name="regulamento">Rules / notes</string>
+    <string name="regulamento_hint">Write your tournament rules here…</string>
+
+    <!-- ── Tournament states ──────────────────────────────────────────────── -->
+    <string name="estado_criado">Created</string>
+    <string name="estado_inscricoes_abertas">Registrations open</string>
+    <string name="estado_inscricoes_fechadas">Registrations closed</string>
+    <string name="estado_a_decorrer">Ongoing</string>
+    <string name="estado_terminado">Finished</string>
+
+    <!-- ── Matches ────────────────────────────────────────────────────────── -->
+    <string name="ao_vivo">LIVE</string>
+    <string name="agendado">Scheduled</string>
+    <string name="terminado">Finished</string>
+    <string name="hoje">TODAY</string>
+    <string name="registo_evento">Register event</string>
+    <string name="terminar_jogo">End match</string>
+    <string name="iniciar_jogo">Start match</string>
+    <string name="golo">Goal</string>
+    <string name="cartao_amarelo">Yellow Card</string>
+    <string name="cartao_vermelho">Red Card</string>
+    <string name="substituicao">Substitution</string>
+    <string name="minuto">Minute</string>
+    <string name="jogador_label">Player</string>
+    <string name="equipa_label">Team</string>
+    <string name="jogador_sai">Player out</string>
+    <string name="jogador_entra">Player in</string>
+    <string name="confirmar">Confirm</string>
+    <string name="cancelar">Cancel</string>
+    <string name="local_jogo">Venue</string>
+
+    <!-- ── Rankings ───────────────────────────────────────────────────────── -->
+    <string name="rankings">Rankings</string>
+    <string name="golos">Goals</string>
+    <string name="jogos_disputados">Games played</string>
+    <string name="esta_jornada">This round</string>
+    <string name="este_mes">This month</string>
+    <string name="epoca_toda">Full season</string>
+    <string name="por_torneio">By tournament</string>
+    <string name="classificacao">Standings</string>
+    <string name="posicao_abrev">Pos</string>
+    <string name="jogos_abrev">P</string>
+    <string name="vitorias_abrev">W</string>
+    <string name="empates_abrev">D</string>
+    <string name="derrotas_abrev">L</string>
+    <string name="golos_marcados_abrev">GF</string>
+    <string name="golos_sofridos_abrev">GA</string>
+    <string name="pontos_abrev">Pts</string>
+
+    <!-- ── MVP ────────────────────────────────────────────────────────────── -->
+    <string name="votar_mvp">Vote for MVP</string>
+    <string name="votacao_aberta">VOTING OPEN</string>
+    <string name="votado">Voted ✓</string>
+    <string name="votar">Vote</string>
+    <string name="mvp_revelado_apos_jogo">The MVP will be revealed after the final whistle</string>
+    <string name="jogadores_label">Players</string>
+    <string name="publico_label">Fans</string>
+    <string name="organizador_label">Organizer</string>
+
+    <!-- ── Profile ────────────────────────────────────────────────────────── -->
+    <string name="perfil_titulo">Profile</string>
+    <string name="editar_perfil">Edit profile</string>
+    <string name="definicoes">Settings</string>
+    <string name="terminar_sessao">Sign out</string>
+    <string name="as_minhas_equipas">My teams</string>
+    <string name="ultimas_conquistas">Latest achievements</string>
+    <string name="mvps_ganhos">MVPs won</string>
+
+    <!-- ── Notifications ──────────────────────────────────────────────────── -->
+    <string name="notificacoes">Notifications</string>
+    <string name="marcar_todas_lidas">Mark all as read</string>
+    <string name="sem_notificacoes">No notifications yet</string>
+    <string name="aceitar">Accept</string>
+    <string name="recusar">Decline</string>
+
+    <!-- ── Errors ─────────────────────────────────────────────────────────── -->
+    <string name="erro_email_invalido">Invalid email address.</string>
+    <string name="erro_password_curta">Password must be at least 6 characters.</string>
+    <string name="erro_passwords_diferentes">Passwords do not match.</string>
+    <string name="erro_campos_obrigatorios">Please fill in all required fields.</string>
+    <string name="erro_sem_internet">No internet connection.</string>
+    <string name="erro_generico">Something went wrong. Please try again.</string>
+    <string name="erro_login_falhou">Incorrect email or password.</string>
+    <string name="erro_registo_falhou">Could not create account. Please try again.</string>
+    <string name="erro_nome_obrigatorio">Name is required.</string>
+
+    <!-- ── Success ────────────────────────────────────────────────────────── -->
+    <string name="sucesso_registo">Account created! Please check your email.</string>
+    <string name="sucesso_torneio_criado">Tournament created successfully!</string>
+    <string name="sucesso_inscricao">Team registered successfully!</string>
+    <string name="sucesso_voto_mvp">Vote recorded!</string>
+    <string name="sucesso_evento_registado">Event registered!</string>
+
+    <!-- ── Accessibility ──────────────────────────────────────────────────── -->
+    <string name="cd_logo_app">HojeTemBola logo</string>
+    <string name="cd_botao_notificacoes">Notifications</string>
+    <string name="cd_avatar_equipa">%s team badge</string>
+    <string name="cd_foto_perfil">Profile photo of %s</string>
+    <string name="cd_botao_incrementar">Increase</string>
+    <string name="cd_botao_decrementar">Decrease</string>
+</resources>

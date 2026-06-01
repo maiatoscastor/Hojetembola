@@ -1,3 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ── App ────────────────────────────────────────────────────────────── -->
     <string name="app_name">HojeTemBola</string>
+    <string name="app_subtitle">Gestão de Eventos Desportivos</string>
+
+    <!-- ── Autenticação ───────────────────────────────────────────────────── -->
+    <string name="entrar">Entrar</string>
+    <string name="registar">Registar</string>
+    <string name="criar_conta">Criar conta</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="nome_completo">Nome completo</string>
+    <string name="confirmar_password">Confirmar password</string>
+    <string name="esqueci_password">Esqueci a password</string>
+    <string name="continuar_com_google">Continuar com Google</string>
+    <string name="ou_continua_com">ou continua com</string>
+    <string name="ja_tens_conta">Já tens conta? Entra aqui</string>
+    <string name="nao_tens_conta">Não tens conta? Regista-te</string>
+    <string name="email_hint">exemplo@email.com</string>
+    <string name="password_hint">Mínimo 6 caracteres</string>
+
+    <!-- ── Perfis ─────────────────────────────────────────────────────────── -->
+    <string name="perfil">Perfil</string>
+    <string name="escolhe_perfil">Escolhe o teu perfil</string>
+    <string name="jogador">Jogador</string>
+    <string name="capitao_equipa">Capitão de equipa</string>
+    <string name="organizador">Organizador</string>
+    <string name="espectador">Espectador</string>
+    <string name="administrador">Administrador</string>
+
+    <!-- ── Sliders ────────────────────────────────────────────────────────── -->
+    <string name="slider_1_titulo">Organiza os teus torneios</string>
+    <string name="slider_1_descricao">Liga, eliminatórias ou grupos. Fut5, Fut7, Fut11 ou personalizado.</string>
+    <string name="slider_2_titulo">Jogos ao vivo</string>
+    <string name="slider_2_descricao">Golos, cartões e substituições em tempo real para todos.</string>
+    <string name="slider_3_titulo">Vota no MVP</string>
+    <string name="slider_3_descricao">Jogadores e público votam. Resultados em percentagem.</string>
+    <string name="slider_4_titulo">Rankings e estatísticas</string>
+    <string name="slider_4_descricao">Golos e jogos por jornada, mês ou época inteira.</string>
+    <string name="slider_seguinte">Seguinte</string>
+    <string name="slider_saltar">Saltar introdução</string>
+    <string name="slider_comecar">Começar</string>
+
+    <!-- ── Navegação ──────────────────────────────────────────────────────── -->
+    <string name="nav_inicio">Início</string>
+    <string name="nav_torneios">Torneios</string>
+    <string name="nav_rankings">Rankings</string>
+    <string name="nav_perfil">Perfil</string>
+
+    <!-- ── Dashboard ──────────────────────────────────────────────────────── -->
+    <string name="bom_dia">Bom dia,</string>
+    <string name="boa_tarde">Boa tarde,</string>
+    <string name="boa_noite">Boa noite,</string>
+    <string name="meus_torneios">Os meus torneios</string>
+    <string name="golos_esta_epoca">Golos esta época</string>
+    <string name="torneios_ativos">Torneios ativos</string>
+    <string name="total_participantes">Total de participantes</string>
+    <string name="proximos_jogos">Próximos jogos</string>
+    <string name="jogos_hoje">Jogos hoje</string>
+    <string name="criar_torneio">Criar torneio</string>
+    <string name="ver_todos">Ver todos</string>
+
+    <!-- ── Torneios ───────────────────────────────────────────────────────── -->
+    <string name="torneios">Torneios</string>
+    <string name="pesquisar_torneios">Pesquisar torneios…</string>
+    <string name="filtro_todos">Todos</string>
+    <string name="filtro_a_decorrer">A decorrer</string>
+    <string name="filtro_inscricoes">Inscrições</string>
+    <string name="filtro_terminados">Terminados</string>
+    <string name="filtro_publicos">Públicos</string>
+    <string name="inscrever_equipa">Inscrever equipa</string>
+    <string name="torneios_publicos">Torneios Públicos</string>
+    <string name="descobrir_torneios">Descobrir torneios</string>
+
+    <!-- ── Criar Torneio ──────────────────────────────────────────────────── -->
+    <string name="nome_torneio">Nome do torneio</string>
+    <string name="modalidade">Modalidade</string>
+    <string name="formato">Formato</string>
+    <string name="liga">Liga</string>
+    <string name="eliminatorias">Eliminatórias</string>
+    <string name="grupos_eliminatorias">Grupos + Eliminatórias</string>
+    <string name="todos_vs_todos">Todos vs todos</string>
+    <string name="fut5">Fut5</string>
+    <string name="fut7">Fut7</string>
+    <string name="fut11">Fut11</string>
+    <string name="personalizado">Personalizado</string>
+    <string name="max_equipas">Nº máximo de equipas</string>
+    <string name="jogadores_por_equipa">Jogadores por equipa / plantel</string>
+    <string name="inicio_inscricoes">Início das inscrições</string>
+    <string name="fim_inscricoes">Fim das inscrições</string>
+    <string name="data_inicio">Data de início</string>
+    <string name="data_fim_prevista">Data fim prevista</string>
+    <string name="localizacao">Localização</string>
+    <string name="localizacao_hint">Nome do campo, morada ou link Google Maps</string>
+    <string name="criterio_desempate">Critério de desempate</string>
+    <string name="prolongamento">Prolongamento</string>
+    <string name="penalidades">Penalidades</string>
+    <string name="golo_de_ouro">Golo de ouro</string>
+    <string name="amarelos_suspensao">Amarelos para suspensão</string>
+    <string name="visibilidade">Visibilidade</string>
+    <string name="publico">Público</string>
+    <string name="privado">Privado</string>
+    <string name="permitir_espectadores">Permitir espectadores</string>
+    <string name="votacao_mvp_ativa">Votação MVP ativa</string>
+    <string name="regulamento">Regulamento / notas</string>
+    <string name="regulamento_hint">Escreve aqui as regras do torneio…</string>
+
+    <!-- ── Estados do torneio ────────────────────────────────────────────── -->
+    <string name="estado_criado">Criado</string>
+    <string name="estado_inscricoes_abertas">Inscrições abertas</string>
+    <string name="estado_inscricoes_fechadas">Inscrições fechadas</string>
+    <string name="estado_a_decorrer">A decorrer</string>
+    <string name="estado_terminado">Terminado</string>
+
+    <!-- ── Jogos ──────────────────────────────────────────────────────────── -->
+    <string name="ao_vivo">AO VIVO</string>
+    <string name="agendado">Agendado</string>
+    <string name="terminado">Terminado</string>
+    <string name="hoje">HOJE</string>
+    <string name="registo_evento">Registar evento</string>
+    <string name="terminar_jogo">Terminar jogo</string>
+    <string name="iniciar_jogo">Iniciar jogo</string>
+    <string name="golo">Golo</string>
+    <string name="cartao_amarelo">Cartão Amarelo</string>
+    <string name="cartao_vermelho">Cartão Vermelho</string>
+    <string name="substituicao">Substituição</string>
+    <string name="minuto">Minuto</string>
+    <string name="jogador_label">Jogador</string>
+    <string name="equipa_label">Equipa</string>
+    <string name="jogador_sai">Jogador que sai</string>
+    <string name="jogador_entra">Jogador que entra</string>
+    <string name="confirmar">Confirmar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="local_jogo">Local</string>
+
+    <!-- ── Rankings ───────────────────────────────────────────────────────── -->
+    <string name="rankings">Rankings</string>
+    <string name="golos">Golos</string>
+    <string name="jogos_disputados">Jogos disputados</string>
+    <string name="esta_jornada">Esta jornada</string>
+    <string name="este_mes">Este mês</string>
+    <string name="epoca_toda">Época toda</string>
+    <string name="por_torneio">Por torneio</string>
+    <string name="classificacao">Classificação</string>
+    <string name="posicao_abrev">Pos</string>
+    <string name="jogos_abrev">J</string>
+    <string name="vitorias_abrev">V</string>
+    <string name="empates_abrev">E</string>
+    <string name="derrotas_abrev">D</string>
+    <string name="golos_marcados_abrev">GM</string>
+    <string name="golos_sofridos_abrev">GS</string>
+    <string name="pontos_abrev">Pts</string>
+
+    <!-- ── MVP ────────────────────────────────────────────────────────────── -->
+    <string name="votar_mvp">Votar no MVP</string>
+    <string name="votacao_aberta">VOTAÇÃO ABERTA</string>
+    <string name="votado">Votado ✓</string>
+    <string name="votar">Votar</string>
+    <string name="mvp_revelado_apos_jogo">O MVP será revelado após o apito final</string>
+    <string name="jogadores_label">Jogadores</string>
+    <string name="publico_label">Público</string>
+    <string name="organizador_label">Organizador</string>
+
+    <!-- ── Perfil ─────────────────────────────────────────────────────────── -->
+    <string name="perfil_titulo">Perfil</string>
+    <string name="editar_perfil">Editar perfil</string>
+    <string name="definicoes">Definições</string>
+    <string name="terminar_sessao">Terminar sessão</string>
+    <string name="as_minhas_equipas">As minhas equipas</string>
+    <string name="ultimas_conquistas">Últimas conquistas</string>
+    <string name="mvps_ganhos">MVPs ganhos</string>
+
+    <!-- ── Notificações ───────────────────────────────────────────────────── -->
+    <string name="notificacoes">Notificações</string>
+    <string name="marcar_todas_lidas">Marcar todas como lidas</string>
+    <string name="sem_notificacoes">Sem notificações de momento</string>
+    <string name="aceitar">Aceitar</string>
+    <string name="recusar">Recusar</string>
+
+    <!-- ── Erros ──────────────────────────────────────────────────────────── -->
+    <string name="erro_email_invalido">Email inválido.</string>
+    <string name="erro_password_curta">A password deve ter pelo menos 6 caracteres.</string>
+    <string name="erro_passwords_diferentes">As passwords não coincidem.</string>
+    <string name="erro_campos_obrigatorios">Preenche todos os campos obrigatórios.</string>
+    <string name="erro_sem_internet">Sem ligação à internet.</string>
+    <string name="erro_generico">Ocorreu um erro. Tenta novamente.</string>
+    <string name="erro_login_falhou">Email ou password incorretos.</string>
+    <string name="erro_registo_falhou">Não foi possível criar a conta. Tenta novamente.</string>
+    <string name="erro_nome_obrigatorio">O nome é obrigatório.</string>
+
+    <!-- ── Sucesso ────────────────────────────────────────────────────────── -->
+    <string name="sucesso_registo">Conta criada! Verifica o teu email.</string>
+    <string name="sucesso_torneio_criado">Torneio criado com sucesso!</string>
+    <string name="sucesso_inscricao">Equipa inscrita com sucesso!</string>
+    <string name="sucesso_voto_mvp">Voto registado!</string>
+    <string name="sucesso_evento_registado">Evento registado!</string>
+
+    <!-- ── Acessibilidade ─────────────────────────────────────────────────── -->
+    <string name="cd_logo_app">Logótipo HojeTemBola</string>
+    <string name="cd_botao_notificacoes">Notificações</string>
+    <string name="cd_avatar_equipa">Escudo da equipa %s</string>
+    <string name="cd_foto_perfil">Foto de perfil de %s</string>
+    <string name="cd_botao_incrementar">Aumentar</string>
+    <string name="cd_botao_decrementar">Diminuir</string>
 </resources>

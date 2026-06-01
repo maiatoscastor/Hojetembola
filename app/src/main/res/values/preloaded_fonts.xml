@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Pré-carregamento da fonte Poppins para evitar FOUT (Flash of Unstyled Text).
+    O AndroidManifest.xml referencia este array via meta-data.
+-->
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/poppins_regular</item>
+        <item>@font/poppins_semi_bold</item>
+        <item>@font/poppins_bold</item>
+    </array>
+</resources>

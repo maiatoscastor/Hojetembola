@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "815055287890",
+    "project_id": "hojetembola-commov",
+    "storage_bucket": "hojetembola-commov.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:815055287890:android:44db91bbe55cb1223a118b",
+        "android_client_info": {
+          "package_name": "com.hojetembola.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBizq239w1yEHixJaaA_8Fbbvt0U4Fyg3s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

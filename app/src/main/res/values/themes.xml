@@ -1,9 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
+    <!-- Tema base — aplica o design system HojeTemBola ao Material3 -->
     <style name="Base.Theme.HojeTemBola" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <!-- Cores primárias -->
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorPrimaryVariant">@color/bg_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Cores secundárias -->
+        <item name="colorSecondary">@color/green</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Superfícies -->
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/bg_border</item>
+
+        <!-- Fundo -->
+        <item name="android:colorBackground">@color/bg_primary</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+
+        <!-- Status bar transparente -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+
     </style>
 
     <style name="Theme.HojeTemBola" parent="Base.Theme.HojeTemBola" />
+
+    <!-- ── Splash Theme (sem animação de entrada) ─────────────────────────── -->
+    <style name="Theme.HojeTemBola.Splash" parent="Theme.HojeTemBola">
+        <item name="android:windowBackground">@color/bg_primary</item>
+    </style>
+
+    <!-- ── Estilos de texto ───────────────────────────────────────────────── -->
+    <style name="TextAppearance.HojeTemBola.Title" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">@dimen/text_title</item>
+        <item name="fontFamily">@font/poppins_bold</item>
+    </style>
+
+    <style name="TextAppearance.HojeTemBola.CardTitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">@dimen/text_card_title</item>
+        <item name="fontFamily">@font/poppins_semi_bold</item>
+    </style>
+
+    <style name="TextAppearance.HojeTemBola.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+    </style>
+
+    <style name="TextAppearance.HojeTemBola.Label" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+    </style>
+
+    <!-- ── Botão principal (laranja) ─────────────────────────────────────── -->
+    <style name="Widget.HojeTemBola.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:backgroundTint">@color/orange</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">14sp</item>
+        <item name="cornerRadius">@dimen/button_radius</item>
+        <item name="fontFamily">@font/poppins_semi_bold</item>
+    </style>
+
+    <!-- ── Botão secundário (superfície) ─────────────────────────────────── -->
+    <style name="Widget.HojeTemBola.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:backgroundTint">@color/bg_surface</item>
+        <item name="strokeColor">@color/bg_border</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="cornerRadius">@dimen/button_radius</item>
+    </style>
+
+    <!-- ── Campo de texto ────────────────────────────────────────────────── -->
+    <style name="Widget.HojeTemBola.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/bg_surface</item>
+        <item name="boxStrokeColor">@color/bg_border</item>
+        <item name="boxStrokeWidth">1.5dp</item>
+        <item name="hintTextColor">@color/text_muted</item>
+        <item name="android:textColorHint">@color/text_muted</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.HojeTemBola.Input</item>
+    </style>
+
+    <style name="ShapeAppearance.HojeTemBola.Input" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/input_radius</item>
+    </style>
+
+    <!-- ── Card ──────────────────────────────────────────────────────────── -->
+    <style name="Widget.HojeTemBola.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/bg_surface</item>
+        <item name="strokeColor">@color/bg_border</item>
+        <item name="strokeWidth">1.5dp</item>
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">0dp</item>
+    </style>
+
 </resources>

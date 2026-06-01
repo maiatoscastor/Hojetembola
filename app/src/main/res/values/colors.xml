@@ -1,5 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ── Backgrounds ────────────────────────────────────────────────────── -->
+    <color name="bg_primary">#0D1B3E</color>      <!-- Fundo principal -->
+    <color name="bg_surface">#162448</color>      <!-- Cards, inputs, superfícies -->
+    <color name="bg_border">#1E3260</color>       <!-- Bordas, separadores -->
+
+    <!-- ── Brand ──────────────────────────────────────────────────────────── -->
+    <color name="orange">#F57C00</color>          <!-- Ação principal, botões CTA -->
+    <color name="green">#4CAF50</color>           <!-- Sucesso, inscrições abertas -->
+
+    <!-- ── Text ───────────────────────────────────────────────────────────── -->
+    <color name="text_primary">#FFFFFF</color>    <!-- Títulos, valores -->
+    <color name="text_secondary">#8A9BB8</color>  <!-- Labels, descrições -->
+    <color name="text_muted">#4A5C7A</color>      <!-- Placeholders, terceiro plano -->
+
+    <!-- ── Estados ────────────────────────────────────────────────────────── -->
+    <color name="color_live">#F57C00</color>      <!-- Jogo ao vivo -->
+    <color name="color_open">#4CAF50</color>      <!-- Inscrições abertas -->
+    <color name="color_done">#8A9BB8</color>      <!-- Terminado / inativo -->
+    <color name="color_today">#8A9BB8</color>     <!-- Jogo hoje (não começou) -->
+
+    <!-- ── Pódio Rankings ─────────────────────────────────────────────────── -->
+    <color name="podium_gold">#EF9F27</color>     <!-- 1.º lugar -->
+    <color name="podium_silver">#378ADD</color>   <!-- 2.º lugar -->
+    <color name="podium_bronze">#D85A30</color>   <!-- 3.º lugar -->
+
+    <!-- ── Cores de equipas (dados de exemplo do design system) ──────────── -->
+    <color name="equipa_fc_malcata">#E84C3D</color>
+    <color name="equipa_os_putos">#2ECC71</color>
+    <color name="equipa_turbo_fc">#3498DB</color>
+    <color name="equipa_super_raia">#E67E22</color>
+
+    <!-- ── Legacy (sistema) ───────────────────────────────────────────────── -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>
