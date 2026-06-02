@@ -13,12 +13,14 @@ data class UtilizadorEntity(
 
     val email: String,
 
-    /** "administrador" | "organizador" | "capitao" | "jogador" | "espectador" */
+    /** "utilizador" | "organizador" (armazenado; Capitão/Jogador é derivado dos dados) */
     val perfil: String,
 
     @ColumnInfo(name = "foto_url")
     val fotoUrl: String? = null,
 
     @ColumnInfo(name = "data_registo")
-    val dataRegisto: String = ""
+    val dataRegisto: String = "",
+
+    val ativo: Boolean = true
 )

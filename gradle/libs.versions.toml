@@ -70,3 +70,4 @@ android-application      = { id = "com.android.application",                    
 ksp                      = { id = "com.google.devtools.ksp",                    version.ref = "ksp" }
 hilt-android             = { id = "com.google.dagger.hilt.android",             version.ref = "hilt" }
 google-services          = { id = "com.google.gms.google-services",             version.ref = "googleServices" }
+kotlin-serialization     = { id = "org.jetbrains.kotlin.plugin.serialization",  version.ref = "kotlin" }
