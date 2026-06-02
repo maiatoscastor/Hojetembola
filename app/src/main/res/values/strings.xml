@@ -22,12 +22,15 @@
 
     <!-- ── Perfis ─────────────────────────────────────────────────────────── -->
     <string name="perfil">Perfil</string>
-    <string name="escolhe_perfil">Escolhe o teu perfil</string>
+    <string name="escolhe_perfil">Tipo de conta</string>
+    <string name="utilizador">Utilizador</string>
     <string name="jogador">Jogador</string>
     <string name="capitao_equipa">Capitão de equipa</string>
     <string name="organizador">Organizador</string>
     <string name="espectador">Espectador</string>
     <string name="administrador">Administrador</string>
+    <string name="desc_perfil_utilizador">Segue jogos, vota no MVP e cria equipas</string>
+    <string name="desc_perfil_organizador">Cria e gere torneios de futsal</string>
 
     <!-- ── Sliders ────────────────────────────────────────────────────────── -->
     <string name="slider_1_titulo">Organiza os teus torneios</string>
@@ -191,6 +194,7 @@
 
     <!-- ── Sucesso ────────────────────────────────────────────────────────── -->
     <string name="sucesso_registo">Conta criada! Verifica o teu email.</string>
+    <string name="sucesso_email_reset">Email de recuperação enviado! Verifica a caixa de entrada.</string>
     <string name="sucesso_torneio_criado">Torneio criado com sucesso!</string>
     <string name="sucesso_inscricao">Equipa inscrita com sucesso!</string>
     <string name="sucesso_voto_mvp">Voto registado!</string>

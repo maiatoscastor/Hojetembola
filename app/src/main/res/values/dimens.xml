@@ -34,5 +34,6 @@
     <dimen name="card_padding">12dp</dimen>
     <dimen name="screen_padding">16dp</dimen>
     <dimen name="border_width">1.5dp</dimen>
+    <dimen name="border_width_selected">2dp</dimen>
     <dimen name="progress_bar_height">3dp</dimen>
 </resources>

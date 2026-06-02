@@ -37,6 +37,6 @@ interface VotoMvpDao {
 
 /** Projeção auxiliar para contagem de votos por candidato. */
 data class VotoContagem(
-    val votadoId: String,
+    @ColumnInfo(name = "votado_id") val votadoId: String,
     val total: Int
 )

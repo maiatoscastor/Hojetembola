@@ -22,12 +22,15 @@
 
     <!-- ── Profiles ───────────────────────────────────────────────────────── -->
     <string name="perfil">Profile</string>
-    <string name="escolhe_perfil">Choose your profile</string>
+    <string name="escolhe_perfil">Account type</string>
+    <string name="utilizador">User</string>
     <string name="jogador">Player</string>
     <string name="capitao_equipa">Team captain</string>
     <string name="organizador">Organizer</string>
     <string name="espectador">Spectator</string>
     <string name="administrador">Administrator</string>
+    <string name="desc_perfil_utilizador">Follow matches, vote for MVP and create teams</string>
+    <string name="desc_perfil_organizador">Create and manage futsal tournaments</string>
 
     <!-- ── Sliders ────────────────────────────────────────────────────────── -->
     <string name="slider_1_titulo">Organize your tournaments</string>
@@ -191,6 +194,7 @@
 
     <!-- ── Success ────────────────────────────────────────────────────────── -->
     <string name="sucesso_registo">Account created! Please check your email.</string>
+    <string name="sucesso_email_reset">Recovery email sent! Please check your inbox.</string>
     <string name="sucesso_torneio_criado">Tournament created successfully!</string>
     <string name="sucesso_inscricao">Team registered successfully!</string>
     <string name="sucesso_voto_mvp">Vote recorded!</string>

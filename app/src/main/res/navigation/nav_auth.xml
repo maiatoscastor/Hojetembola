@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Grafo de navegação do fluxo de autenticação.
+    Hosted in: SplashActivity (via FragmentContainerView #auth_nav_host)
+
+    Destinos:
+      • loginFragment   — destino inicial (email/password + Google OAuth)
+      • sliderFragment  — 4 slides introdutórios (só na 1ª abertura)
+      • registoFragment — formulário de criação de conta
+
+    Nota: SplashActivity é a Activity que ALOJA este grafo, não um destino dentro dele.
+    A lógica de decisão (sessão ativa → MainActivity) está em SplashActivity.kt.
+-->
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_auth"
+    app:startDestination="@id/loginFragment">
+
+    <!-- ── Slider (só na primeira abertura) ────────────────────────────────── -->
+    <fragment
+        android:id="@+id/sliderFragment"
+        android:name="com.hojetembola.app.ui.auth.SliderFragment"
+        android:label="SliderFragment">
+        <action
+            android:id="@+id/action_slider_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/sliderFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- ── Login (destino padrão) ───────────────────────────────────────────── -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.hojetembola.app.ui.auth.LoginFragment"
+        android:label="LoginFragment">
+        <action
+            android:id="@+id/action_login_to_registo"
+            app:destination="@id/registoFragment" />
+    </fragment>
+
+    <!-- ── Registo ──────────────────────────────────────────────────────────── -->
+    <fragment
+        android:id="@+id/registoFragment"
+        android:name="com.hojetembola.app.ui.auth.RegistoFragment"
+        android:label="RegistoFragment">
+        <action
+            android:id="@+id/action_registo_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+</navigation>

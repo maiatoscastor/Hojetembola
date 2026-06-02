@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Representa rankings — 3 barras estilo pódio -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="80dp"
+    android:height="80dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Barra esquerda (2.º lugar) -->
+    <path
+        android:fillColor="@color/orange"
+        android:pathData="M2,21H7.5V9H2V21Z"/>
+    <!-- Barra central (1.º lugar — mais alta) -->
+    <path
+        android:fillColor="@color/orange"
+        android:pathData="M8.75,21H15.25V3H8.75V21Z"/>
+    <!-- Barra direita (3.º lugar) -->
+    <path
+        android:fillColor="@color/orange"
+        android:pathData="M16.5,21H22V12H16.5V21Z"/>
+</vector>

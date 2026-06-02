@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Layout landscape do SplashActivity.
+
+    Em paisagem, o overlay é dividido em duas colunas:
+      Esquerda: logo + nome da app (centrados verticalmente)
+      Direita:  subtítulo + barra de loading (centrados verticalmente)
+-->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_primary">
+
+    <!-- ── Camada 1: NavHost do fluxo de auth ──────────────────────────────── -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/auth_nav_host"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_auth" />
+
+    <!-- ── Camada 2: Overlay do splash — duas colunas ──────────────────────── -->
+    <LinearLayout
+        android:id="@+id/splashOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bg_primary"
+        android:orientation="horizontal">
+
+        <!-- Coluna esquerda: Logo + Nome -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingEnd="@dimen/spacing_xxl">
+
+            <ImageView
+                android:id="@+id/imgLogo"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:contentDescription="@string/cd_logo_app"
+                android:src="@mipmap/ic_launcher" />
+
+            <TextView
+                android:id="@+id/tvAppName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:fontFamily="@font/poppins_bold"
+                android:text="@string/app_name"
+                android:textColor="@color/text_primary"
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <!-- Divisor vertical -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center_vertical"
+            android:background="@color/bg_border" />
+
+        <!-- Coluna direita: Subtítulo + Loader -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/spacing_xxl">
+
+            <TextView
+                android:id="@+id/tvSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="@string/app_subtitle"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_body" />
+
+            <ProgressBar
+                android:id="@+id/progressLoading"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="100dp"
+                android:layout_height="@dimen/progress_bar_height"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/orange" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

@@ -92,6 +92,24 @@
         <item name="cornerSize">@dimen/input_radius</item>
     </style>
 
+    <!-- ── Tab (login / registo) ────────────────────────────────────────── -->
+    <style name="TextAppearance.HojeTemBola.Tab" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/poppins_semi_bold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- ── Dropdown de seleção (ex: Perfil) ─────────────────────────────── -->
+    <style name="Widget.HojeTemBola.ExposedDropdown" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxBackgroundColor">@color/bg_surface</item>
+        <item name="boxStrokeColor">@color/bg_border</item>
+        <item name="boxStrokeWidth">@dimen/border_width</item>
+        <item name="hintTextColor">@color/text_muted</item>
+        <item name="android:textColorHint">@color/text_muted</item>
+        <item name="endIconTint">@color/text_secondary</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.HojeTemBola.Input</item>
+    </style>
+
     <!-- ── Card ──────────────────────────────────────────────────────────── -->
     <style name="Widget.HojeTemBola.Card" parent="Widget.Material3.CardView.Elevated">
         <item name="cardBackgroundColor">@color/bg_surface</item>

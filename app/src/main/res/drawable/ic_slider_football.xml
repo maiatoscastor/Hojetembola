@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Representa "jogos ao vivo" — seta de play dentro de um círculo -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="80dp"
+    android:height="80dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Círculo exterior -->
+    <path
+        android:fillColor="@color/orange"
+        android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10c5.52,0 10,-4.48 10,-10S17.52,2 12,2ZM12,20C7.59,20 4,16.41 4,12S7.59,4 12,4s8,3.59 8,8S16.41,20 12,20Z"/>
+    <!-- Seta play (ao vivo) -->
+    <path
+        android:fillColor="@color/orange"
+        android:pathData="M10,8.5V15.5L16.5,12L10,8.5Z"/>
+</vector>

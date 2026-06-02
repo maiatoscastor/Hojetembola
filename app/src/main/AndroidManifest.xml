@@ -19,15 +19,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HojeTemBola">
 
-        <!-- ── Actividade principal (provisória para Passo 1) ────────────── -->
+        <!-- ── Splash — ponto de entrada da app ─────────────────────────── -->
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".ui.auth.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.HojeTemBola.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- ── Main app — iniciada após autenticação bem-sucedida ────────── -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
 
         <!-- ── FCM — serviço de notificações push ────────────────────────── -->
         <service

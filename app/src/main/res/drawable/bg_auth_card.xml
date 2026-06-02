@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cartão de autenticação — fundo bg_surface com borda bg_border e cantos arredondados -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/bg_surface" />
+    <stroke
+        android:width="@dimen/border_width"
+        android:color="@color/bg_border" />
+    <corners android:radius="@dimen/card_radius" />
+</shape>
