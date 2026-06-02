@@ -119,4 +119,19 @@
         <item name="cardElevation">0dp</item>
     </style>
 
+    <!-- ── Bottom Navigation ────────────────────────────────────────────── -->
+    <style name="Widget.HojeTemBola.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/bg_surface</item>
+        <item name="elevation">0dp</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.HojeTemBola.BottomNav.Indicator</item>
+        <item name="itemIconSize">22dp</item>
+        <item name="android:paddingTop">4dp</item>
+    </style>
+
+    <!-- Indicador ativo subtil — mesma cor do fundo, praticamente invisível -->
+    <!-- Não pode ser totalmente transparente: o M3 reserva espaço para ele e corta os labels -->
+    <style name="Widget.HojeTemBola.BottomNav.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/bg_surface</item>
+    </style>
+
 </resources>

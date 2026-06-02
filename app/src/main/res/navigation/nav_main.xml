@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.hojetembola.app.ui.home.HomeFragment"
+        android:label="@string/nav_inicio" />
+
+    <fragment
+        android:id="@+id/torneiosFragment"
+        android:name="com.hojetembola.app.ui.torneios.TorneiosFragment"
+        android:label="@string/nav_torneios" />
+
+    <fragment
+        android:id="@+id/rankingsFragment"
+        android:name="com.hojetembola.app.ui.rankings.RankingsFragment"
+        android:label="@string/nav_rankings" />
+
+    <fragment
+        android:id="@+id/perfilFragment"
+        android:name="com.hojetembola.app.ui.perfil.PerfilFragment"
+        android:label="@string/nav_perfil" />
+
+</navigation>

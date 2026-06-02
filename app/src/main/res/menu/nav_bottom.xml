@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/ic_nav_home"
+        android:title="@string/nav_inicio" />
+
+    <item
+        android:id="@+id/torneiosFragment"
+        android:icon="@drawable/ic_nav_torneios"
+        android:title="@string/nav_torneios" />
+
+    <item
+        android:id="@+id/rankingsFragment"
+        android:icon="@drawable/ic_nav_rankings"
+        android:title="@string/nav_rankings" />
+
+    <item
+        android:id="@+id/perfilFragment"
+        android:icon="@drawable/ic_nav_perfil"
+        android:title="@string/nav_perfil" />
+
+</menu>
