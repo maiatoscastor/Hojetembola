@@ -26,6 +26,23 @@
         android:paddingBottom="@dimen/spacing_xl">
 
         <!-- ── Cabeçalho ── -->
+        <FrameLayout
+            android:layout_width="104dp"
+            android:layout_height="104dp"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:background="@drawable/bg_logo_container"
+            android:clipChildren="true"
+            android:padding="8dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/cd_logo_app"
+                android:scaleType="centerCrop"
+                android:src="@drawable/logo_htb" />
+
+        </FrameLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -203,6 +220,20 @@
                 app:iconGravity="textStart"
                 app:iconSize="18dp"
                 app:iconTint="@null" />
+
+            <!-- ⚡ DEV ONLY — remover antes da entrega final -->
+            <TextView
+                android:id="@+id/btnDevLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="@font/poppins_regular"
+                android:text="⚡ Dev: Entrar como Diogo"
+                android:textColor="@color/text_muted"
+                android:textSize="11sp" />
 
         </LinearLayout>
     </LinearLayout>

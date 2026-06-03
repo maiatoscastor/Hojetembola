@@ -30,19 +30,29 @@
         android:layout_height="match_parent"
         android:background="@color/bg_primary">
 
-        <!-- Logo da app -->
-        <ImageView
+        <!-- Logo da app — contentor branco arredondado com a logo real -->
+        <FrameLayout
             android:id="@+id/imgLogo"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:contentDescription="@string/cd_logo_app"
-            android:src="@mipmap/ic_launcher"
+            android:layout_width="104dp"
+            android:layout_height="104dp"
+            android:background="@drawable/bg_logo_container"
+            android:clipChildren="true"
+            android:padding="8dp"
             app:layout_constraintBottom_toTopOf="@id/tvAppName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.36"
-            app:layout_constraintVertical_chainStyle="packed" />
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/cd_logo_app"
+                android:scaleType="centerCrop"
+                android:src="@drawable/logo_htb" />
+
+        </FrameLayout>
 
         <!-- Nome da app -->
         <TextView

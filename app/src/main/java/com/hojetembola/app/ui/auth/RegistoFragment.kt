@@ -175,14 +175,12 @@ class RegistoFragment : Fragment() {
 
     private fun onRegistoSuccess() {
         setLoadingState(false)
-        Snackbar.make(binding.root, getString(R.string.sucesso_registo), Snackbar.LENGTH_LONG)
-            .addCallback(object : Snackbar.Callback() {
-                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                    viewModel.resetState()
-                    navigateToLogin()
-                }
-            })
-            .show()
+        viewModel.resetState()
+        // Passa a mensagem de sucesso para o LoginFragment via back stack
+        findNavController().previousBackStackEntry
+            ?.savedStateHandle
+            ?.set("registo_sucesso", getString(R.string.sucesso_registo))
+        navigateToLogin()
     }
 
     private fun setLoadingState(loading: Boolean) {

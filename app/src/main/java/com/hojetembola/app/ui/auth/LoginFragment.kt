@@ -69,6 +69,7 @@ class LoginFragment : Fragment() {
         setupTabs()
         setupButtons()
         observeAuthState()
+        observeRegistoResult()
     }
 
     /** Garante que "Entrar" está selecionado ao regressar de RegistoFragment. */
@@ -112,6 +113,11 @@ class LoginFragment : Fragment() {
         binding.btnGoogle.setOnClickListener {
             viewModel.loginWithGoogle()
         }
+
+        // ⚡ DEV ONLY — remover antes da entrega final
+        binding.btnDevLogin.setOnClickListener {
+            viewModel.login("diogosa@gmail.com", "diogosa123")
+        }
     }
 
     // ── Validação e envio ─────────────────────────────────────────────────────
@@ -135,6 +141,24 @@ class LoginFragment : Fragment() {
         }
 
         if (valid) viewModel.login(email, password)
+    }
+
+    // ── Resultado do registo ──────────────────────────────────────────────────
+
+    /** Recebe a mensagem de sucesso passada pelo RegistoFragment quando o utilizador
+     *  criou conta e foi redirecionado para aqui. */
+    private fun observeRegistoResult() {
+        findNavController().currentBackStackEntry
+            ?.savedStateHandle
+            ?.getLiveData<String>("registo_sucesso")
+            ?.observe(viewLifecycleOwner) { msg ->
+                if (!msg.isNullOrEmpty()) {
+                    Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
+                    findNavController().currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.remove<String>("registo_sucesso")
+                }
+            }
     }
 
     // ── Estado de autenticação ────────────────────────────────────────────────

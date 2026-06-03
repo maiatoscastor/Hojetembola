@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Item individual do dropdown de perfil — texto branco, Poppins Regular -->
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/text1"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:fontFamily="@font/poppins_regular"
+    android:layout_height="48dp"
     android:gravity="center_vertical"
-    android:minHeight="48dp"
-    android:paddingStart="@dimen/spacing_lg"
-    android:paddingEnd="@dimen/spacing_lg"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:fontFamily="@font/poppins_regular"
     android:textColor="@color/text_primary"
-    android:textSize="@dimen/text_body" />
+    android:textSize="12sp" />

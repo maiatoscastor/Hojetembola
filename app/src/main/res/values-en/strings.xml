@@ -139,7 +139,7 @@
 
     <!-- ── Rankings ───────────────────────────────────────────────────────── -->
     <string name="rankings">Rankings</string>
-    <string name="golos">Goals</string>
+    <string name="golos">Golos</string>
     <string name="jogos_disputados">Games played</string>
     <string name="esta_jornada">This round</string>
     <string name="este_mes">This month</string>

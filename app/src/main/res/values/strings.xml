@@ -174,6 +174,27 @@
     <string name="ultimas_conquistas">Últimas conquistas</string>
     <string name="mvps_ganhos">MVPs ganhos</string>
 
+    <!-- ── Perfil — estatísticas ──────────────────────────────────────────── -->
+    <string name="secao_estatisticas">Estatísticas</string>
+    <string name="stat_jogos">Jogos</string>
+    <string name="stat_mvps">MVPs</string>
+    <string name="stat_assistencias">Assistências</string>
+    <string name="stat_cartoes_amarelos">Cartões amarelos</string>
+    <string name="stat_minutos_jogados">Minutos jogados</string>
+    <string name="stat_melhor_periodo">Melhor período</string>
+
+    <!-- ── Perfil — filtros de período ───────────────────────────────────── -->
+    <string name="periodo_esta_semana">Esta semana</string>
+    <string name="periodo_este_mes">Este mês</string>
+    <string name="periodo_epoca_atual">Época atual</string>
+    <string name="periodo_desde_sempre">Desde sempre</string>
+    <string name="escopo_geral">Geral</string>
+
+    <!-- ── Perfil — estados vazios ───────────────────────────────────────── -->
+    <string name="sem_equipas_perfil">Ainda não fazes parte de nenhuma equipa</string>
+    <string name="sem_conquistas_perfil">Ainda sem conquistas registadas</string>
+    <string name="em_breve">Em breve…</string>
+
     <!-- ── Notificações ───────────────────────────────────────────────────── -->
     <string name="notificacoes">Notificações</string>
     <string name="marcar_todas_lidas">Marcar todas como lidas</string>

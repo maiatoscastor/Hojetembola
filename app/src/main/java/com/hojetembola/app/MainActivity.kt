@@ -37,14 +37,16 @@ class MainActivity : AppCompatActivity() {
      * acima da área de gestos e não fiquem cortados.
      */
     private fun applyInsets() {
+        // Padding superior no container dos fragments → status bar não sobrepõe conteúdo
+        ViewCompat.setOnApplyWindowInsetsListener(binding.navHostMain) { view, windowInsets ->
+            val top = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(view.paddingLeft, top, view.paddingRight, view.paddingBottom)
+            windowInsets
+        }
+        // Padding inferior no bottom nav → gesture bar não sobrepõe os ícones
         ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNav) { view, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(
-                view.paddingLeft,
-                view.paddingTop,
-                view.paddingRight,
-                insets.bottom
-            )
+            val bottom = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, bottom)
             windowInsets
         }
     }
