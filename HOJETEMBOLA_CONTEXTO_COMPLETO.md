@@ -454,106 +454,118 @@ Usar SEMPRE os mesmos dados fictícios em todos os mockups/testes:
 ## 11. ESTADO ATUAL DA IMPLEMENTAÇÃO
 
 ### ✅ Concluído
+
 - Repositório GitHub criado e configurado
 - Projeto Android Studio criado (package: com.hojetembola.app, API 26, Kotlin DSL)
 - Firebase configurado (google-services.json em app/)
 - Supabase criado com todas as 15 tabelas e ENUMs
+
 - **Passo 1 — Fundação técnica COMPLETA:**
   - libs.versions.toml com todas as dependências
   - build.gradle.kts (projeto e app) configurados e funcionais
-  - Problemas de compatibilidade AGP 9.0.1 + Kotlin 2.0.21 resolvidos:
-    - Plugin kotlin.android removido (AGP 9.0 inclui-o internamente)
-    - Hilt atualizado para 2.59.2
-    - KAPT substituído por KSP
-    - kotlinOptions substituído por kotlin { compilerOptions {} }
-    - JVM toolchain removido (usa JVM target 11 direto)
-  - HojeTemBolaApp.kt (@HiltAndroidApp)
-  - SupabaseClient.kt com credenciais configuradas
-  - AppDatabase.kt (Room) com 15 entidades
-  - 15 DAOs com queries + Flow para reatividade
-  - 15 entidades Room espelhando tabelas Supabase
-  - AppModule.kt (Hilt DI)
-  - NetworkUtils.kt
-  - SyncWorker.kt (@HiltWorker)
-  - Extensions.kt
-  - HojeTemBolaFirebaseMessagingService.kt
-  - colors.xml, themes.xml, dimens.xml
-  - strings.xml (PT) + strings-en/strings.xml (EN) — ~120 strings
-  - Fontes Poppins via Downloadable Fonts
-  - AndroidManifest.xml com permissões e serviços
+  - Compatibilidade AGP 9.0.1 + Kotlin 2.0.21 resolvida (ver secção 15)
+  - HojeTemBolaApp.kt, SupabaseClient.kt, AppDatabase.kt (Room v2, 15 entidades)
+  - 15 DAOs + AppModule.kt (Hilt) + NetworkUtils + SyncWorker + Extensions + FCM
+  - colors.xml, themes.xml, dimens.xml, strings.xml (~130 PT + EN)
+  - Poppins via Downloadable Fonts
   - **BUILD SUCCESSFUL** ✅
 
-### ⏳ A implementar (por ordem)
+- **Passo 2 — Autenticação COMPLETA:**
+  - SplashActivity com logo real (logo_htb.png) e loader animado
+  - 4 SliderFragments (mostrados só na 1ª vez via SharedPreferences)
+  - LoginFragment: tabs Entrar/Registar, email+password, Google OAuth (stub), recuperação de password
+  - RegistoFragment: nome, email, password, confirmação, escolha de perfil
+  - AuthViewModel (StateFlow: Idle/Loading/Success/EmailSent/Error)
+  - AuthRepository (Supabase Auth: login, register, forgotPassword, signOut)
+  - Layouts portrait e landscape para todos os ecrãs de auth
+  - **Fluxo de navegação auth → main:** após login bem-sucedido navega para MainActivity e faz finish() da SplashActivity
+  - **Após registo:** navega imediatamente para o Login (não espera pelo Snackbar) e passa mensagem de sucesso via savedStateHandle
 
-**Passo 2 — Autenticação**
-- SplashActivity
-- SliderFragment (4 slides, só na 1ª vez)
-- LoginFragment (email/password + Google OAuth)
-- RegistoFragment
-- AuthViewModel (StateFlow)
-- AuthRepository (Supabase Auth)
-- Layouts portrait + landscape
-- Navegação entre ecrãs de auth
+- **Passo 3 — Navegação principal COMPLETA:**
+  - MainActivity com BottomNavigationView (4 tabs: Início, Torneios, Rankings, Perfil)
+  - nav_auth.xml (Splash → Sliders → Login/Registo)
+  - nav_main.xml (Home, Torneios, CriarTorneio, Rankings, Perfil)
+  - Dois NavGraphs separados — auth em SplashActivity, main em MainActivity
 
-**Passo 3 — Navegação principal**
-- MainActivity com BottomNavigationView
-- NavGraph completo
-- Bottom Navigation (Início, Torneios, Rankings, Perfil)
+- **Passo 5 (parcial) — Torneios:**
+  - TorneiosFragment: lista com RecyclerView multi-tipo (Header/Meu/Público), pesquisa reativa, chips de filtro (Todos/A decorrer/Inscrições/Terminados), estados loading/empty/error
+  - CriarTorneioFragment: formulário completo em 6 secções (Informações, Equipas, Datas, Localização, Regras, Visibilidade), ChipGroups, steppers −/+, DatePickers via MaterialDatePicker, SwitchMaterial, validação, offline-first
+  - TorneioAdapter: ListAdapter com 3 view types + DiffUtil (TorneioListItem sealed class)
+  - TorneiosViewModel: combine() de 3 StateFlows (filtro, pesquisa, zona) + dados Room
+  - CriarTorneioViewModel: CriarTorneioForm data class, validate(), criarTorneio() com offline-first
+  - TorneioRepository: getMeusTorneios (UNION query organizer+membro), getTorneiosPublicos, syncTorneios, criarTorneio
+  - TorneioDto: @Serializable com @SerialName, toEntity() / toDto()
+  - Drawables: bg_badge_live, bg_badge_open, bg_badge_done, ic_back
+  - Layouts: item_lista_header, item_torneio_meu (com barra de progresso), item_torneio_publico (com botão inscrever)
+  - ❌ **DetalheTorneioFragment ainda não implementado**
 
-**Passo 4 — Dashboard**
-- DashboardFragment (Jogador e Organizador — vistas diferentes)
-- DashboardViewModel
-- DashboardRepository
+- **Passo 10 (parcial) — Perfil:**
+  - PerfilFragment completo: avatar, nome, perfil, estatísticas, equipas, conquistas, terminar sessão
+  - PerfilViewModel: StateFlow (Loading/Success/Error) + SharedFlow para evento signOut
+  - UserRepository: getCurrentUser (cache-first + fallback rede), signOut
+  - ❌ **NotificacoesFragment ainda não implementado**
 
-**Passo 5 — Torneios**
-- ListaTorneiosFragment (filtros, pesquisa, +N equipas)
-- CriarTorneioFragment (formulário completo em scroll)
-- DetalheTorneioFragment (tabs: Classificação/Jornadas/Equipas/Info)
-- TorneioViewModel + TorneioRepository
+- **Launcher e branding:**
+  - Ícone launcher: bola de futebol calculada matematicamente (1 pentágono central + 5 periféricos)
+  - Logo real da app (logo_htb.png) usada em SplashActivity e LoginFragment
+
+### ⚠️ Implementado mas com pendências conhecidas
+
+Ver **Secção 17 — Melhorias e Correções Pendentes** para lista completa e detalhada.
+
+### ⏳ Por implementar (por ordem de prioridade)
+
+**Passo 4 — Dashboard/Home**
+- HomeFragment: vista diferente para Organizador vs. Utilizador
+- Stats pessoais (golos, MVPs, partidas), próximo jogo, torneios ativos
+- HomeViewModel + HomeRepository
+
+**Passo 5 (continuação) — Detalhe de Torneio**
+- DetalheTorneioFragment com 4 tabs: Classificação / Jornadas / Equipas / Info
+- TorneioDetalheViewModel
 
 **Passo 6 — Equipas**
-- PerfilEquipaFragment (tabs: Jogadores/Torneios/Estatísticas)
+- PerfilEquipaFragment (tabs: Jogadores / Torneios / Estatísticas)
 - EquipaViewModel + EquipaRepository
-- Gestão de convites (link 48h)
+- Gestão de convites (link 48h, expiração automática)
+- Transferência de capitania
 
 **Passo 7 — Jogos**
-- JogoAoVivoFragment (portrait + landscape L1)
-- RegistarEventoFragment (bottom sheet)
+- JogoAoVivoFragment (portrait + landscape L1 obrigatório)
+- RegistarEventoFragment (bottom sheet: golo / cartão / substituição)
 - JogoViewModel + JogoRepository
-- Supabase Realtime para marcador ao vivo
+- Supabase Realtime para marcador ao vivo (WebSocket já instalado)
 
 **Passo 8 — Rankings**
-- RankingsFragment (portrait + landscape L2)
-- Pódio top 3 visual
-- Lista com evolução ▲▼
+- RankingsFragment (portrait + landscape L2 obrigatório)
+- Pódio visual top 3 (cores: gold #EF9F27, silver #378ADD, bronze #D85A30)
+- Lista com indicador de evolução ▲N / ▼N
 - RankingsViewModel + RankingsRepository
 
 **Passo 9 — MVP**
-- VotacaoMVPFragment
-- Percentagens por grupo em tempo real
+- VotacaoMVPFragment com percentagens por grupo (Jogadores / Público / Organizador)
+- Percentagens em tempo real via Supabase Realtime
 - MVPViewModel + MVPRepository
+- Resultado escondido até fechar votação
 
-**Passo 10 — Perfil e Notificações**
-- PerfilUtilizadorFragment
-- NotificacoesFragment
-- PerfilViewModel + NotificacoesViewModel
+**Passo 10 (continuação) — Notificações**
+- NotificacoesFragment: lista com ícone por tipo + tempo relativo
+- NotificacoesViewModel
+- Integração com FCM (base já existe em HojeTemBolaFirebaseMessagingService)
 
-**Passo 11 — Pesquisa e ecrãs secundários**
-- PesquisaTorneiosFragment
-- Todos os ecrãs secundários em falta
+**Passo 11 — Pesquisa avançada**
+- PesquisaTorneiosFragment com filtros: zona, modalidade, formato, estado
 
 **Passo 12 — Offline e sync**
-- Testar e afinar modo offline
-- WorkManager sync
-- Verificar todas as flags sincronizado/pendente
+- Completar SyncWorker (syncJogos e syncEventos têm TODO — atualmente apenas marcam como sincronizados sem enviar para o Supabase)
+- Testar modo offline em todas as operações críticas
 
 **Passo 13 — Testes**
-- Testes unitários (JUnit 4 + MockK)
+- Testes unitários (JUnit 4 + MockK), mínimo 60% cobertura
 - Testes de interface (Espresso)
-- Cobertura mínima 60%
 
 **Passo 14 — Entrega final**
-- Gerar APK assinado
+- APK assinado
 - Documentação técnica completa
 - Apresentação em slides
 
@@ -590,7 +602,7 @@ Usar SEMPRE os mesmos dados fictícios em todos os mockups/testes:
 | Modelo de dados (DER + justificação) | ✅ Documento Word gerado |
 | Arquitetura e planeamento | ✅ Documento Word gerado |
 | Base de dados (Supabase) | ✅ 15 tabelas criadas |
-| Código-fonte Android | 🔄 Em progresso (Passo 1 concluído) |
+| Código-fonte Android | 🔄 Em progresso (Passos 1, 2, 3, 5 parcial, 10 parcial concluídos) |
 | APK assinado | ⏳ Pendente |
 | Testes unitários + integração | ⏳ Pendente |
 | Documentação técnica | ⏳ Pendente |
@@ -628,5 +640,216 @@ Usar SEMPRE os mesmos dados fictícios em todos os mockups/testes:
 
 ---
 
-*Ficheiro gerado em Junho 2026 — HojeTemBola, Computação Móvel 2025/2026, IPVC*
+## 15. DECISÕES TÉCNICAS E PADRÕES DE IMPLEMENTAÇÃO
+
+### Multi-type RecyclerView (TorneiosFragment)
+- Padrão: `sealed class TorneioListItem` com subtypes `Header`, `Meu`, `Publico`
+- `ListAdapter<TorneioListItem, RecyclerView.ViewHolder>` com `DiffUtil.ItemCallback` que usa `getItemViewType()` para retornar 0/1/2
+- O Fragment constrói a lista combinada (headers + items) antes de chamar `submitList()`
+- Nunca misturar lógica de agrupamento no Adapter — fica no Fragment ou ViewModel
+
+### StateFlow reativo com `combine()` (TorneiosViewModel)
+```kotlin
+val uiState = combine(baseState, _filtro, _pesquisa, _zona) { state, f, p, z ->
+    // mapeia para UiState filtrado
+}.stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
+```
+- `SharingStarted.Lazily` — só inicia quando há o primeiro subscriber, não produz trabalho desnecessário
+- Cada filtro é um `MutableStateFlow<String>` separado; usar `setValue()` nos setters públicos
+
+### Offline-first — Torneios
+1. `CriarTorneioViewModel.criarTorneio()`: insere no Room com `isSynced = false`
+2. Tenta enviar para Supabase imediatamente
+3. Se sucesso: atualiza `isSynced = true` no Room
+4. Se falha: WorkManager irá tentar mais tarde (SyncWorker)
+- Nunca bloquear a UI a aguardar resposta do Supabase
+
+### DatePicker com ISO 8601
+```kotlin
+val millis: Long = selection  // MaterialDatePicker retorna epoch ms
+val iso = Instant.ofEpochMilli(millis)
+    .atZone(ZoneOffset.UTC)
+    .toLocalDate()
+    .toString()  // "YYYY-MM-DD"
+```
+- Sempre guardar datas como ISO 8601 (YYYY-MM-DD) nas entidades e DTOs
+- Para display ao utilizador: converter para DD/MM/YYYY com `toDisplayDate()` extension
+
+### `setTextSilently()` — evitar loop TextWatcher
+Quando um StateFlow atualiza um campo de texto que tem um TextWatcher registado, o listener re-dispara e pode criar ciclo infinito. Solução:
+```kotlin
+fun EditText.setTextSilently(watcher: TextWatcher, text: String) {
+    removeTextChangedListener(watcher)
+    setText(text)
+    addTextChangedListener(watcher)
+}
+```
+
+### ChipGroup — regra crítica de layout
+**Todos os `<Chip>` dentro de `<ChipGroup>` DEVEM ter `android:layout_width` e `android:layout_height` explícitos no XML**, mesmo quando a dimensão está definida no style. `ChipGroup.LayoutParams` não herda atributos de layout do style — causa `InflateException` se omitidos. Ver Secção 16 para o bug completo.
+
+### QUERY DAO com UNION (getMeusTorneios)
+```sql
+SELECT t.* FROM torneio t WHERE t.organizador_id = :userId
+UNION
+SELECT t.* FROM torneio t
+INNER JOIN inscricao_equipa ie ON t.id = ie.torneio_id
+INNER JOIN membro_equipa me ON ie.equipa_id = me.equipa_id
+WHERE me.utilizador_id = :userId AND me.ativo = 1
+```
+- Retorna Flow<List<TorneioEntity>> — atualiza automaticamente quando Room muda
+
+### Room version bump
+- Versão atual: **2** (15 entidades, esquema estável)
+- Sempre incrementar versão em `AppDatabase` quando se adicionam colunas/tabelas
+- Usar `fallbackToDestructiveMigration()` durante desenvolvimento (não em produção)
+- Próximo bump necessário ao implementar: `codigoAcesso` e `tempoExtraMinutos` na tabela `torneio`
+
+---
+
+## 16. BUGS ENCONTRADOS E CORREÇÕES APLICADAS
+
+### BUG-01 — App fecha ao navegar para aba Torneios
+**Data:** Sessão 2 (Junho 2026)
+**Sintoma:** `java.lang.RuntimeException` → `InflateException` ao navegar para TorneiosFragment
+**Stack trace:** `ChipGroup$LayoutParams.<init>` ao inflar `fragment_torneios.xml` linha 95
+**Causa raiz:** Os elementos `<Chip>` dentro de `<ChipGroup>` não tinham `android:layout_width` e `android:layout_height` declarados explicitamente no XML. Ao contrário de outros ViewGroups, `ChipGroup.LayoutParams` exige estes atributos diretamente no elemento — não os herda do `style`.
+**Correção:**
+- Adicionado `android:layout_width="wrap_content"` e `android:layout_height="wrap_content"` aos 4 chips de `fragment_torneios.xml`
+- Adicionado o mesmo aos 13 chips distribuídos pelos 4 ChipGroups de `fragment_criar_torneio.xml`
+**Ficheiros alterados:** `fragment_torneios.xml`, `fragment_criar_torneio.xml`
+**Prevenção futura:** Sempre incluir `layout_width`/`layout_height` explícitos em Chips dentro de ChipGroups, mesmo com style definido.
+
+### BUG-02 — Compatibilidade AGP 9.0.1 + Kotlin 2.0.21 (Passo 1)
+**Sintoma:** Build falha com erros de plugin Kotlin
+**Causa:** AGP 9.0.1 inclui Kotlin internamente; usar `kotlin.android` plugin separado causa conflito. KAPT não funciona com KSP configurado em simultâneo.
+**Correções aplicadas:**
+- Removido plugin `kotlin.android` separado do `build.gradle.kts`
+- Migrado de `kotlinOptions { jvmTarget = "11" }` para `kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_11) } }`
+- Substituído KAPT por KSP em todas as anotações (Room + Hilt)
+- Hilt versão mínima compatível: 2.59.2 (não usar 2.51 com AGP 9.0)
+- NÃO usar JVM toolchain (causa problemas se JDK 11 não instalado globalmente)
+
+---
+
+## 17. MELHORIAS E CORREÇÕES PENDENTES
+
+### MELHORIA-01 — Verificação de permissão na criação de torneios
+**Prioridade:** Alta
+**Problema:** Qualquer utilizador logado pode ver e clicar em "Criar Torneio", mas só Organizadores devem poder criar.
+**Implementação necessária:**
+1. Em `TorneiosFragment.kt`: esconder `btnCriar` se `utilizador.perfil != "organizador"`
+   ```kotlin
+   // No observeState() após obter o utilizador:
+   binding.btnCriar.isVisible = utilizador.perfil == "organizador"
+   ```
+2. Em `CriarTorneioViewModel.criarTorneio()`: validar antes de prosseguir
+   ```kotlin
+   if (currentUser?.perfil != "organizador") {
+       _uiState.value = CriarTorneioUiState.Error("Apenas organizadores podem criar torneios")
+       return@launch
+   }
+   ```
+3. `TorneiosViewModel` já tem acesso ao `UserRepository` via Hilt — usar para obter perfil atual
+
+### MELHORIA-02 — Mínimo de jogadores por equipa baseado na modalidade
+**Prioridade:** Alta
+**Problema:** O stepper de "max jogadores por equipa" não tem mínimo baseado na modalidade. Um torneio Fut11 podia ser criado com mínimo de 5 jogadores por equipa.
+**Regras:**
+| Modalidade | Mínimo jogadores/equipa |
+|---|---|
+| Fut5 | 5 |
+| Fut7 | 7 |
+| Fut11 | 11 |
+| Personalizado | Igual ao numJogadoresPersonalizado |
+**Implementação necessária em `CriarTorneioViewModel`:**
+```kotlin
+fun setModalidade(modalidade: String) {
+    val minJogadores = when (modalidade) {
+        "fut5" -> 5; "fut7" -> 7; "fut11" -> 11
+        "personalizado" -> _form.value.numJogadoresPersonalizado ?: 5
+        else -> 5
+    }
+    val currentMax = _form.value.maxJogadoresPorEquipa
+    _form.update {
+        it.copy(
+            modalidade = modalidade,
+            maxJogadoresPorEquipa = maxOf(currentMax, minJogadores),
+            minJogadoresPorEquipa = minJogadores
+        )
+    }
+}
+```
+- Adicionar campo `minJogadoresPorEquipa: Int = 5` ao `CriarTorneioForm`
+- Atualizar `validate()` para verificar `maxJogadoresPorEquipa >= minJogadoresPorEquipa`
+- No Fragment: stepper decrementar deve ter limite mínimo dinâmico
+
+### MELHORIA-03 — Validação de datas
+**Prioridade:** Alta
+**Problema:** Não há validação para impedir datas no passado ou ordenação incoerente.
+**Regras a implementar em `validate()`:**
+```kotlin
+val today = LocalDate.now()
+val inicioInscricoes = LocalDate.parse(form.dataInicioInscricoes)
+val fimInscricoes = LocalDate.parse(form.dataFimInscricoes)
+val inicioTorneio = LocalDate.parse(form.dataInicio)
+
+if (inicioInscricoes < today)
+    return ValidationError("Data de início de inscrições não pode ser no passado")
+if (fimInscricoes <= inicioInscricoes)
+    return ValidationError("Data de fim de inscrições deve ser posterior ao início")
+if (inicioTorneio <= fimInscricoes)
+    return ValidationError("Data de início do torneio deve ser posterior ao fim das inscrições")
+if (form.dataFimPrevista.isNotEmpty()) {
+    val fimPrevista = LocalDate.parse(form.dataFimPrevista)
+    if (fimPrevista <= inicioTorneio)
+        return ValidationError("Data de fim prevista deve ser posterior ao início")
+}
+```
+
+### MELHORIA-04 — Campo de duração do prolongamento
+**Prioridade:** Média
+**Problema:** Quando se seleciona "Prolongamento" como critério de desempate, não existe campo para especificar quantos minutos tem cada parte do prolongamento.
+**Mudanças necessárias (requerem Room bump v2 → v3 e coluna Supabase):**
+1. **`TorneioEntity`**: adicionar `val tempoExtraMinutos: Int = 10`
+2. **`TorneioDto`**: adicionar `@SerialName("tempo_extra_minutos") val tempoExtraMinutos: Int = 10`
+3. **`AppDatabase`**: versão 2 → 3, adicionar migration ou `fallbackToDestructiveMigration()`
+4. **`fragment_criar_torneio.xml`**: adicionar stepper `tvTempoExtra` (visível só quando chipProlongamento checked)
+5. **`CriarTorneioForm`**: adicionar `tempoExtraMinutos: Int = 10`
+6. **`CriarTorneioFragment`**: observar `cgCriterio` e mostrar/esconder stepper
+7. **Supabase**: `ALTER TABLE torneio ADD COLUMN tempo_extra_minutos INTEGER DEFAULT 10`
+
+### MELHORIA-05 — Código de acesso para torneios privados
+**Prioridade:** Média
+**Problema:** Torneios privados não têm mecanismo para controlar quem pode inscrever-se/participar.
+**Decisão tomada:** Código de acesso (4-6 dígitos/letras) que o Capitão insere ao tentar inscrever-se — mais simples que sistema de convites e não requer UI adicional para o Organizador.
+**Mudanças necessárias (requerem Room bump v2 → v3 e coluna Supabase):**
+1. **`TorneioEntity`**: adicionar `val codigoAcesso: String? = null`
+2. **`TorneioDto`**: adicionar `@SerialName("codigo_acesso") val codigoAcesso: String? = null`
+3. **`AppDatabase`**: versão 2 → 3 (juntar com MELHORIA-04 no mesmo bump)
+4. **`fragment_criar_torneio.xml`**: adicionar `tilCodigoAcesso` (TextInputLayout, visível só quando chipPrivado checked)
+5. **`CriarTorneioForm`**: adicionar `codigoAcesso: String? = null`
+6. **`CriarTorneioFragment`**: observar `cgVisibilidade` e mostrar/esconder campo
+7. **Supabase**: `ALTER TABLE torneio ADD COLUMN codigo_acesso TEXT`
+8. **Futura tela de inscrição**: verificar `codigoAcesso` antes de confirmar inscrição
+
+### MELHORIA-06 — Renomear "Todos vs todos" para "Round Robin"
+**Prioridade:** Baixa
+**Problema:** O texto "Todos vs todos" não transmite claramente o formato para utilizadores familiarizados com terminologia desportiva.
+**Round Robin = cada equipa joga contra todas as outras exatamente 1 vez (liga simples); Liga = home+away (2 voltas).**
+**Implementação:** Apenas alterar `strings.xml`:
+```xml
+<!-- Antes -->
+<string name="formato_todos_vs_todos">Todos vs todos</string>
+<!-- Depois -->
+<string name="formato_todos_vs_todos">Round Robin (1 volta)</string>
+```
+Sem alterações de lógica — apenas visual/textual.
+
+### NOTA — Melhorias 04 e 05 em conjunto
+As MELHORIA-04 e MELHORIA-05 ambas requerem alterações ao `TorneioEntity`, `TorneioDto` e um Room version bump. Devem ser implementadas **na mesma sessão** para minimizar o número de migrations necessárias (bump único v2 → v3).
+
+---
+
+*Ficheiro atualizado em Junho 2026 — HojeTemBola, Computação Móvel 2025/2026, IPVC*
 *Usar este ficheiro como contexto principal em todas as sessões do Claude Code*
