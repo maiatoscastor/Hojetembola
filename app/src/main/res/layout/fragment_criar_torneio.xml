@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_primary">
+
+    <!-- Toolbar -->
+    <LinearLayout
+        android:id="@+id/layoutToolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="@dimen/spacing_sm"
+        android:paddingEnd="@dimen/screen_padding"
+        android:paddingTop="@dimen/spacing_lg"
+        android:paddingBottom="@dimen/spacing_md"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_back"
+            android:contentDescription="@string/cancelar" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:text="@string/criar_torneio"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/text_primary"
+            android:textSize="17sp" />
+    </LinearLayout>
+
+    <!-- Scrollable content -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/screen_padding"
+            android:paddingEnd="@dimen/screen_padding"
+            android:paddingTop="@dimen/spacing_md"
+            android:paddingBottom="48dp">
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION: INFORMAÇÕES BÁSICAS           -->
+            <!-- ═══════════════════════════════════════ -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="INFORMAÇÕES BÁSICAS"
+                android:textColor="@color/orange"
+                android:textAllCaps="true"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_semi_bold" />
+
+            <!-- Nome do torneio -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilNome"
+                style="@style/Widget.HojeTemBola.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:hint="@string/nome_torneio">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_primary"
+                    android:inputType="textCapWords" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Modalidade label -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:text="@string/modalidade"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_regular" />
+
+            <!-- Modalidade chips -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cgModalidade"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipFut5"
+                        style="@style/Widget.HojeTemBola.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fut5"
+                        android:checked="true" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipFut7"
+                        style="@style/Widget.HojeTemBola.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fut7" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipFut11"
+                        style="@style/Widget.HojeTemBola.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fut11" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipPersonalizado"
+                        style="@style/Widget.HojeTemBola.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/personalizado" />
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
+
+            <!-- Nº jogadores (personalizado) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilNumJogadores"
+                style="@style/Widget.HojeTemBola.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:hint="Nº de jogadores"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_primary"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Formato label -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:text="@string/formato"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_regular" />
+
+            <!-- Formato chips -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cgFormato"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipLiga"
+                        style="@style/Widget.HojeTemBola.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/liga"
+                        android:checked="true" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipEliminatorias"
+                        style="@style/Widget.HojeTemBola.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/eliminatorias" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipGruposElim"
+                        style="@style/Widget.HojeTemBola.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Grupos + Elim." />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipTodosVsTodos"
+                        style="@style/Widget.HojeTemBola.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/todos_vs_todos" />
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION: EQUIPAS E JOGADORES           -->
+            <!-- ═══════════════════════════════════════ -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:text="EQUIPAS E JOGADORES"
+                android:textColor="@color/orange"
+                android:textAllCaps="true"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_semi_bold" />
+
+            <!-- Max equipas label -->
+            <TextView
+                android:id="@+id/tvLabelMaxEquipas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:text="@string/max_equipas"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_regular" />
+
+            <!-- Max equipas stepper -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:background="@color/bg_surface">
+
+                <Button
+                    android:id="@+id/btnDecEquipas"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:text="−"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_secondary"
+                    android:padding="0dp" />
+
+                <TextView
+                    android:id="@+id/tvMaxEquipas"
+                    android:layout_width="52dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="8"
+                    android:fontFamily="@font/poppins_semi_bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary" />
+
+                <Button
+                    android:id="@+id/btnIncEquipas"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:text="+"
+                    android:textSize="18sp"
+                    android:textColor="@color/orange"
+                    android:padding="0dp" />
+            </LinearLayout>
+
+            <!-- Max jogadores label -->
+            <TextView
+                android:id="@+id/tvLabelMaxJogadores"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:text="@string/jogadores_por_equipa"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_regular" />
+
+            <!-- Max jogadores stepper -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:background="@color/bg_surface">
+
+                <Button
+                    android:id="@+id/btnDecJogadores"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:text="−"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_secondary"
+                    android:padding="0dp" />
+
+                <TextView
+                    android:id="@+id/tvMaxJogadores"
+                    android:layout_width="52dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="12"
+                    android:fontFamily="@font/poppins_semi_bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary" />
+
+                <Button
+                    android:id="@+id/btnIncJogadores"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:text="+"
+                    android:textSize="18sp"
+                    android:textColor="@color/orange"
+                    android:padding="0dp" />
+            </LinearLayout>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION: DATAS                         -->
+            <!-- ═══════════════════════════════════════ -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:text="DATAS"
+                android:textColor="@color/orange"
+                android:textAllCaps="true"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_semi_bold" />
+
+            <!-- Início das inscrições -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilInicioInscricoes"
+                style="@style/Widget.HojeTemBola.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:hint="@string/inicio_inscricoes"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/ic_slider_calendar"
+                app:endIconTint="@color/text_muted">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etInicioInscricoes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_primary"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:cursorVisible="false"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Fim das inscrições -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilFimInscricoes"
+                style="@style/Widget.HojeTemBola.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:hint="@string/fim_inscricoes"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/ic_slider_calendar"
+                app:endIconTint="@color/text_muted">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etFimInscricoes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_primary"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:cursorVisible="false"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Data de início -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDataInicio"
+                style="@style/Widget.HojeTemBola.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:hint="@string/data_inicio"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/ic_slider_calendar"
+                app:endIconTint="@color/text_muted">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDataInicio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_primary"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:cursorVisible="false"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Data fim prevista -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDataFim"
+                style="@style/Widget.HojeTemBola.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:hint="@string/data_fim_prevista"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/ic_slider_calendar"
+                app:endIconTint="@color/text_muted">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDataFim"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_primary"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:cursorVisible="false"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION: LOCALIZAÇÃO                   -->
+            <!-- ═══════════════════════════════════════ -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:text="LOCALIZAÇÃO"
+                android:textColor="@color/orange"
+                android:textAllCaps="true"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_semi_bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilLocalizacao"
+                style="@style/Widget.HojeTemBola.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:hint="@string/localizacao">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_primary"
+                    android:inputType="textCapWords" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilLocalizacaoLink"
+                style="@style/Widget.HojeTemBola.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:hint="@string/localizacao_hint">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_primary"
+                    android:inputType="textUri" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION: REGRAS                        -->
+            <!-- ═══════════════════════════════════════ -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:text="REGRAS"
+                android:textColor="@color/orange"
+                android:textAllCaps="true"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_semi_bold" />
+
+            <!-- Critério de desempate label -->
+            <TextView
+                android:id="@+id/tvLabelCriterio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:text="@string/criterio_desempate"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_regular" />
+
+            <!-- Critério chips -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cgCriterio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipPenalidades"
+                        style="@style/Widget.HojeTemBola.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/penalidades"
+                        android:checked="true" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipProlongamento"
+                        style="@style/Widget.HojeTemBola.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prolongamento" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipGoloOuro"
+                        style="@style/Widget.HojeTemBola.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/golo_de_ouro" />
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
+
+            <!-- Amarelos suspensão label -->
+            <TextView
+                android:id="@+id/tvLabelAmarelos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:text="@string/amarelos_suspensao"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_regular" />
+
+            <!-- Amarelos stepper -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:background="@color/bg_surface">
+
+                <Button
+                    android:id="@+id/btnDecAmarelos"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:text="−"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_secondary"
+                    android:padding="0dp" />
+
+                <TextView
+                    android:id="@+id/tvAmarelos"
+                    android:layout_width="52dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="3"
+                    android:fontFamily="@font/poppins_semi_bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary" />
+
+                <Button
+                    android:id="@+id/btnIncAmarelos"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:text="+"
+                    android:textSize="18sp"
+                    android:textColor="@color/orange"
+                    android:padding="0dp" />
+            </LinearLayout>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION: VISIBILIDADE                  -->
+            <!-- ═══════════════════════════════════════ -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:text="VISIBILIDADE"
+                android:textColor="@color/orange"
+                android:textAllCaps="true"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_semi_bold" />
+
+            <!-- Visibilidade chips -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cgVisibilidade"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPublico"
+                    style="@style/Widget.HojeTemBola.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/publico"
+                    android:checked="true" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPrivado"
+                    style="@style/Widget.HojeTemBola.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/privado" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Switch espectadores -->
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchEspectadores"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:text="@string/permitir_espectadores"
+                android:textColor="@color/text_primary"
+                android:fontFamily="@font/poppins_regular"
+                android:checked="true" />
+
+            <!-- Switch MVP -->
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchMvp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:text="@string/votacao_mvp_ativa"
+                android:textColor="@color/text_primary"
+                android:fontFamily="@font/poppins_regular"
+                android:checked="true" />
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION: REGULAMENTO                   -->
+            <!-- ═══════════════════════════════════════ -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:text="REGULAMENTO"
+                android:textColor="@color/orange"
+                android:textAllCaps="true"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_semi_bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilRegulamento"
+                style="@style/Widget.HojeTemBola.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:hint="@string/regulamento">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_primary"
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:maxLines="6"
+                    android:gravity="top" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- BOTTOM ACTIONS                         -->
+            <!-- ═══════════════════════════════════════ -->
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:indeterminateTint="@color/orange"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnCriarTorneio"
+                style="@style/Widget.HojeTemBola.Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="@dimen/spacing_lg"
+                android:text="@string/criar_torneio" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

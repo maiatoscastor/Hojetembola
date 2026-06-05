@@ -22,16 +22,25 @@ interface TorneioDao {
     @Query("SELECT * FROM torneio WHERE publico = 1 ORDER BY data_inicio DESC")
     fun getPublicos(): Flow<List<TorneioEntity>>
 
+    /**
+     * Torneios em que o utilizador está envolvido:
+     *   1. É o organizador
+     *   2. É capitão de uma equipa inscrita
+     *   3. É membro de uma equipa inscrita
+     */
     @Query("""
-        SELECT t.* FROM torneio t
+        SELECT DISTINCT t.* FROM torneio t
+        WHERE t.organizador_id = :utilizadorId
+        UNION
+        SELECT DISTINCT t.* FROM torneio t
         INNER JOIN inscricao_equipa ie ON ie.torneio_id = t.id
         INNER JOIN equipa e ON e.id = ie.equipa_id
-        WHERE e.capitao_id = :utilizadorId OR EXISTS (
-            SELECT 1 FROM membro_equipa m
-            WHERE m.equipa_id = e.id AND m.utilizador_id = :utilizadorId
-        )
-        GROUP BY t.id
-        ORDER BY t.data_inicio DESC
+        WHERE e.capitao_id = :utilizadorId
+           OR EXISTS (
+               SELECT 1 FROM membro_equipa m
+               WHERE m.equipa_id = e.id AND m.utilizador_id = :utilizadorId
+           )
+        ORDER BY data_inicio DESC
     """)
     fun getMeusTorneios(utilizadorId: String): Flow<List<TorneioEntity>>
 

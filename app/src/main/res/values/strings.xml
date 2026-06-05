@@ -75,6 +75,7 @@
     <string name="inscrever_equipa">Inscrever equipa</string>
     <string name="torneios_publicos">Torneios Públicos</string>
     <string name="descobrir_torneios">Descobrir torneios</string>
+    <string name="sem_torneios">Sem torneios de momento.\nCria o teu primeiro torneio!</string>
 
     <!-- ── Criar Torneio ──────────────────────────────────────────────────── -->
     <string name="nome_torneio">Nome do torneio</string>

@@ -139,6 +139,27 @@
         <item name="cardElevation">0dp</item>
     </style>
 
+    <!-- Filter Chip -->
+    <style name="Widget.HojeTemBola.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_bg_selector</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="android:textColor">@color/chip_text_selector</item>
+        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="android:textSize">11sp</item>
+        <item name="chipMinHeight">32dp</item>
+    </style>
+
+    <!-- Date Picker overlay — inherits app primary=orange automatically via theme so no extra attrs needed -->
+    <style name="ThemeOverlay.HojeTemBola.DatePicker" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="android:colorBackground">@color/bg_primary</item>
+    </style>
+
     <!-- ── Bottom Navigation ────────────────────────────────────────────── -->
     <style name="Widget.HojeTemBola.BottomNav" parent="Widget.Material3.BottomNavigationView">
         <item name="android:background">@color/bg_surface</item>
