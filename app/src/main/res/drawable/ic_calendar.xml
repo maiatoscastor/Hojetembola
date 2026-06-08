@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Ícone de calendário minimalista — 20dp, estilo outline+fill.
+    Cor branca (tint aplicado no layout via app:endIconTint).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:autoMirrored="true">
+
+    <!-- Corpo do calendário + header preenchido -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M19,4H17V2H15V4H9V2H7V4H5C3.9,4 3,4.9 3,6V20C3,21.1 3.9,22 5,22H19C20.1,22 21,21.1 21,20V6C21,4.9 20.1,4 19,4ZM19,20H5V10H19V20ZM19,8H5V6H19Z" />
+
+    <!-- 3 quadrados linha 1 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7,12H9V14H7ZM11,12H13V14H11ZM15,12H17V14H15Z" />
+
+    <!-- 2 quadrados linha 2 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7,16H9V18H7ZM11,16H13V18H11Z" />
+
+</vector>

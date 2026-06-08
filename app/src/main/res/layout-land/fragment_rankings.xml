@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Ecrã Rankings — espelha mockup_12_rankings.html
-    Pódio top 3, lista com evolução, tabs Geral/Torneio, filtros métrica/período
+    Rankings landscape — espelha mockup_L2_rankings_landscape.html
+    Pódio à esquerda, tabela completa à direita
 -->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -24,13 +24,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/spacing_lg">
+        android:paddingBottom="@dimen/spacing_sm">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/screen_padding">
+            android:paddingStart="@dimen/spacing_md"
+            android:paddingTop="@dimen/spacing_sm"
+            android:paddingEnd="@dimen/spacing_md"
+            android:paddingBottom="@dimen/spacing_sm">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -40,18 +43,17 @@
                 android:textColor="@color/text_primary"
                 android:textSize="@dimen/text_title" />
 
-            <!-- Tabs Geral / Torneio -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_md"
+                android:layout_marginTop="@dimen/spacing_sm"
                 android:background="@drawable/bg_tab_container"
                 android:padding="3dp">
 
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tabScope"
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
+                    android:layout_height="40dp"
                     android:background="@android:color/transparent"
                     app:tabBackground="@drawable/bg_tab_selector"
                     app:tabGravity="fill"
@@ -73,12 +75,11 @@
                 </com.google.android.material.tabs.TabLayout>
             </LinearLayout>
 
-            <!-- Painel Geral -->
             <LinearLayout
                 android:id="@+id/panelGeral"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_md"
+                android:layout_marginTop="@dimen/spacing_sm"
                 android:orientation="vertical"
                 android:visibility="visible">
 
@@ -118,30 +119,72 @@
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
-                <include
-                    android:id="@+id/podiumGeral"
-                    layout="@layout/layout_ranking_podium_section"
+                <LinearLayout
+                    android:id="@+id/layoutGeralContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_md" />
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvGeral"
+                    <include
+                        android:id="@+id/podiumGeral"
+                        layout="@layout/layout_ranking_podium_section"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="0.34" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutGeralTable"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.66"
+                        android:background="@drawable/bg_ranking_list"
+                        android:orientation="vertical"
+                        android:padding="4dp">
+
+                        <include layout="@layout/item_ranking_table_header" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvGeral"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            tools:itemCount="4"
+                            tools:listitem="@layout/item_ranking_row_land" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutClassificacaoGeral"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_md"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:background="@drawable/bg_ranking_list"
-                    android:nestedScrollingEnabled="false"
-                    tools:itemCount="3"
-                    tools:listitem="@layout/item_ranking_row" />
+                    android:orientation="vertical"
+                    android:paddingStart="6dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="6dp"
+                    android:visibility="gone">
+
+                    <include layout="@layout/item_classificacao_header" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvClassificacaoGeral"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        tools:itemCount="4"
+                        tools:listitem="@layout/item_classificacao_row" />
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- Painel Torneio -->
             <LinearLayout
                 android:id="@+id/panelTorneio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_md"
+                android:layout_marginTop="@dimen/spacing_sm"
                 android:orientation="vertical"
                 android:visibility="gone">
 
@@ -153,54 +196,39 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
                         android:padding="10dp">
 
                         <TextView
+                            android:id="@+id/tvTorneioNome"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp"
+                            tools:text="Torneio Verão 2025" />
+
+                        <TextView
+                            android:id="@+id/tvTorneioEstado"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_regular"
-                            android:text="@string/torneio_selecionado"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:id="@+id/tvTorneioNome"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:fontFamily="@font/poppins_bold"
-                                android:textColor="@color/text_primary"
-                                android:textSize="12sp"
-                                tools:text="Torneio Verão 2025" />
-
-                            <TextView
-                                android:id="@+id/tvTorneioEstado"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_badge_live"
-                                android:fontFamily="@font/poppins_semi_bold"
-                                android:paddingStart="8dp"
-                                android:paddingTop="3dp"
-                                android:paddingEnd="8dp"
-                                android:paddingBottom="3dp"
-                                android:textColor="@color/white"
-                                android:textSize="10sp"
-                                tools:text="A decorrer" />
-                        </LinearLayout>
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_badge_live"
+                            android:fontFamily="@font/poppins_semi_bold"
+                            android:paddingStart="8dp"
+                            android:paddingTop="3dp"
+                            android:paddingEnd="8dp"
+                            android:paddingBottom="3dp"
+                            android:textColor="@color/white"
+                            android:textSize="10sp"
+                            tools:text="A decorrer" />
 
                         <TextView
                             android:id="@+id/tvTorneioMeta"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
                             android:fontFamily="@font/poppins_regular"
                             android:textColor="@color/text_secondary"
                             android:textSize="10sp"
@@ -250,15 +278,17 @@
                     layout="@layout/layout_ranking_podium_section"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_md" />
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:visibility="gone" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvTorneio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_md"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:background="@drawable/bg_ranking_list"
                     android:nestedScrollingEnabled="false"
+                    android:visibility="gone"
                     tools:itemCount="2"
                     tools:listitem="@layout/item_ranking_row" />
 
@@ -266,7 +296,7 @@
                     android:id="@+id/layoutClassificacaoHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_md"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:background="@drawable/bg_ranking_list"
                     android:orientation="vertical"
                     android:paddingStart="6dp"

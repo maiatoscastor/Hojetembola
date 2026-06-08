@@ -20,12 +20,28 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_torneiosFragment_to_torneioDetalheFragment"
+            app:destination="@id/torneioDetalheFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment
         android:id="@+id/criarTorneioFragment"
         android:name="com.hojetembola.app.ui.torneios.CriarTorneioFragment"
         android:label="@string/criar_torneio" />
+
+    <fragment
+        android:id="@+id/torneioDetalheFragment"
+        android:name="com.hojetembola.app.ui.torneios.TorneioDetalheFragment"
+        android:label="@string/detalhe_torneio">
+        <argument
+            android:name="torneioId"
+            app:argType="string" />
+    </fragment>
 
     <fragment
         android:id="@+id/rankingsFragment"

@@ -77,7 +77,7 @@ class TorneioAdapter(
             val ctx = b.root.context
             b.tvNomeTorneio.text = t.nome
             b.tvSubtitulo.text = "${t.formato.toFormatoLabel(ctx)} · ${t.modalidade.toModalidadeLabel()}"
-            b.tvLocalizacao.text = t.localizacao
+            b.tvLocalizacao.text = t.localizacaoNome
             applyBadge(b.tvEstado, t.estado, ctx)
             b.root.setOnClickListener { onMeuClick(t) }
         }
@@ -89,9 +89,9 @@ class TorneioAdapter(
             val ctx = b.root.context
             b.tvNomeTorneio.text = t.nome
             b.tvSubtitulo.text = "${t.formato.toFormatoLabel(ctx)} · ${t.modalidade.toModalidadeLabel()}"
-            b.tvLocalizacao.text = t.localizacao
+            b.tvLocalizacao.text = t.localizacaoNome
             applyBadge(b.tvEstado, t.estado, ctx)
-            b.btnInscrever.isEnabled = t.estado == "inscricoes_abertas"
+            b.btnInscrever.isEnabled = t.estado == "InscricoesAbertas" || t.estado == "inscricoes_abertas"
             b.root.setOnClickListener { onPublicoClick(t) }
             b.btnInscrever.setOnClickListener { onInscrever(t) }
         }
@@ -101,10 +101,10 @@ class TorneioAdapter(
 // Helper: apply badge visual to a TextView
 private fun applyBadge(tv: android.widget.TextView, estado: String, ctx: Context) {
     val (label, bgRes, hexColor) = when (estado) {
-        "a_decorrer"         -> Triple(ctx.getString(R.string.estado_a_decorrer),         R.drawable.bg_badge_live, "#F57C00")
-        "inscricoes_abertas" -> Triple(ctx.getString(R.string.estado_inscricoes_abertas), R.drawable.bg_badge_open, "#4CAF50")
-        "terminado"          -> Triple(ctx.getString(R.string.estado_terminado),          R.drawable.bg_badge_done, "#8A9BB8")
-        else                 -> Triple(ctx.getString(R.string.estado_criado),             R.drawable.bg_badge_done, "#8A9BB8")
+        "ADecorrer",         "a_decorrer"        -> Triple(ctx.getString(R.string.estado_a_decorrer),         R.drawable.bg_badge_live, "#F57C00")
+        "InscricoesAbertas", "inscricoes_abertas" -> Triple(ctx.getString(R.string.estado_inscricoes_abertas), R.drawable.bg_badge_open, "#4CAF50")
+        "Terminado",         "terminado"          -> Triple(ctx.getString(R.string.estado_terminado),          R.drawable.bg_badge_done, "#8A9BB8")
+        else                                      -> Triple(ctx.getString(R.string.estado_criado),             R.drawable.bg_badge_done, "#8A9BB8")
     }
     tv.text = label
     tv.setBackgroundResource(bgRes)
@@ -112,17 +112,17 @@ private fun applyBadge(tv: android.widget.TextView, estado: String, ctx: Context
 }
 
 private fun String.toFormatoLabel(ctx: Context) = when (this) {
-    "liga"                 -> ctx.getString(R.string.liga)
-    "eliminatorias"        -> ctx.getString(R.string.eliminatorias)
-    "grupos_eliminatorias" -> ctx.getString(R.string.grupos_eliminatorias)
-    "todos_vs_todos"       -> ctx.getString(R.string.todos_vs_todos)
-    else                   -> this
+    "Liga",  "liga"                               -> ctx.getString(R.string.liga)
+    "Eliminatorias", "eliminatorias"              -> ctx.getString(R.string.eliminatorias)
+    "GruposEliminatorias", "grupos_eliminatorias" -> ctx.getString(R.string.grupos_eliminatorias)
+    "TodosContraTodos", "todos_vs_todos"          -> ctx.getString(R.string.todos_vs_todos)
+    else                                          -> this
 }
 
-private fun String.toModalidadeLabel() = when (this) {
-    "fut5"         -> "Fut5"
-    "fut7"         -> "Fut7"
-    "fut11"        -> "Fut11"
-    "personalizado"-> "Custom"
-    else           -> this
+private fun String.toModalidadeLabel() = when (lowercase()) {
+    "fut5"          -> "Fut5"
+    "fut7"          -> "Fut7"
+    "fut11"         -> "Fut11"
+    "personalizado" -> "Custom"
+    else            -> this
 }

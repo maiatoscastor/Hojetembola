@@ -1,11 +1,14 @@
 package com.hojetembola.app.ui.torneios
 
+import android.app.Dialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,7 +18,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.tabs.TabLayout
 import com.hojetembola.app.R
+import com.hojetembola.app.databinding.DialogEntrarCodigoBinding
 import com.hojetembola.app.databinding.FragmentTorneiosBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -27,6 +32,7 @@ class TorneiosFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: TorneiosViewModel by viewModels()
+    private val codigoViewModel: EntrarCodigoViewModel by viewModels()
     private lateinit var torneioAdapter: TorneioAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -39,16 +45,22 @@ class TorneiosFragment : Fragment() {
         setupAdapter()
         setupSearch()
         setupFilters()
+        setupTabs()
         observeState()
         binding.btnCriar.setOnClickListener {
             findNavController().navigate(R.id.action_torneiosFragment_to_criarTorneioFragment)
         }
+        binding.cardEntrarCodigo.setOnClickListener {
+            mostrarDialogCodigo()
+        }
     }
+
+    // ── Adapter ───────────────────────────────────────────────────────────────
 
     private fun setupAdapter() {
         torneioAdapter = TorneioAdapter(
-            onMeuClick     = { /* TODO: navegar para detalhe */ },
-            onPublicoClick = { /* TODO: navegar para detalhe */ },
+            onMeuClick     = { torneio -> navegarParaDetalhe(torneio.id) },
+            onPublicoClick = { torneio -> navegarParaDetalhe(torneio.id) },
             onInscrever    = { Snackbar.make(binding.root, R.string.em_breve, Snackbar.LENGTH_SHORT).show() }
         )
         binding.rvTorneios.apply {
@@ -57,6 +69,8 @@ class TorneiosFragment : Fragment() {
             setHasFixedSize(false)
         }
     }
+
+    // ── Search ────────────────────────────────────────────────────────────────
 
     private fun setupSearch() {
         binding.tilPesquisa.editText?.addTextChangedListener(object : TextWatcher {
@@ -67,6 +81,8 @@ class TorneiosFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) = Unit
         })
     }
+
+    // ── Estado filter chips ───────────────────────────────────────────────────
 
     private fun setupFilters() {
         binding.chipGroupFiltros.setOnCheckedStateChangeListener { _, checkedIds ->
@@ -79,6 +95,26 @@ class TorneiosFragment : Fragment() {
             viewModel.setFiltro(filtro)
         }
     }
+
+    // ── Tab toggle ────────────────────────────────────────────────────────────
+
+    private fun setupTabs() {
+        binding.tabLayoutTorneios.addTab(
+            binding.tabLayoutTorneios.newTab().setText(getString(R.string.tab_torneios))
+        )
+        binding.tabLayoutTorneios.addTab(
+            binding.tabLayoutTorneios.newTab().setText(getString(R.string.tab_os_meus))
+        )
+        binding.tabLayoutTorneios.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                viewModel.setTabAtiva(if (tab?.position == 0) "todos" else "meus")
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
+    }
+
+    // ── State observation ─────────────────────────────────────────────────────
 
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -110,21 +146,97 @@ class TorneiosFragment : Fragment() {
     private fun showContent(state: TorneiosUiState.Content) {
         binding.progressBar.isVisible = false
 
-        val items = mutableListOf<TorneioListItem>()
-        if (state.meusTorneios.isNotEmpty()) {
-            items += TorneioListItem.Header(getString(R.string.meus_torneios))
-            items += state.meusTorneios.map { TorneioListItem.Meu(it) }
-        }
-        if (state.torneiosPublicos.isNotEmpty()) {
-            items += TorneioListItem.Header(getString(R.string.descobrir_torneios))
-            items += state.torneiosPublicos.map { TorneioListItem.Publico(it) }
+        // Criar torneio: só organizadores
+        binding.btnCriar.isVisible = state.utilizador.perfil.equals("Organizador", ignoreCase = true)
+
+        // Items baseados na tab activa
+        val items = when (state.tabAtiva) {
+            "meus"  -> state.meusTorneios.map { TorneioListItem.Meu(it) }
+            else    -> state.torneiosPublicos.map { TorneioListItem.Publico(it) }
         }
 
         torneioAdapter.submitList(items)
         val isEmpty = items.isEmpty()
         binding.rvTorneios.isVisible = !isEmpty
         binding.tvEmpty.isVisible    = isEmpty
-        if (isEmpty) binding.tvEmpty.text = getString(R.string.sem_torneios)
+        if (isEmpty) {
+            binding.tvEmpty.text = when (state.tabAtiva) {
+                "meus"  -> getString(R.string.sem_meus_torneios)
+                else    -> getString(R.string.sem_torneios_publicos)
+            }
+        }
+    }
+
+    // ── Navegação ─────────────────────────────────────────────────────────────
+
+    private fun navegarParaDetalhe(torneioId: String) {
+        findNavController().navigate(
+            R.id.action_torneiosFragment_to_torneioDetalheFragment,
+            bundleOf("torneioId" to torneioId)
+        )
+    }
+
+    // ── Dialog: Entrar com código ─────────────────────────────────────────────
+
+    private fun mostrarDialogCodigo() {
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val db = DialogEntrarCodigoBinding.inflate(layoutInflater)
+        dialog.setContentView(db.root)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        var dialogJob: kotlinx.coroutines.Job? = null
+        dialogJob = viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                codigoViewModel.state.collect { state ->
+                    when (state) {
+                        is EntrarCodigoState.Idle    -> {
+                            db.progressDialog.isVisible  = false
+                            db.tvDialogErro.isVisible    = false
+                            db.btnDialogEntrar.isEnabled = true
+                        }
+                        is EntrarCodigoState.Loading -> {
+                            db.progressDialog.isVisible  = true
+                            db.tvDialogErro.isVisible    = false
+                            db.btnDialogEntrar.isEnabled = false
+                        }
+                        is EntrarCodigoState.Error   -> {
+                            db.progressDialog.isVisible  = false
+                            db.tvDialogErro.isVisible    = true
+                            db.tvDialogErro.text         = state.message
+                            db.btnDialogEntrar.isEnabled = true
+                        }
+                        is EntrarCodigoState.Success -> {
+                            dialog.dismiss()
+                            codigoViewModel.resetState()
+                            navegarParaDetalhe(state.torneio.id)
+                        }
+                    }
+                }
+            }
+        }
+
+        db.btnDialogEntrar.setOnClickListener {
+            codigoViewModel.entrarComCodigo(db.etCodigo.text?.toString().orEmpty())
+        }
+        db.etCodigo.setOnEditorActionListener { _, _, _ ->
+            codigoViewModel.entrarComCodigo(db.etCodigo.text?.toString().orEmpty())
+            true
+        }
+        db.btnDialogCancelar.setOnClickListener {
+            codigoViewModel.resetState()
+            dialog.dismiss()
+        }
+        dialog.setOnDismissListener {
+            codigoViewModel.resetState()
+            dialogJob?.cancel()
+        }
+
+        dialog.show()
     }
 
     override fun onDestroyView() {

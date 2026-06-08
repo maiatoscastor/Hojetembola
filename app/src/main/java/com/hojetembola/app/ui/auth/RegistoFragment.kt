@@ -30,7 +30,7 @@ class RegistoFragment : Fragment() {
 
     private val viewModel: AuthViewModel by viewModels()
 
-    private var selectedPerfil = "utilizador"
+    private var selectedPerfil = "Utilizador"
 
     private val tabListener = object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -84,14 +84,14 @@ class RegistoFragment : Fragment() {
     // ── Cards de perfil ───────────────────────────────────────────────────────
 
     private fun setupPerfilCards() {
-        selectPerfil("utilizador")
-        binding.cardUtilizador.setOnClickListener { selectPerfil("utilizador") }
-        binding.cardOrganizador.setOnClickListener { selectPerfil("organizador") }
+        selectPerfil("Utilizador")
+        binding.cardUtilizador.setOnClickListener { selectPerfil("Utilizador") }
+        binding.cardOrganizador.setOnClickListener { selectPerfil("Organizador") }
     }
 
     private fun selectPerfil(perfil: String) {
         selectedPerfil = perfil
-        val isUtilizador = perfil == "utilizador"
+        val isUtilizador = perfil.equals("Utilizador", ignoreCase = true)
         applyCardState(binding.cardUtilizador, binding.imgUtilizador, isUtilizador)
         applyCardState(binding.cardOrganizador, binding.imgOrganizador, !isUtilizador)
     }

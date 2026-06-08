@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="10dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="10dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:id="@+id/tvPosicao"
+        android:layout_width="22dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_regular"
+        android:gravity="center"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        tools:text="4" />
+
+    <TextView
+        android:id="@+id/tvNome"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:ellipsize="end"
+        android:fontFamily="@font/poppins_regular"
+        android:maxLines="1"
+        android:textColor="@color/text_primary"
+        android:textSize="11sp"
+        tools:text="Pedro S." />
+
+    <TextView
+        android:id="@+id/tvEquipa"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:ellipsize="end"
+        android:fontFamily="@font/poppins_regular"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        tools:text="Os Putos" />
+
+    <TextView
+        android:id="@+id/tvValor"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="@font/poppins_regular"
+        android:gravity="center"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        tools:text="6" />
+
+    <TextView
+        android:id="@+id/tvTrend"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="@font/poppins_bold"
+        android:gravity="center"
+        android:textSize="11sp"
+        tools:text="▲ 1"
+        tools:textColor="@color/green" />
+
+</LinearLayout>

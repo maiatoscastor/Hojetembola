@@ -1,0 +1,676 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_primary">
+
+    <!-- ── Top bar ────────────────────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/layoutTopBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="@dimen/spacing_sm"
+        android:paddingEnd="@dimen/screen_padding"
+        android:paddingTop="@dimen/spacing_lg"
+        android:paddingBottom="@dimen/spacing_md"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_back"
+            android:contentDescription="@string/cancelar" />
+
+        <TextView
+            android:id="@+id/tvTituloTopBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_title"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/detalhe_torneio" />
+
+        <TextView
+            android:id="@+id/tvEstadoBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="@dimen/text_badge"
+            android:textAllCaps="true"
+            android:background="@drawable/bg_badge_open"
+            android:text="@string/estado_inscricoes_abertas" />
+    </LinearLayout>
+
+    <!-- ── Loading ────────────────────────────────────────────────────────── -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/orange"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/layoutTopBar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ── Error ──────────────────────────────────────────────────────────── -->
+    <TextView
+        android:id="@+id/tvError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_regular"
+        android:textColor="@color/text_muted"
+        android:textSize="@dimen/text_body"
+        android:gravity="center"
+        android:padding="@dimen/screen_padding"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/layoutTopBar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ── Scroll content ─────────────────────────────────────────────────── -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/layoutTopBar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/screen_padding"
+            android:paddingEnd="@dimen/screen_padding"
+            android:paddingBottom="100dp">
+
+            <!-- ── Card: Informações Gerais ──────────────────────────────── -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardBackgroundColor="@color/bg_surface"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/secao_info_geral"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/orange"
+                        android:textSize="@dimen/text_label"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="@dimen/spacing_sm" />
+
+                    <!-- Modalidade + Formato -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="@dimen/spacing_sm">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/modalidade"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvModalidade"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/formato"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvFormato"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Max Equipas + Max Jogadores -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/max_equipas"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvMaxEquipas"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/jogadores_por_equipa"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvMaxJogadores"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ── Card: Datas ───────────────────────────────────────────── -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardBackgroundColor="@color/bg_surface"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/secao_datas"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/orange"
+                        android:textSize="@dimen/text_label"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="@dimen/spacing_sm" />
+
+                    <!-- Inscrições abertas / fecham -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="@dimen/spacing_sm">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/inicio_inscricoes"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvDataInicioInscricoes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/fim_inscricoes"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvDataFimInscricoes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Torneio: início / fim previsto -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/data_inicio"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvDataInicio"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layoutDataFim"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/data_fim_prevista"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvDataFim"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ── Card: Localização ─────────────────────────────────────── -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardBackgroundColor="@color/bg_surface"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/localizacao"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/orange"
+                        android:textSize="@dimen/text_label"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="@dimen/spacing_sm" />
+
+                    <TextView
+                        android:id="@+id/tvLocalizacaoNome"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/text_body" />
+
+                    <TextView
+                        android:id="@+id/tvLocalizacaoMorada"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_label"
+                        android:layout_marginTop="2dp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvMapsLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/orange"
+                        android:textSize="@dimen/text_label"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/ver_no_google_maps"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ── Card: Regras ──────────────────────────────────────────── -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardBackgroundColor="@color/bg_surface"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/secao_regras"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/orange"
+                        android:textSize="@dimen/text_label"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="@dimen/spacing_sm" />
+
+                    <!-- Critério Desempate + Tempo Extra -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="@dimen/spacing_sm">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/criterio_desempate"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvCriterio"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layoutTempoExtra"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/tempo_extra_label"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvTempoExtra"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Amarelos -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/amarelos_suspensao"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvAmarelas"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+
+                        <!-- Espectadores + MVP -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/extras"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvExtras"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_body" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ── Card: Código de acesso (só para organiz. de torneio privado) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardCodigo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/bg_surface"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/codigo_acesso_label"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/orange"
+                        android:textSize="@dimen/text_label"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="@dimen/spacing_sm" />
+
+                    <TextView
+                        android:id="@+id/tvCodigoAcesso"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/orange"
+                        android:textSize="28sp"
+                        android:letterSpacing="0.3" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/codigo_partilhar_desc"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_label"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ── Card: Regulamento ─────────────────────────────────────── -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardRegulamento"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/bg_surface"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/regulamento"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/orange"
+                        android:textSize="@dimen/text_label"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="@dimen/spacing_sm" />
+
+                    <TextView
+                        android:id="@+id/tvRegulamento"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/text_body"
+                        android:lineSpacingMultiplier="1.4" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ── Bottom action button ───────────────────────────────────────────── -->
+    <Button
+        android:id="@+id/btnAcao"
+        style="@style/Widget.HojeTemBola.Button.Primary"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginStart="@dimen/screen_padding"
+        android:layout_marginEnd="@dimen/screen_padding"
+        android:layout_marginBottom="@dimen/spacing_xl"
+        android:text="@string/inscrever_equipa"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -355,7 +355,7 @@
                 android:layout_marginTop="@dimen/spacing_md"
                 android:hint="@string/inicio_inscricoes"
                 app:endIconMode="custom"
-                app:endIconDrawable="@drawable/ic_slider_calendar"
+                app:endIconDrawable="@drawable/ic_calendar"
                 app:endIconTint="@color/text_muted">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -379,7 +379,7 @@
                 android:layout_marginTop="@dimen/spacing_sm"
                 android:hint="@string/fim_inscricoes"
                 app:endIconMode="custom"
-                app:endIconDrawable="@drawable/ic_slider_calendar"
+                app:endIconDrawable="@drawable/ic_calendar"
                 app:endIconTint="@color/text_muted">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -403,7 +403,7 @@
                 android:layout_marginTop="@dimen/spacing_sm"
                 android:hint="@string/data_inicio"
                 app:endIconMode="custom"
-                app:endIconDrawable="@drawable/ic_slider_calendar"
+                app:endIconDrawable="@drawable/ic_calendar"
                 app:endIconTint="@color/text_muted">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -427,7 +427,7 @@
                 android:layout_marginTop="@dimen/spacing_sm"
                 android:hint="@string/data_fim_prevista"
                 app:endIconMode="custom"
-                app:endIconDrawable="@drawable/ic_slider_calendar"
+                app:endIconDrawable="@drawable/ic_calendar"
                 app:endIconTint="@color/text_muted">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -478,7 +478,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"
-                android:hint="@string/localizacao_hint">
+                android:hint="@string/localizacao_maps_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
@@ -550,6 +550,63 @@
                         android:text="@string/golo_de_ouro" />
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
+
+            <!-- Tempo extra (visível só quando critério = prolongamento) -->
+            <LinearLayout
+                android:id="@+id/layoutTempoExtra"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:text="@string/tempo_extra_label"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/poppins_regular" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="@dimen/spacing_xs"
+                    android:background="@color/bg_surface">
+
+                    <Button
+                        android:id="@+id/btnDecTempoExtra"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:text="−"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_secondary"
+                        android:padding="0dp" />
+
+                    <TextView
+                        android:id="@+id/tvTempoExtra"
+                        android:layout_width="52dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="10"
+                        android:fontFamily="@font/poppins_semi_bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary" />
+
+                    <Button
+                        android:id="@+id/btnIncTempoExtra"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:text="+"
+                        android:textSize="18sp"
+                        android:textColor="@color/orange"
+                        android:padding="0dp" />
+                </LinearLayout>
+            </LinearLayout>
 
             <!-- Amarelos suspensão label -->
             <TextView
@@ -640,6 +697,64 @@
                     android:layout_height="wrap_content"
                     android:text="@string/privado" />
             </com.google.android.material.chip.ChipGroup>
+
+            <!-- Código de acesso (gerado automaticamente quando torneio é privado) -->
+            <LinearLayout
+                android:id="@+id/layoutCodigoAcesso"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="4dp"
+                    android:text="@string/codigo_acesso_label"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="@dimen/spacing_xs"
+                    android:background="@drawable/bg_codigo_acesso"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
+
+                    <TextView
+                        android:id="@+id/tvCodigoAcesso"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="----"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/orange"
+                        android:textSize="28sp"
+                        android:letterSpacing="0.2" />
+
+                    <ProgressBar
+                        android:id="@+id/progressCodigoAcesso"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:indeterminateTint="@color/orange"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:paddingStart="4dp"
+                    android:text="@string/codigo_gerado_automaticamente"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_muted"
+                    android:textSize="11sp" />
+            </LinearLayout>
 
             <!-- Switch espectadores -->
             <com.google.android.material.switchmaterial.SwitchMaterial

@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.hojetembola.app.R
 import com.hojetembola.app.databinding.FragmentCriarTorneioBinding
@@ -62,28 +63,28 @@ class CriarTorneioFragment : Fragment() {
     private fun setupChips() {
         binding.cgModalidade.setOnCheckedStateChangeListener { _, ids ->
             viewModel.setModalidade(when (ids.firstOrNull()) {
-                R.id.chipFut5          -> "fut5"
-                R.id.chipFut7          -> "fut7"
-                R.id.chipFut11         -> "fut11"
-                R.id.chipPersonalizado -> "personalizado"
-                else                   -> "fut7"
+                R.id.chipFut5          -> "Fut5"
+                R.id.chipFut7          -> "Fut7"
+                R.id.chipFut11         -> "Fut11"
+                R.id.chipPersonalizado -> "Personalizado"
+                else                   -> "Fut5"
             })
         }
         binding.cgFormato.setOnCheckedStateChangeListener { _, ids ->
             viewModel.setFormato(when (ids.firstOrNull()) {
-                R.id.chipLiga         -> "liga"
-                R.id.chipEliminatorias -> "eliminatorias"
-                R.id.chipGruposElim   -> "grupos_eliminatorias"
-                R.id.chipTodosVsTodos -> "todos_vs_todos"
-                else                  -> "liga"
+                R.id.chipLiga          -> "Liga"
+                R.id.chipEliminatorias -> "Eliminatorias"
+                R.id.chipGruposElim    -> "GruposEliminatorias"
+                R.id.chipTodosVsTodos  -> "TodosContraTodos"
+                else                   -> "Liga"
             })
         }
         binding.cgCriterio.setOnCheckedStateChangeListener { _, ids ->
             viewModel.setCriterioDesempate(when (ids.firstOrNull()) {
-                R.id.chipPenalidades   -> "penalidades"
-                R.id.chipProlongamento -> "prolongamento"
-                R.id.chipGoloOuro      -> "golo_de_ouro"
-                else                   -> "penalidades"
+                R.id.chipPenalidades   -> "Penalidades"
+                R.id.chipProlongamento -> "Prolongamento"
+                R.id.chipGoloOuro      -> "GoloDeOuro"
+                else                   -> "Penalidades"
             })
         }
         binding.cgVisibilidade.setOnCheckedStateChangeListener { _, ids ->
@@ -94,12 +95,14 @@ class CriarTorneioFragment : Fragment() {
     // ── Steppers ──────────────────────────────────────────────────────────────
 
     private fun setupSteppers() {
-        binding.btnDecEquipas.setOnClickListener   { viewModel.setMaxEquipas(viewModel.form.value.maxEquipas - 1) }
-        binding.btnIncEquipas.setOnClickListener   { viewModel.setMaxEquipas(viewModel.form.value.maxEquipas + 1) }
-        binding.btnDecJogadores.setOnClickListener { viewModel.setMaxJogadores(viewModel.form.value.maxJogadoresPorEquipa - 1) }
-        binding.btnIncJogadores.setOnClickListener { viewModel.setMaxJogadores(viewModel.form.value.maxJogadoresPorEquipa + 1) }
-        binding.btnDecAmarelos.setOnClickListener  { viewModel.setAmarelasParaSuspensao(viewModel.form.value.amarelasParaSuspensao - 1) }
-        binding.btnIncAmarelos.setOnClickListener  { viewModel.setAmarelasParaSuspensao(viewModel.form.value.amarelasParaSuspensao + 1) }
+        binding.btnDecEquipas.setOnClickListener    { viewModel.setMaxEquipas(viewModel.form.value.maxEquipas - 1) }
+        binding.btnIncEquipas.setOnClickListener    { viewModel.setMaxEquipas(viewModel.form.value.maxEquipas + 1) }
+        binding.btnDecJogadores.setOnClickListener  { viewModel.setMaxJogadores(viewModel.form.value.maxJogadoresPorEquipa - 1) }
+        binding.btnIncJogadores.setOnClickListener  { viewModel.setMaxJogadores(viewModel.form.value.maxJogadoresPorEquipa + 1) }
+        binding.btnDecTempoExtra.setOnClickListener { viewModel.setTempoExtraMinutos(viewModel.form.value.tempoExtraMinutos - 1) }
+        binding.btnIncTempoExtra.setOnClickListener { viewModel.setTempoExtraMinutos(viewModel.form.value.tempoExtraMinutos + 1) }
+        binding.btnDecAmarelos.setOnClickListener   { viewModel.setAmarelasParaSuspensao(viewModel.form.value.amarelasParaSuspensao - 1) }
+        binding.btnIncAmarelos.setOnClickListener   { viewModel.setAmarelasParaSuspensao(viewModel.form.value.amarelasParaSuspensao + 1) }
     }
 
     // ── Date pickers ──────────────────────────────────────────────────────────
@@ -136,11 +139,30 @@ class CriarTorneioFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.form.collect { f ->
-                    binding.tvMaxEquipas.text    = f.maxEquipas.toString()
-                    binding.tvMaxJogadores.text  = f.maxJogadoresPorEquipa.toString()
-                    binding.tvAmarelos.text      = f.amarelasParaSuspensao.toString()
-                    binding.tilNumJogadores.isVisible = f.modalidade == "personalizado"
-                    // Update date display without triggering the TextWatcher
+                    // Steppers
+                    binding.tvMaxEquipas.text   = f.maxEquipas.toString()
+                    binding.tvMaxJogadores.text = f.maxJogadoresPorEquipa.toString()
+                    binding.tvTempoExtra.text   = f.tempoExtraMinutos.toString()
+                    binding.tvAmarelos.text     = f.amarelasParaSuspensao.toString()
+
+                    // Label do plantel com mínimo dinâmico
+                    binding.tvLabelMaxJogadores.text =
+                        getString(R.string.jogadores_por_equipa_min, f.minJogadoresPorEquipa)
+
+                    // Campo nº personalizado: só visível quando modalidade = Personalizado
+                    binding.tilNumJogadores.isVisible = f.modalidade == "Personalizado"
+
+                    // Secção prolongamento: só visível quando critério = Prolongamento
+                    binding.layoutTempoExtra.isVisible = f.criterioDesempate == "Prolongamento"
+
+                    // Código de acesso: visível quando privado; mostra código gerado ou spinner
+                    binding.layoutCodigoAcesso.isVisible = !f.publico
+                    binding.tvCodigoAcesso.text =
+                        if (f.codigoAcessoLoading) getString(R.string.codigo_a_gerar)
+                        else f.codigoAcesso.ifEmpty { "----" }
+                    binding.progressCodigoAcesso.isVisible = f.codigoAcessoLoading
+
+                    // Datas — actualizar sem disparar o TextWatcher
                     binding.etInicioInscricoes.setTextSilently(f.dataInicioInscricoes.toDisplayDate())
                     binding.etFimInscricoes.setTextSilently(f.dataFimInscricoes.toDisplayDate())
                     binding.etDataInicio.setTextSilently(f.dataInicio.toDisplayDate())
@@ -155,21 +177,37 @@ class CriarTorneioFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     val loading = state is CriarTorneioUiState.Loading
-                    binding.progressBar.isVisible      = loading
-                    binding.btnCriarTorneio.isEnabled  = !loading
+                    binding.progressBar.isVisible     = loading
+                    binding.btnCriarTorneio.isEnabled = !loading
                     when (state) {
                         is CriarTorneioUiState.Success -> {
                             Snackbar.make(binding.root, R.string.sucesso_torneio_criado, Snackbar.LENGTH_SHORT).show()
                             findNavController().navigateUp()
                         }
                         is CriarTorneioUiState.Error -> {
-                            Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
+                            showError(state.message)
                             viewModel.resetState()
                         }
                         else -> Unit
                     }
                 }
             }
+        }
+    }
+
+    // ── Error display ─────────────────────────────────────────────────────────
+
+    private fun showError(message: String) {
+        // Erros de validação simples → Snackbar rápido
+        // Erros do Supabase (multi-linha) → Dialog para que o texto seja legível
+        if (message.contains("\n") || message.length > 120) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Erro ao guardar")
+                .setMessage(message)
+                .setPositiveButton("OK", null)
+                .show()
+        } else {
+            Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
         }
     }
 

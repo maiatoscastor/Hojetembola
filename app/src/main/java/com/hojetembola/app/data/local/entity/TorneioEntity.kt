@@ -24,7 +24,8 @@ data class TorneioEntity(
     @ColumnInfo(name = "max_equipas")
     val maxEquipas: Int,
 
-    @ColumnInfo(name = "max_jogadores_por_equipa")
+    /** Coluna Supabase: max_jogadores_equipa */
+    @ColumnInfo(name = "max_jogadores_equipa")
     val maxJogadoresPorEquipa: Int,
 
     @ColumnInfo(name = "data_inicio_inscricoes")
@@ -39,21 +40,29 @@ data class TorneioEntity(
     @ColumnInfo(name = "data_fim_prevista")
     val dataFimPrevista: String,
 
-    val localizacao: String,
+    /** Nome do campo / instalação desportiva */
+    @ColumnInfo(name = "localizacao_nome")
+    val localizacaoNome: String,
 
-    @ColumnInfo(name = "localizacao_link")
-    val localizacaoLink: String? = null,
+    /** Morada opcional */
+    @ColumnInfo(name = "localizacao_morada")
+    val localizacaoMorada: String? = null,
+
+    /** Link Google Maps (opcional) */
+    @ColumnInfo(name = "localizacao_maps_url")
+    val localizacaoMapsUrl: String? = null,
 
     /**
      * "criado" | "inscricoes_abertas" | "inscricoes_fechadas"
      * | "a_decorrer" | "terminado"
      */
-    val estado: String = "criado",
+    val estado: String = "Criado",
 
     @ColumnInfo(name = "organizador_id")
     val organizadorId: String,
 
-    val publico: Boolean = true,
+    /** ENUM Supabase visibilidade_tipo: "Publico" | "Privado" */
+    val visibilidade: String = "Publico",
 
     @ColumnInfo(name = "permitir_espectadores")
     val permitirEspectadores: Boolean = true,
@@ -61,17 +70,25 @@ data class TorneioEntity(
     @ColumnInfo(name = "votacao_mvp_ativa")
     val votacaoMvpAtiva: Boolean = true,
 
-    /** Nº de amarelos para suspensão automática (RN04) */
-    @ColumnInfo(name = "amarelas_para_suspensao")
+    /** Nº de amarelos para suspensão automática — coluna Supabase: amarelos_para_suspensao */
+    @ColumnInfo(name = "amarelos_para_suspensao")
     val amarelasParaSuspensao: Int = 3,
 
-    /** "prolongamento" | "penalidades" | "golo_de_ouro" */
+    /** ENUM Supabase criterio_desempate: "Prolongamento" | "Penalidades" | "GoloDeOuro" */
     @ColumnInfo(name = "criterio_desempate")
-    val criterioDesempate: String = "penalidades",
+    val criterioDesempate: String = "Penalidades",
+
+    /** Duração de cada parte do prolongamento em minutos */
+    @ColumnInfo(name = "tempo_extra_minutos")
+    val tempoExtraMinutos: Int = 10,
+
+    /** Código de acesso para torneios privados (null quando visibilidade = "Publico") */
+    @ColumnInfo(name = "codigo_acesso")
+    val codigoAcesso: String? = null,
 
     val regulamento: String? = null,
 
     /** Indica se este registo já foi sincronizado com o Supabase */
-    @ColumnInfo(name = "is_synced")
+    @ColumnInfo(name = "sincronizado")
     val isSynced: Boolean = true
 )

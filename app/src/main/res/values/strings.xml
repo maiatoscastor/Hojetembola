@@ -76,6 +76,16 @@
     <string name="torneios_publicos">Torneios Públicos</string>
     <string name="descobrir_torneios">Descobrir torneios</string>
     <string name="sem_torneios">Sem torneios de momento.\nCria o teu primeiro torneio!</string>
+    <string name="sem_torneios_publicos">Sem torneios públicos de momento.</string>
+    <string name="sem_meus_torneios">Ainda não participas em nenhum torneio.</string>
+
+    <!-- ── Tabs Torneios ─────────────────────────────────────────────────── -->
+    <string name="tab_torneios">Torneios</string>
+    <string name="tab_os_meus">Os meus</string>
+
+    <!-- ── Entrar com código ─────────────────────────────────────────────── -->
+    <string name="entrar_com_codigo_titulo">Torneio privado?</string>
+    <string name="entrar_com_codigo_desc_curta">Entra com o código de acesso</string>
 
     <!-- ── Criar Torneio ──────────────────────────────────────────────────── -->
     <string name="nome_torneio">Nome do torneio</string>
@@ -96,7 +106,8 @@
     <string name="data_inicio">Data de início</string>
     <string name="data_fim_prevista">Data fim prevista</string>
     <string name="localizacao">Localização</string>
-    <string name="localizacao_hint">Nome do campo, morada ou link Google Maps</string>
+    <string name="localizacao_hint">Morada (opcional)</string>
+    <string name="localizacao_maps_hint">Link Google Maps (opcional)</string>
     <string name="criterio_desempate">Critério de desempate</string>
     <string name="prolongamento">Prolongamento</string>
     <string name="penalidades">Penalidades</string>
@@ -109,6 +120,30 @@
     <string name="votacao_mvp_ativa">Votação MVP ativa</string>
     <string name="regulamento">Regulamento / notas</string>
     <string name="regulamento_hint">Escreve aqui as regras do torneio…</string>
+    <string name="jogadores_por_equipa_min">Jogadores por equipa (mín. %d)</string>
+    <string name="tempo_extra_label">Minutos por parte do prolongamento</string>
+    <string name="codigo_acesso_label">Código de acesso</string>
+    <string name="codigo_acesso_hint_text">Mínimo 4 caracteres</string>
+    <string name="codigo_gerado_automaticamente">Código único gerado automaticamente</string>
+    <string name="codigo_a_gerar">A gerar…</string>
+
+    <!-- ── Detalhe do Torneio ───────────────────────────────────────────── -->
+    <string name="detalhe_torneio">Torneio</string>
+    <string name="secao_info_geral">Informação geral</string>
+    <string name="secao_datas">Datas</string>
+    <string name="secao_regras">Regras</string>
+    <string name="extras">Extras</string>
+    <string name="nenhum">—</string>
+    <string name="ver_no_google_maps">Ver no Google Maps →</string>
+    <string name="minutos_formato">%d min</string>
+    <string name="codigo_partilhar_desc">Partilha este código com as equipas que queres convidar</string>
+    <string name="gerir_torneio">Gerir torneio</string>
+
+    <!-- ── Entrar com código ─────────────────────────────────────────────── -->
+    <string name="entrar_com_codigo">Entrar com código</string>
+    <string name="entrar_torneio_privado">Torneio privado</string>
+    <string name="entrar_codigo_desc">Introduz o código de 4 dígitos fornecido pelo organizador.</string>
+    <string name="codigo_acesso_hint">0000</string>
 
     <!-- ── Estados do torneio ────────────────────────────────────────────── -->
     <string name="estado_criado">Criado</string>
@@ -155,6 +190,22 @@
     <string name="golos_marcados_abrev">GM</string>
     <string name="golos_sofridos_abrev">GS</string>
     <string name="pontos_abrev">Pts</string>
+    <string name="rankings_tab_geral">Geral</string>
+    <string name="rankings_tab_torneio">Torneio</string>
+    <string name="torneio_selecionado">Torneio selecionado</string>
+    <string name="rankings_periodo_torneio">Torneio</string>
+    <string name="rankings_jornada_n">Jornada %1$d</string>
+    <string name="rankings_cartoes">Cartões</string>
+    <string name="rankings_cartoes_count">🟨 %1$d · 🟥 %2$d</string>
+    <string name="rankings_trend_up">▲ %1$d · %2$d</string>
+    <string name="rankings_trend_down">▼ %1$d · %2$d</string>
+    <string name="rankings_trend_flat">— · %1$d</string>
+    <string name="rankings_pos_rank">%1$dº</string>
+    <string name="rankings_nome_col">Nome</string>
+    <string name="rankings_valor_col">Valor</string>
+    <string name="rankings_trend_col">▲▼</string>
+    <string name="rankings_torneio_verao">Torneio Verão 2025</string>
+    <string name="rankings_torneio_meta">Liga · Fut7 · %1$d equipas</string>
 
     <!-- ── MVP ────────────────────────────────────────────────────────────── -->
     <string name="votar_mvp">Votar no MVP</string>
@@ -204,6 +255,7 @@
     <string name="recusar">Recusar</string>
 
     <!-- ── Erros ──────────────────────────────────────────────────────────── -->
+    <string name="erro_abrir_mapa">Não foi possível abrir o mapa.</string>
     <string name="erro_email_invalido">Email inválido.</string>
     <string name="erro_password_curta">A password deve ter pelo menos 6 caracteres.</string>
     <string name="erro_passwords_diferentes">As passwords não coincidem.</string>

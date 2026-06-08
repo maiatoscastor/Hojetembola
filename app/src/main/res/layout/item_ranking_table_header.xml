@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="10dp"
+    android:paddingTop="6dp"
+    android:paddingEnd="10dp"
+    android:paddingBottom="6dp">
+
+    <TextView
+        android:layout_width="22dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_bold"
+        android:gravity="center"
+        android:text="@string/posicao_abrev"
+        android:textColor="@color/text_primary"
+        android:textSize="11sp" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:fontFamily="@font/poppins_bold"
+        android:text="@string/rankings_nome_col"
+        android:textColor="@color/text_primary"
+        android:textSize="11sp" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:fontFamily="@font/poppins_bold"
+        android:gravity="center"
+        android:text="@string/equipa_label"
+        android:textColor="@color/text_primary"
+        android:textSize="11sp" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="@font/poppins_bold"
+        android:gravity="center"
+        android:text="@string/rankings_valor_col"
+        android:textColor="@color/text_primary"
+        android:textSize="11sp" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="@font/poppins_bold"
+        android:gravity="center"
+        android:text="@string/rankings_trend_col"
+        android:textColor="@color/text_primary"
+        android:textSize="11sp" />
+
+</LinearLayout>

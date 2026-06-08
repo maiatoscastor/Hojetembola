@@ -154,6 +154,22 @@
     <string name="golos_marcados_abrev">GF</string>
     <string name="golos_sofridos_abrev">GA</string>
     <string name="pontos_abrev">Pts</string>
+    <string name="rankings_tab_geral">Overall</string>
+    <string name="rankings_tab_torneio">Tournament</string>
+    <string name="torneio_selecionado">Selected tournament</string>
+    <string name="rankings_periodo_torneio">Tournament</string>
+    <string name="rankings_jornada_n">Round %1$d</string>
+    <string name="rankings_cartoes">Cards</string>
+    <string name="rankings_cartoes_count">🟨 %1$d · 🟥 %2$d</string>
+    <string name="rankings_trend_up">▲ %1$d · %2$d</string>
+    <string name="rankings_trend_down">▼ %1$d · %2$d</string>
+    <string name="rankings_trend_flat">— · %1$d</string>
+    <string name="rankings_pos_rank">%1$dº</string>
+    <string name="rankings_nome_col">Name</string>
+    <string name="rankings_valor_col">Value</string>
+    <string name="rankings_trend_col">▲▼</string>
+    <string name="rankings_torneio_verao">Summer Tournament 2025</string>
+    <string name="rankings_torneio_meta">League · Fut7 · %1$d teams</string>
 
     <!-- ── MVP ────────────────────────────────────────────────────────────── -->
     <string name="votar_mvp">Vote for MVP</string>

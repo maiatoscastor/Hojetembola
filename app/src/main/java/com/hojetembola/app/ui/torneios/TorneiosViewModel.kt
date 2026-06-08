@@ -12,14 +12,16 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// ── Estados UI ────────────────────────────────────────────────────────────────
+// ── Estado UI ─────────────────────────────────────────────────────────────────
 
 sealed class TorneiosUiState {
     object Loading : TorneiosUiState()
     data class Content(
         val utilizador: UtilizadorEntity,
         val meusTorneios: List<TorneioEntity>,
-        val torneiosPublicos: List<TorneioEntity>
+        val torneiosPublicos: List<TorneioEntity>,
+        /** "todos" = tab Torneios, "meus" = tab Os meus */
+        val tabAtiva: String = "todos"
     ) : TorneiosUiState()
     data class Error(val message: String) : TorneiosUiState()
 }
@@ -31,32 +33,29 @@ class TorneiosViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    // Filtros reactivos
-    private val _filtro = MutableStateFlow("todos")
-    val filtro: StateFlow<String> = _filtro.asStateFlow()
-
+    private val _filtro  = MutableStateFlow("todos")
     private val _pesquisa = MutableStateFlow("")
-    val pesquisa: StateFlow<String> = _pesquisa.asStateFlow()
+    private val _zona    = MutableStateFlow("")
+    private val _tabAtiva = MutableStateFlow("todos")   // "todos" | "meus"
 
-    private val _zona = MutableStateFlow("")
-    val zona: StateFlow<String> = _zona.asStateFlow()
+    val filtro:   StateFlow<String> = _filtro.asStateFlow()
+    val pesquisa: StateFlow<String> = _pesquisa.asStateFlow()
+    val tabAtiva: StateFlow<String> = _tabAtiva.asStateFlow()
 
     // Estado base (antes dos filtros)
     private val _baseState = MutableStateFlow<TorneiosUiState>(TorneiosUiState.Loading)
 
-    // Estado final exposto ao Fragment (aplica filtros)
+    // Estado final exposto ao Fragment (aplica filtros + tab)
     val uiState: StateFlow<TorneiosUiState> = combine(
-        _baseState, _filtro, _pesquisa, _zona
-    ) { base, filtro, pesquisa, zona ->
+        _baseState, _filtro, _pesquisa, _zona, _tabAtiva
+    ) { base, filtro, pesquisa, zona, tab ->
         when (base) {
-            is TorneiosUiState.Content -> base.filtered(filtro, pesquisa, zona)
+            is TorneiosUiState.Content -> base.filtered(filtro, pesquisa, zona).copy(tabAtiva = tab)
             else -> base
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, TorneiosUiState.Loading)
 
-    init {
-        loadTorneios()
-    }
+    init { loadTorneios() }
 
     // ── Carregamento ──────────────────────────────────────────────────────────
 
@@ -68,18 +67,16 @@ class TorneiosViewModel @Inject constructor(
                 return@launch
             }
 
-            // Sincroniza Supabase em background
             launch { torneioRepository.syncTorneios(utilizador.id) }
 
-            // Combina os dois flows locais
             combine(
                 torneioRepository.getMeusTorneios(utilizador.id),
                 torneioRepository.getTorneiosPublicos()
             ) { meus, publicos ->
                 val meusIds = meus.map { it.id }.toSet()
                 TorneiosUiState.Content(
-                    utilizador      = utilizador,
-                    meusTorneios    = meus,
+                    utilizador       = utilizador,
+                    meusTorneios     = meus,
                     torneiosPublicos = publicos.filter { it.id !in meusIds }
                 )
             }.catch { e ->
@@ -93,13 +90,14 @@ class TorneiosViewModel @Inject constructor(
         loadTorneios()
     }
 
-    // ── Filtros ───────────────────────────────────────────────────────────────
+    // ── Setters ───────────────────────────────────────────────────────────────
 
-    fun setFiltro(valor: String) { _filtro.value = valor }
-    fun setPesquisa(valor: String) { _pesquisa.value = valor }
-    fun setZona(valor: String) { _zona.value = valor }
+    fun setFiltro(valor: String)    { _filtro.value = valor }
+    fun setPesquisa(valor: String)  { _pesquisa.value = valor }
+    fun setZona(valor: String)      { _zona.value = valor }
+    fun setTabAtiva(valor: String)  { _tabAtiva.value = valor }
 
-    // ── Helper de filtragem ───────────────────────────────────────────────────
+    // ── Filtragem ─────────────────────────────────────────────────────────────
 
     private fun TorneiosUiState.Content.filtered(
         filtro: String,
@@ -111,13 +109,13 @@ class TorneiosViewModel @Inject constructor(
 
         fun List<TorneioEntity>.applyFilters() = filter { t ->
             (p.isEmpty() || t.nome.lowercase().contains(p)) &&
-            (z.isEmpty() || t.localizacao.lowercase().contains(z)) &&
+            (z.isEmpty() || t.localizacaoNome.lowercase().contains(z)) &&
             when (filtro) {
-                "a_decorrer"       -> t.estado == "a_decorrer"
-                "inscricoes"       -> t.estado == "inscricoes_abertas"
-                "publicos"         -> t.publico
-                "terminados"       -> t.estado == "terminado"
-                else               -> true
+                "a_decorrer" -> t.estado == "ADecorrer"         || t.estado == "a_decorrer"
+                "inscricoes" -> t.estado == "InscricoesAbertas" || t.estado == "inscricoes_abertas"
+                "publicos"   -> t.visibilidade == "Publico"     || t.visibilidade == "publico"
+                "terminados" -> t.estado == "Terminado"         || t.estado == "terminado"
+                else         -> true
             }
         }
 

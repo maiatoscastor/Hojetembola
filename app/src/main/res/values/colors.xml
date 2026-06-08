@@ -24,6 +24,7 @@
     <color name="podium_gold">#EF9F27</color>     <!-- 1.º lugar -->
     <color name="podium_silver">#378ADD</color>   <!-- 2.º lugar -->
     <color name="podium_bronze">#D85A30</color>   <!-- 3.º lugar -->
+    <color name="color_trend_down">#F05B5B</color> <!-- Rankings: desceu -->
 
     <!-- ── Cores de equipas (dados de exemplo do design system) ──────────── -->
     <color name="equipa_fc_malcata">#E84C3D</color>

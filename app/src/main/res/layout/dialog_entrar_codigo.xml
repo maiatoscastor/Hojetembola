@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_xl"
+    android:background="@color/bg_surface">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/entrar_torneio_privado"
+        android:fontFamily="@font/poppins_bold"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_title"
+        android:layout_marginBottom="@dimen/spacing_sm" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/entrar_codigo_desc"
+        android:fontFamily="@font/poppins_regular"
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/text_body"
+        android:layout_marginBottom="@dimen/spacing_lg" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilCodigo"
+        style="@style/Widget.HojeTemBola.TextInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/codigo_acesso_hint"
+        android:layout_marginBottom="@dimen/spacing_lg">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etCodigo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_muted"
+            android:textSize="22sp"
+            android:gravity="center"
+            android:letterSpacing="0.3"
+            android:inputType="number"
+            android:maxLength="4"
+            android:imeOptions="actionDone" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Erro -->
+    <TextView
+        android:id="@+id/tvDialogErro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_regular"
+        android:textColor="#EF5350"
+        android:textSize="@dimen/text_body"
+        android:visibility="gone"
+        android:layout_marginBottom="@dimen/spacing_md" />
+
+    <!-- Loading -->
+    <ProgressBar
+        android:id="@+id/progressDialog"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:indeterminateTint="@color/orange"
+        android:visibility="gone"
+        android:layout_marginBottom="@dimen/spacing_md" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnDialogCancelar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="@string/cancelar"
+            android:textColor="@color/text_secondary"
+            android:fontFamily="@font/poppins_regular"
+            android:textSize="@dimen/text_body"
+            android:layout_marginEnd="@dimen/spacing_sm" />
+
+        <Button
+            android:id="@+id/btnDialogEntrar"
+            style="@style/Widget.HojeTemBola.Button.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:text="@string/entrar"
+            android:textSize="@dimen/text_body"
+            android:paddingStart="@dimen/spacing_xl"
+            android:paddingEnd="@dimen/spacing_xl" />
+    </LinearLayout>
+
+</LinearLayout>
