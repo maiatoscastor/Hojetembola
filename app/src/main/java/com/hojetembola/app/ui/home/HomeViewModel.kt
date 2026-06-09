@@ -1,0 +1,153 @@
+package com.hojetembola.app.ui.home
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.hojetembola.app.data.local.entity.TorneioEntity
+import com.hojetembola.app.data.local.entity.UtilizadorEntity
+import com.hojetembola.app.data.repository.HomeRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+// ── Modelo auxiliar ───────────────────────────────────────────────────────────
+
+data class JogoInfo(
+    val jogoId: String,
+    val equipaCasaNome: String,
+    val equipaVisitanteNome: String,
+    val golosCasa: Int,
+    val golosVisitante: Int,
+    val minutoAtual: Int?,
+    val local: String,
+    val estado: String,
+    val dataHora: String
+)
+
+// ── Estados da UI ─────────────────────────────────────────────────────────────
+
+sealed class HomeUiState {
+    object Loading : HomeUiState()
+
+    data class JogadorState(
+        val utilizador: UtilizadorEntity,
+        val totalTorneios: Int,
+        val torneiosAtivos: Int,
+        val totalGolos: Int,
+        val jogoAoVivo: JogoInfo?,
+        val proximoJogo: JogoInfo?,
+        val meusTorneios: List<TorneioEntity>
+    ) : HomeUiState()
+
+    data class OrganizadorState(
+        val utilizador: UtilizadorEntity,
+        val torneiosAtivos: Int,
+        val torneiosComInscricoes: Int,
+        val torneiosGeridos: List<TorneioEntity>,
+        val jogoAoVivo: JogoInfo?
+    ) : HomeUiState()
+
+    data class Error(val message: String) : HomeUiState()
+}
+
+// ── ViewModel ─────────────────────────────────────────────────────────────────
+
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val homeRepository: HomeRepository
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    init {
+        load()
+    }
+
+    fun load() {
+        viewModelScope.launch {
+            _uiState.value = HomeUiState.Loading
+
+            val userResult = homeRepository.getCurrentUser()
+            userResult.onFailure {
+                _uiState.value = HomeUiState.Error(it.message ?: "Erro desconhecido")
+                return@launch
+            }
+            val user = userResult.getOrThrow()
+
+            if (user.perfil == "organizador") {
+                combine(
+                    homeRepository.getTorneiosByOrganizador(user.id),
+                    homeRepository.getJogosAoVivo()
+                ) { torneios, jogosVivo ->
+                    val jogoVivo = jogosVivo.firstOrNull()?.let { j ->
+                        JogoInfo(
+                            jogoId = j.id,
+                            equipaCasaNome = homeRepository.getEquipaNome(j.equipaCasaId),
+                            equipaVisitanteNome = homeRepository.getEquipaNome(j.equipaVisitanteId),
+                            golosCasa = j.golosCasa ?: 0,
+                            golosVisitante = j.golosVisitante ?: 0,
+                            minutoAtual = j.minutoAtual,
+                            local = j.local,
+                            estado = j.estado,
+                            dataHora = j.dataHora
+                        )
+                    }
+                    HomeUiState.OrganizadorState(
+                        utilizador = user,
+                        torneiosAtivos = torneios.count { it.estado == "a_decorrer" || it.estado == "inscricoes_abertas" },
+                        torneiosComInscricoes = torneios.count { it.estado == "inscricoes_abertas" },
+                        torneiosGeridos = torneios.take(2),
+                        jogoAoVivo = jogoVivo
+                    )
+                }.collect { _uiState.value = it }
+            } else {
+                val totalGolos = homeRepository.getTotalGolos(user.id)
+                combine(
+                    homeRepository.getMeusTorneios(user.id),
+                    homeRepository.getJogosAoVivo(),
+                    homeRepository.getProximosJogos()
+                ) { torneios, jogosVivo, proximosJogos ->
+                    val jogoVivo = jogosVivo.firstOrNull()?.let { j ->
+                        JogoInfo(
+                            jogoId = j.id,
+                            equipaCasaNome = homeRepository.getEquipaNome(j.equipaCasaId),
+                            equipaVisitanteNome = homeRepository.getEquipaNome(j.equipaVisitanteId),
+                            golosCasa = j.golosCasa ?: 0,
+                            golosVisitante = j.golosVisitante ?: 0,
+                            minutoAtual = j.minutoAtual,
+                            local = j.local,
+                            estado = j.estado,
+                            dataHora = j.dataHora
+                        )
+                    }
+                    val proximoJogo = proximosJogos.firstOrNull()?.let { j ->
+                        JogoInfo(
+                            jogoId = j.id,
+                            equipaCasaNome = homeRepository.getEquipaNome(j.equipaCasaId),
+                            equipaVisitanteNome = homeRepository.getEquipaNome(j.equipaVisitanteId),
+                            golosCasa = j.golosCasa ?: 0,
+                            golosVisitante = j.golosVisitante ?: 0,
+                            minutoAtual = j.minutoAtual,
+                            local = j.local,
+                            estado = j.estado,
+                            dataHora = j.dataHora
+                        )
+                    }
+                    HomeUiState.JogadorState(
+                        utilizador = user,
+                        totalTorneios = torneios.size,
+                        torneiosAtivos = torneios.count { it.estado == "a_decorrer" },
+                        totalGolos = totalGolos,
+                        jogoAoVivo = jogoVivo,
+                        proximoJogo = proximoJogo,
+                        meusTorneios = torneios.take(2)
+                    )
+                }.collect { _uiState.value = it }
+            }
+        }
+    }
+}

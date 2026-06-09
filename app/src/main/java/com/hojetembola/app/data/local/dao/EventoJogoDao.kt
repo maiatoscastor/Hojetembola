@@ -31,6 +31,10 @@ interface EventoJogoDao {
     """)
     suspend fun countAmarelosByJogadorTorneio(jogadorId: String, torneioId: String): Int
 
+    /** Total de golos marcados por um jogador em todos os torneios (RF28) */
+    @Query("SELECT COUNT(*) FROM evento_jogo WHERE jogador_id = :jogadorId AND tipo = 'golo'")
+    suspend fun countTotalGolosByJogador(jogadorId: String): Int
+
     @Query("SELECT * FROM evento_jogo WHERE is_synced = 0")
     suspend fun getPendentesSync(): List<EventoJogoEntity>
 

@@ -1,41 +1,759 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Placeholder do ecrã Início.
-    Será implementado no Passo 4 (Dashboard).
--->
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_primary"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="@dimen/screen_padding">
+    android:background="@color/bg_primary">
 
-    <ImageView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:contentDescription="@null"
-        android:src="@drawable/ic_nav_home"
-        android:tint="@color/text_muted" />
-
-    <TextView
+    <!-- Loading -->
+    <ProgressBar
+        android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_md"
-        android:fontFamily="@font/poppins_bold"
-        android:text="@string/nav_inicio"
-        android:textColor="@color/text_primary"
-        android:textSize="@dimen/text_title" />
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/orange"
+        android:visibility="visible" />
 
-    <TextView
+    <!-- Erro -->
+    <LinearLayout
+        android:id="@+id/layoutErro"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_xs"
-        android:fontFamily="@font/poppins_regular"
+        android:layout_gravity="center"
         android:gravity="center"
-        android:text="Em breve…"
-        android:textColor="@color/text_muted"
-        android:textSize="@dimen/text_body" />
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding"
+        android:visibility="gone">
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvMensagemErro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_regular"
+            android:gravity="center"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_body"
+            tools:text="Sem ligação à internet." />
+
+        <Button
+            android:id="@+id/btnTentarNovamente"
+            style="@style/Widget.HojeTemBola.Button.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="@string/tentar_novamente" />
+
+    </LinearLayout>
+
+    <!-- Conteúdo -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_padding"
+            android:paddingBottom="@dimen/spacing_xxl">
+
+            <!-- ══════════════════════════════════════════════════════════
+                 SECÇÃO JOGADOR
+                 Visível quando perfil != organizador
+            ══════════════════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:id="@+id/layoutJogador"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <!-- Header: saudação + nome + notificações -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvSaudacao"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="@dimen/text_body"
+                            tools:text="@string/bom_dia" />
+
+                        <TextView
+                            android:id="@+id/tvNomeJogador"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="@color/text_primary"
+                            android:textSize="@dimen/text_title"
+                            tools:text="Gonçalo Teixeira" />
+
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:id="@+id/btnNotificacoes"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_btn_icon"
+                        android:clickable="true"
+                        android:contentDescription="@string/cd_botao_notificacoes"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_notification" />
+
+                        <View
+                            android:id="@+id/viewNotifDot"
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:layout_gravity="top|end"
+                            android:layout_margin="4dp"
+                            android:background="@drawable/bg_notif_dot"
+                            android:visibility="gone" />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+                <!-- KPI: os meus torneios + golos -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.HojeTemBola.Card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/card_padding">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="@string/meus_torneios"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvKpiTorneios"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="24sp"
+                                tools:text="4" />
+
+                            <TextView
+                                android:id="@+id/tvKpiTorneiosSub"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label"
+                                tools:text="2 ativos" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.HojeTemBola.Card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_sm"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/card_padding">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="@string/golos_esta_epoca"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvKpiGolos"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="24sp"
+                                tools:text="18" />
+
+                            <TextView
+                                android:id="@+id/tvKpiGolosSub"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label"
+                                tools:text="—" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <!-- Secção: JOGOS -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:fontFamily="@font/poppins_semi_bold"
+                    android:text="@string/secao_jogos"
+                    android:textColor="@color/orange"
+                    android:textSize="@dimen/text_label" />
+
+                <!-- Card: Jogo ao vivo (borda laranja) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardJogoVivo"
+                    style="@style/Widget.HojeTemBola.Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:visibility="gone"
+                    app:strokeColor="@color/orange"
+                    app:strokeWidth="1.5dp"
+                    tools:visibility="visible">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/card_padding">
+
+                        <!-- Linha: badge LIVE + minuto + local -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_badge_live"
+                                android:fontFamily="@font/poppins_semi_bold"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:paddingTop="2dp"
+                                android:paddingBottom="2dp"
+                                android:text="@string/ao_vivo"
+                                android:textColor="@color/white"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:id="@+id/tvJogoVivoMinuto"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_sm"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label"
+                                tools:text="47'" />
+
+                            <TextView
+                                android:id="@+id/tvJogoVivoLocal"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_xs"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/poppins_regular"
+                                android:maxLines="1"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label"
+                                tools:text="· Campo da Várzea" />
+
+                        </LinearLayout>
+
+                        <!-- Linha: marcador -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvJogoVivoEquipaCasa"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/poppins_semi_bold"
+                                android:maxLines="1"
+                                android:textColor="@color/text_primary"
+                                android:textSize="13sp"
+                                tools:text="FC Malcata" />
+
+                            <TextView
+                                android:id="@+id/tvJogoVivoResultado"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_sm"
+                                android:layout_marginEnd="@dimen/spacing_sm"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="15sp"
+                                tools:text="2 — 1" />
+
+                            <TextView
+                                android:id="@+id/tvJogoVivoEquipaVisitante"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/poppins_semi_bold"
+                                android:gravity="end"
+                                android:maxLines="1"
+                                android:textColor="@color/text_primary"
+                                android:textSize="13sp"
+                                tools:text="Os Putos" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Estado vazio: sem jogo ao vivo -->
+                <TextView
+                    android:id="@+id/tvSemJogoVivo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:background="@drawable/bg_auth_card"
+                    android:fontFamily="@font/poppins_regular"
+                    android:gravity="center"
+                    android:padding="@dimen/card_padding"
+                    android:text="@string/sem_jogo_ao_vivo"
+                    android:textColor="@color/text_muted"
+                    android:textSize="@dimen/text_body"
+                    android:visibility="gone" />
+
+                <!-- Card: Próximo jogo -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardProximoJogo"
+                    style="@style/Widget.HojeTemBola.Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/card_padding">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="@string/proximo_jogo_label"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="@dimen/text_label" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvProximoEquipaCasa"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/poppins_semi_bold"
+                                android:maxLines="1"
+                                android:textColor="@color/text_primary"
+                                android:textSize="13sp"
+                                tools:text="Turbo FC" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_sm"
+                                android:layout_marginEnd="@dimen/spacing_sm"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="@string/vs"
+                                android:textColor="@color/text_muted"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvProximoEquipaVisitante"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/poppins_semi_bold"
+                                android:gravity="end"
+                                android:maxLines="1"
+                                android:textColor="@color/text_primary"
+                                android:textSize="13sp"
+                                tools:text="Super Raia" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvProximoDataHora"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:fontFamily="@font/poppins_regular"
+                            android:textColor="@color/text_muted"
+                            android:textSize="@dimen/text_label"
+                            tools:text="Campo da Escola" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Secção: OS MEUS TORNEIOS -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:fontFamily="@font/poppins_semi_bold"
+                    android:text="@string/secao_meus_torneios_home"
+                    android:textColor="@color/orange"
+                    android:textSize="@dimen/text_label" />
+
+                <!-- Lista de torneios (preenchida em código, máx 2) -->
+                <LinearLayout
+                    android:id="@+id/containerMeusTorneios"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:orientation="vertical" />
+
+                <!-- Estado vazio -->
+                <TextView
+                    android:id="@+id/tvSemTorneiosJogador"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:background="@drawable/bg_auth_card"
+                    android:fontFamily="@font/poppins_regular"
+                    android:gravity="center"
+                    android:padding="@dimen/card_padding"
+                    android:text="@string/sem_torneios_home"
+                    android:textColor="@color/text_muted"
+                    android:textSize="@dimen/text_body"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 SECÇÃO ORGANIZADOR
+                 Visível apenas quando perfil == organizador
+            ══════════════════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:id="@+id/layoutOrganizador"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <!-- Header -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="@string/painel_organizador"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/text_body" />
+
+                <TextView
+                    android:id="@+id/tvNomeOrganizador"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_title"
+                    tools:text="Gonçalo Teixeira" />
+
+                <!-- KPI: torneios ativos + participantes -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.HojeTemBola.Card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/card_padding">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="@string/torneios_ativos"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvOrgTorneiosAtivos"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="24sp"
+                                tools:text="3" />
+
+                            <TextView
+                                android:id="@+id/tvOrgTorneiosAtivosSub"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label"
+                                tools:text="1 com inscrições abertas" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.HojeTemBola.Card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_sm"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/card_padding">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="@string/total_participantes"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                            <TextView
+                                android:id="@+id/tvOrgParticipantes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/text_primary"
+                                android:textSize="24sp"
+                                tools:text="0" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="@string/equipas_inscritas"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_label" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <!-- Botão primário: Criar torneio -->
+                <Button
+                    android:id="@+id/btnCriarTorneioOrg"
+                    style="@style/Widget.HojeTemBola.Button.Primary"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:text="@string/criar_torneio" />
+
+                <!-- Botões secundários -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnVerTorneios"
+                        style="@style/Widget.HojeTemBola.Button.Secondary"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:text="@string/ver_torneios"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/btnIrParaJogoVivo"
+                        style="@style/Widget.HojeTemBola.Button.Secondary"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="@dimen/spacing_sm"
+                        android:layout_weight="1"
+                        android:text="@string/ir_para_jogo_ao_vivo"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
+                <!-- Card: Alertas operacionais -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardAlertas"
+                    style="@style/Widget.HojeTemBola.Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/card_padding">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semi_bold"
+                            android:text="@string/alertas_operacionais"
+                            android:textColor="@color/orange"
+                            android:textSize="@dimen/text_label" />
+
+                        <LinearLayout
+                            android:id="@+id/containerAlertas"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:orientation="vertical" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Secção: torneios geridos -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:fontFamily="@font/poppins_semi_bold"
+                    android:text="@string/secao_meus_torneios_home"
+                    android:textColor="@color/orange"
+                    android:textSize="@dimen/text_label" />
+
+                <!-- Lista de torneios geridos (preenchida em código, máx 2) -->
+                <LinearLayout
+                    android:id="@+id/containerTorneiosOrg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:orientation="vertical" />
+
+                <!-- Estado vazio -->
+                <TextView
+                    android:id="@+id/tvSemTorneiosOrg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:background="@drawable/bg_auth_card"
+                    android:fontFamily="@font/poppins_regular"
+                    android:gravity="center"
+                    android:padding="@dimen/card_padding"
+                    android:text="@string/sem_torneios_home"
+                    android:textColor="@color/text_muted"
+                    android:textSize="@dimen/text_body"
+                    android:visibility="gone" />
+
+                <!-- Card: Próximos jogos (organizador) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardProximosJogosOrg"
+                    style="@style/Widget.HojeTemBola.Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/card_padding">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semi_bold"
+                            android:text="@string/secao_proximos_jogos"
+                            android:textColor="@color/orange"
+                            android:textSize="@dimen/text_label" />
+
+                        <LinearLayout
+                            android:id="@+id/containerProximosJogos"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:orientation="vertical" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</FrameLayout>

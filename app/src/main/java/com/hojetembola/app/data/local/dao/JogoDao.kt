@@ -19,6 +19,9 @@ interface JogoDao {
     @Query("SELECT * FROM jogo WHERE estado = 'ao_vivo'")
     fun getAoVivo(): Flow<List<JogoEntity>>
 
+    @Query("SELECT * FROM jogo WHERE estado = 'agendado' ORDER BY data_hora ASC LIMIT 10")
+    fun getProximosAgendados(): Flow<List<JogoEntity>>
+
     @Query("""
         SELECT * FROM jogo
         WHERE (equipa_casa_id = :equipaId OR equipa_visitante_id = :equipaId)

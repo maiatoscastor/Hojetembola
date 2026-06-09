@@ -58,11 +58,37 @@
     <string name="meus_torneios">Os meus torneios</string>
     <string name="golos_esta_epoca">Golos esta época</string>
     <string name="torneios_ativos">Torneios ativos</string>
-    <string name="total_participantes">Total de participantes</string>
+    <string name="total_participantes">Participantes</string>
     <string name="proximos_jogos">Próximos jogos</string>
     <string name="jogos_hoje">Jogos hoje</string>
     <string name="criar_torneio">Criar torneio</string>
     <string name="ver_todos">Ver todos</string>
+
+    <!-- ── Dashboard — textos adicionais ────────────────────────────────── -->
+    <string name="painel_organizador">Painel de Organizador</string>
+    <string name="secao_jogos">JOGOS</string>
+    <string name="secao_meus_torneios_home">OS MEUS TORNEIOS</string>
+    <string name="secao_proximos_jogos">PRÓXIMOS JOGOS</string>
+    <string name="proximo_jogo_label">Próximo jogo</string>
+    <string name="vs">vs</string>
+    <string name="alertas_operacionais">ALERTAS OPERACIONAIS</string>
+    <string name="ver_torneios">Ver torneios</string>
+    <string name="ir_para_jogo_ao_vivo">Ir para jogo</string>
+    <string name="equipas_inscritas">Equipas inscritas</string>
+    <string name="sem_jogo_ao_vivo">Sem jogo ao vivo de momento</string>
+    <string name="sem_torneios_home">Sem torneios de momento</string>
+    <string name="tentar_novamente">Tentar novamente</string>
+    <!-- KPI subtítulos formatados -->
+    <string name="torneios_ativos_sub">%d ativos</string>
+    <string name="inscricoes_abertas_sub">%d com inscrições abertas</string>
+    <!-- Formato do marcador: "2 — 1" -->
+    <string name="resultado_jogo">%1$d — %2$d</string>
+    <!-- Minuto do jogo: "47'" -->
+    <string name="minuto_jogo">%d\'</string>
+    <!-- Alertas operacionais -->
+    <string name="alerta_inscricoes_abertas">%d torneio(s) com inscrições abertas</string>
+    <string name="alerta_jogo_ao_vivo">Jogo a decorrer agora</string>
+    <string name="sem_alertas">Sem alertas pendentes</string>
 
     <!-- ── Torneios ───────────────────────────────────────────────────────── -->
     <string name="torneios">Torneios</string>

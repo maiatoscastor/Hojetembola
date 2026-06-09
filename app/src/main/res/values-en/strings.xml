@@ -58,11 +58,36 @@
     <string name="meus_torneios">My tournaments</string>
     <string name="golos_esta_epoca">Goals this season</string>
     <string name="torneios_ativos">Active tournaments</string>
-    <string name="total_participantes">Total participants</string>
+    <string name="total_participantes">Participants</string>
     <string name="proximos_jogos">Upcoming matches</string>
     <string name="jogos_hoje">Matches today</string>
     <string name="criar_torneio">Create tournament</string>
     <string name="ver_todos">See all</string>
+
+    <!-- ── Dashboard — extra strings ────────────────────────────────────── -->
+    <string name="painel_organizador">Organizer Panel</string>
+    <string name="secao_jogos">MATCHES</string>
+    <string name="secao_meus_torneios_home">MY TOURNAMENTS</string>
+    <string name="secao_proximos_jogos">UPCOMING MATCHES</string>
+    <string name="proximo_jogo_label">Next match</string>
+    <string name="vs">vs</string>
+    <string name="alertas_operacionais">OPERATIONAL ALERTS</string>
+    <string name="ver_torneios">View tournaments</string>
+    <string name="ir_para_jogo_ao_vivo">Go to match</string>
+    <string name="equipas_inscritas">Registered teams</string>
+    <string name="sem_jogo_ao_vivo">No live match at the moment</string>
+    <string name="sem_torneios_home">No tournaments at the moment</string>
+    <string name="tentar_novamente">Try again</string>
+    <string name="torneios_ativos_sub">%d active</string>
+    <string name="inscricoes_abertas_sub">%d with open registrations</string>
+    <string name="resultado_jogo">%1$d — %2$d</string>
+    <string name="minuto_jogo">%d\'</string>
+    <string name="alerta_inscricoes_abertas">%d tournament(s) with open registrations</string>
+    <string name="alerta_jogo_ao_vivo">Match in progress now</string>
+    <string name="sem_alertas">No pending alerts</string>
+
+    <!-- ── Tournaments (missing) ─────────────────────────────────────────── -->
+    <string name="sem_torneios">No tournaments yet.\nCreate your first tournament!</string>
 
     <!-- ── Tournaments ────────────────────────────────────────────────────── -->
     <string name="torneios">Tournaments</string>
