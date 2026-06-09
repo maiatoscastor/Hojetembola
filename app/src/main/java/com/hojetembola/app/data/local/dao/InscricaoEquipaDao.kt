@@ -13,8 +13,20 @@ interface InscricaoEquipaDao {
     @Query("SELECT * FROM inscricao_equipa WHERE equipa_id = :equipaId")
     fun getByEquipa(equipaId: String): Flow<List<InscricaoEquipaEntity>>
 
-    @Query("SELECT COUNT(*) FROM inscricao_equipa WHERE torneio_id = :torneioId AND estado = 'inscrita'")
-    suspend fun countInscritasAtivas(torneioId: String): Int
+    /** Devolve a inscrição desta equipa neste torneio, ou null se não existe. */
+    @Query("SELECT * FROM inscricao_equipa WHERE torneio_id = :torneioId AND equipa_id = :equipaId LIMIT 1")
+    suspend fun getByTorneioAndEquipa(torneioId: String, equipaId: String): InscricaoEquipaEntity?
+
+    /** true se já existe uma inscrição activa (não Recusada) para esta equipa neste torneio. */
+    @Query("""
+        SELECT COUNT(*) FROM inscricao_equipa
+        WHERE torneio_id = :torneioId AND equipa_id = :equipaId AND estado != 'Recusada'
+    """)
+    suspend fun countInscricaoAtiva(torneioId: String, equipaId: String): Int
+
+    /** Nº total de equipas aceites num torneio. */
+    @Query("SELECT COUNT(*) FROM inscricao_equipa WHERE torneio_id = :torneioId AND estado = 'Aceite'")
+    suspend fun countAceites(torneioId: String): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(inscricao: InscricaoEquipaEntity)

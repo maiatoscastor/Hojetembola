@@ -92,3 +92,12 @@ data class TorneioEntity(
     @ColumnInfo(name = "sincronizado")
     val isSynced: Boolean = true
 )
+
+/** Número mínimo de jogadores por equipa consoante a modalidade. */
+fun TorneioEntity.minJogadoresPorEquipa(): Int = when (modalidade.lowercase()) {
+    "fut5"          -> 5
+    "fut7"          -> 7
+    "fut11"         -> 11
+    "personalizado" -> numJogadoresPersonalizado ?: 1
+    else            -> 1
+}

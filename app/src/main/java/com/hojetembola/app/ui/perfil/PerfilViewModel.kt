@@ -2,7 +2,9 @@ package com.hojetembola.app.ui.perfil
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hojetembola.app.data.local.entity.EquipaEntity
 import com.hojetembola.app.data.local.entity.UtilizadorEntity
+import com.hojetembola.app.data.repository.EquipaRepository
 import com.hojetembola.app.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -36,11 +38,15 @@ sealed class PerfilUiState {
  */
 @HiltViewModel
 class PerfilViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val equipaRepository: EquipaRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PerfilUiState>(PerfilUiState.Loading)
     val uiState: StateFlow<PerfilUiState> = _uiState.asStateFlow()
+
+    private val _equipas = MutableStateFlow<List<EquipaEntity>>(emptyList())
+    val equipas: StateFlow<List<EquipaEntity>> = _equipas.asStateFlow()
 
     /** Evento de navegação one-shot — emitido uma única vez ao terminar sessão. */
     private val _signOutEvent = MutableSharedFlow<Unit>()
@@ -54,8 +60,15 @@ class PerfilViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = PerfilUiState.Loading
             userRepository.getCurrentUser()
-                .onSuccess { user -> _uiState.value = PerfilUiState.Success(user) }
-                .onFailure { e   -> _uiState.value = PerfilUiState.Error(e.message ?: "Erro desconhecido") }
+                .onSuccess { user ->
+                    _uiState.value = PerfilUiState.Success(user)
+                    // Sincroniza equipas remotas depois de ter o userId
+                    equipaRepository.syncEquipas(user.id)
+                    equipaRepository.getTodasMinhasEquipas(user.id).collect { equipas ->
+                        _equipas.value = equipas
+                    }
+                }
+                .onFailure { e -> _uiState.value = PerfilUiState.Error(e.message ?: "Erro desconhecido") }
         }
     }
 

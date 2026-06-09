@@ -18,7 +18,9 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.hojetembola.app.R
 import com.hojetembola.app.data.local.entity.TorneioEntity
+import com.hojetembola.app.data.local.entity.minJogadoresPorEquipa
 import com.hojetembola.app.databinding.FragmentTorneioDetalheBinding
+import com.hojetembola.app.ui.equipa.InscricaoTorneioBottomSheet
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -180,11 +182,52 @@ class TorneioDetalheFragment : Fragment() {
                 binding.btnAcao.isVisible = true
                 binding.btnAcao.text = getString(R.string.inscrever_equipa)
                 binding.btnAcao.setOnClickListener {
-                    Snackbar.make(binding.root, R.string.em_breve, Snackbar.LENGTH_SHORT).show()
+                    abrirInscricaoBottomSheet(state.torneio)
                 }
             }
             else -> binding.btnAcao.isVisible = false
         }
+    }
+
+    // ── Navigation helpers ────────────────────────────────────────────────────
+
+    private fun abrirInscricaoBottomSheet(torneio: TorneioEntity) {
+        // Avoid opening multiple sheets
+        if (parentFragmentManager.findFragmentByTag(InscricaoTorneioBottomSheet.TAG) != null) return
+
+        val torneioId = torneio.id
+        val min = torneio.minJogadoresPorEquipa()
+        val max = torneio.maxJogadoresPorEquipa
+
+        val sheet = InscricaoTorneioBottomSheet.newInstance(torneioId)
+
+        // Sem equipa → criar nova (navega para CriarEquipa com contexto do torneio)
+        sheet.onNavegarParaCriarEquipa = {
+            findNavController().navigate(
+                R.id.action_torneioDetalheFragment_to_criarEquipaFragment,
+                bundleOf(
+                    "torneioId"    to torneioId,
+                    "minJogadores" to min,
+                    "maxJogadores" to max
+                )
+            )
+        }
+
+        // Poucos membros → gerir equipa para adicionar jogadores
+        sheet.onNavegarParaGerirEquipa = { equipaId, equipaNome ->
+            findNavController().navigate(
+                R.id.action_torneioDetalheFragment_to_gerirEquipaFragment,
+                bundleOf(
+                    "equipaId"     to equipaId,
+                    "equipaNome"   to equipaNome,
+                    "torneioId"    to torneioId,
+                    "minJogadores" to min,
+                    "maxJogadores" to max
+                )
+            )
+        }
+
+        sheet.show(parentFragmentManager, InscricaoTorneioBottomSheet.TAG)
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

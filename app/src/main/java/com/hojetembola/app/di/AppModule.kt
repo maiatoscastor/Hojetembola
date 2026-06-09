@@ -106,6 +106,21 @@ object AppModule {
     @Singleton
     fun provideNotificacaoDao(db: AppDatabase): NotificacaoDao = db.notificacaoDao()
 
+    // ── Repositories ─────────────────────────────────────────────────────────
+
+    @Provides
+    @Singleton
+    fun provideEquipaRepository(
+        client: io.github.jan.supabase.SupabaseClient,
+        equipaDao: EquipaDao,
+        inscricaoEquipaDao: InscricaoEquipaDao,
+        membroEquipaDao: MembroEquipaDao,
+        utilizadorDao: UtilizadorDao
+    ): com.hojetembola.app.data.repository.EquipaRepository =
+        com.hojetembola.app.data.repository.EquipaRepository(
+            client, equipaDao, inscricaoEquipaDao, membroEquipaDao, utilizadorDao
+        )
+
     // ── Utils ─────────────────────────────────────────────────────────────────
 
     @Provides

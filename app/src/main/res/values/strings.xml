@@ -280,6 +280,38 @@
     <string name="aceitar">Aceitar</string>
     <string name="recusar">Recusar</string>
 
+    <!-- ── Equipa ───────────────────────────────────────────────────────────── -->
+    <string name="criar_equipa">Criar equipa</string>
+    <string name="nova_equipa">Nova equipa</string>
+    <string name="nome_equipa">Nome da equipa</string>
+    <string name="iniciais_equipa">Iniciais (máx. 3)</string>
+    <string name="cidade_hint">Cidade (opcional)</string>
+    <string name="cor_da_equipa">Cor da equipa</string>
+    <string name="equipa_criada">Equipa criada com sucesso!</string>
+    <string name="criar_nova_equipa">+ Criar nova equipa</string>
+    <string name="sem_equipas_para_inscrever">Ainda não tens equipas como capitão.\nCria a tua primeira equipa!</string>
+    <string name="selecionar_equipa">Inscrever equipa</string>
+    <string name="ja_inscrita">Já inscrita ✓</string>
+    <string name="equipa_inscrita">%s inscrita no torneio!</string>
+    <string name="a_inscrever">A inscrever…</string>
+
+    <!-- ── Gerir Equipa ──────────────────────────────────────────────────────── -->
+    <string name="gerir_jogadores">Gerir jogadores</string>
+    <string name="pesquisar_jogador_hint">Pesquisar jogador por nome…</string>
+    <string name="jogadores_equipa">Jogadores da equipa</string>
+    <string name="limites_jogadores_formato">min %1$d · máx %2$d</string>
+    <string name="jogadores_count_formato">%d jogador(es)</string>
+    <string name="remover_jogador">Remover jogador</string>
+    <string name="adicionar">Adicionar</string>
+
+    <!-- ── Selecionar Jogadores ──────────────────────────────────────────────── -->
+    <string name="selecionar_jogadores_titulo">Selecionar jogadores</string>
+    <string name="selecionar_jogadores_desc">Seleciona entre %1$d e %2$d jogadores para participar.</string>
+    <string name="confirmar_selecao">Confirmar seleção</string>
+    <string name="jogadores_selecionados_formato">%1$d / %2$d selecionados</string>
+    <string name="poucos_membros_aviso">A equipa precisa de pelo menos %1$d jogadores (tem %2$d). Adiciona jogadores antes de inscrever.</string>
+    <string name="muitos_membros_aviso">A equipa tem %1$d jogadores, mas o máximo é %2$d. Seleciona quais participam.</string>
+
     <!-- ── Erros ──────────────────────────────────────────────────────────── -->
     <string name="erro_abrir_mapa">Não foi possível abrir o mapa.</string>
     <string name="erro_email_invalido">Email inválido.</string>

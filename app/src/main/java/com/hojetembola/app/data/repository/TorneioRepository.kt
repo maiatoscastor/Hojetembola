@@ -37,6 +37,10 @@ class TorneioRepository @Inject constructor(
     fun getTorneioById(id: String): Flow<TorneioEntity?> =
         torneioDao.getByIdFlow(id)
 
+    /** Versão suspend — usada para validação pontual (sem observar mudanças). */
+    suspend fun getTorneioByIdSuspend(id: String): TorneioEntity? =
+        torneioDao.getById(id)
+
     /**
      * Tenta localizar um torneio privado pelo código de acesso de 4 dígitos.
      * Verifica primeiro o Room; se não encontrar, tenta o Supabase e insere localmente.

@@ -236,18 +236,34 @@
                 app:iconTint="@null" />
 
             <!-- ⚡ DEV ONLY — remover antes da entrega final -->
-            <TextView
-                android:id="@+id/btnDevLogin"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="@dimen/spacing_sm"
-                android:clickable="true"
-                android:focusable="true"
-                android:fontFamily="@font/poppins_regular"
-                android:text="⚡ Dev: Entrar como Diogo"
-                android:textColor="@color/text_muted"
-                android:textSize="11sp" />
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <Button
+                    android:id="@+id/btnDevLoginOrganizador"
+                    style="@style/Widget.HojeTemBola.Button.Primary"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_xs"
+                    android:textSize="11sp"
+                    android:text="⚡ Organizador" />
+
+                <Button
+                    android:id="@+id/btnDevLoginUser"
+                    style="@style/Widget.HojeTemBola.Button.Primary"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_xs"
+                    android:textSize="11sp"
+                    android:text="⚡ Utilizador" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

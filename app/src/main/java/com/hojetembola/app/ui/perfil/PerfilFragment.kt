@@ -1,18 +1,24 @@
 package com.hojetembola.app.ui.perfil
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.core.view.isVisible
 import androidx.lifecycle.repeatOnLifecycle
-import android.widget.ArrayAdapter
 import com.hojetembola.app.R
+import com.hojetembola.app.data.local.entity.EquipaEntity
 import com.hojetembola.app.data.local.entity.UtilizadorEntity
 import com.hojetembola.app.databinding.FragmentPerfilBinding
 import com.hojetembola.app.ui.auth.SplashActivity
@@ -101,6 +107,9 @@ class PerfilFragment : Fragment() {
                     }
                 }
                 launch {
+                    viewModel.equipas.collect { equipas -> renderEquipas(equipas) }
+                }
+                launch {
                     viewModel.signOutEvent.collect { navigateToAuth() }
                 }
             }
@@ -137,8 +146,7 @@ class PerfilFragment : Fragment() {
         binding.tvMinutosJogados.text = "0"
         binding.tvMelhorPeriodo.text  = "—"
 
-        binding.tvSemEquipas.visibility     = View.VISIBLE
-        binding.containerEquipas.visibility = View.GONE
+        // Teams rendered separately via renderEquipas() observer
     }
 
     private fun showError(message: String) {
@@ -147,6 +155,80 @@ class PerfilFragment : Fragment() {
         binding.layoutErro.visibility    = View.VISIBLE
         binding.tvMensagemErro.text = message
     }
+
+    // ── Equipas ───────────────────────────────────────────────────────────────
+
+    private fun renderEquipas(equipas: List<EquipaEntity>) {
+        if (equipas.isEmpty()) {
+            binding.tvSemEquipas.visibility     = View.VISIBLE
+            binding.containerEquipas.visibility = View.GONE
+            return
+        }
+
+        binding.tvSemEquipas.visibility     = View.GONE
+        binding.containerEquipas.visibility = View.VISIBLE
+        binding.containerEquipas.removeAllViews()
+
+        val density = resources.displayMetrics.density
+
+        equipas.forEach { equipa ->
+            val row = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity     = android.view.Gravity.CENTER_VERTICAL
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { bottomMargin = (10 * density).toInt() }
+                layoutParams = lp
+            }
+
+            // Círculo colorido com iniciais
+            val avatarSize = (40 * density).toInt()
+            val avatar = TextView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(avatarSize, avatarSize).apply {
+                    marginEnd = (12 * density).toInt()
+                }
+                gravity = android.view.Gravity.CENTER
+                text = equipa.iniciais.ifEmpty { equipa.nome.take(2).uppercase() }
+                setTextColor(Color.WHITE)
+                textSize = 13f
+                typeface = android.graphics.Typeface.DEFAULT_BOLD
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(parseColorSafe(equipa.corAvatar))
+                }
+            }
+
+            // Nome + cidade
+            val textos = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            val tvNome = TextView(requireContext()).apply {
+                text = equipa.nome
+                setTextColor(resources.getColor(R.color.text_primary, null))
+                textSize = 13f
+                typeface = android.graphics.Typeface.DEFAULT_BOLD
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+            }
+            val tvSub = TextView(requireContext()).apply {
+                text = equipa.cidade ?: ""
+                setTextColor(resources.getColor(R.color.text_muted, null))
+                textSize = 11f
+                isVisible = !equipa.cidade.isNullOrBlank()
+            }
+            textos.addView(tvNome)
+            textos.addView(tvSub)
+
+            row.addView(avatar)
+            row.addView(textos)
+            binding.containerEquipas.addView(row)
+        }
+    }
+
+    private fun parseColorSafe(hex: String): Int =
+        try { Color.parseColor(hex) } catch (_: Exception) { Color.parseColor("#E84C3D") }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 

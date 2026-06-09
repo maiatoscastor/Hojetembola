@@ -4,7 +4,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-/** Inscrição de uma equipa num torneio (RF15). */
+/**
+ * Espelha a tabela `inscricao_equipa` do Supabase.
+ * Estado ENUM do Supabase: Pendente | Aceite | Recusada | Eliminada
+ */
 @Entity(tableName = "inscricao_equipa")
 data class InscricaoEquipaEntity(
     @PrimaryKey
@@ -16,9 +19,15 @@ data class InscricaoEquipaEntity(
     @ColumnInfo(name = "equipa_id")
     val equipaId: String,
 
-    /** "inscrita" | "desistente" */
-    val estado: String = "inscrita",
+    /** UUID do utilizador que inscreveu (capitão) */
+    @ColumnInfo(name = "inscrita_por_id")
+    val inscritaPorId: String? = null,
 
     @ColumnInfo(name = "data_inscricao")
-    val dataInscricao: String = ""
+    val dataInscricao: String = "",
+
+    /** ENUM Supabase estado_inscricao: Pendente | Aceite | Recusada | Eliminada */
+    val estado: String = "Pendente",
+
+    val grupo: String? = null
 )
