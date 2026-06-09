@@ -13,8 +13,16 @@ data class ConviteEntity(
     @ColumnInfo(name = "equipa_id")
     val equipaId: String,
 
+    /** UUID do utilizador convidado. */
+    @ColumnInfo(name = "convidado_id")
+    val convidadoId: String,
+
     @ColumnInfo(name = "convidado_email")
     val convidadoEmail: String,
+
+    /** Nome da equipa — para mostrar na notificação sem JOIN. */
+    @ColumnInfo(name = "nome_equipa")
+    val nomeEquipa: String = "",
 
     /** Token único para aceitar o convite via link. */
     val token: String,

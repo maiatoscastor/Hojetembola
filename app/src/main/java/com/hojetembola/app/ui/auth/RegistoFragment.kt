@@ -147,7 +147,7 @@ class RegistoFragment : Fragment() {
             valid = false
         }
 
-        if (valid) viewModel.register(email, pass, nome, selectedPerfil)
+        if (valid) viewModel.register(email, pass, nome, selectedPerfil.lowercase())
     }
 
     // ── Estado de autenticação ────────────────────────────────────────────────

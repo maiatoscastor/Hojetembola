@@ -56,7 +56,7 @@ class HomeFragment : Fragment() {
     private fun setupListeners() {
         binding.btnTentarNovamente.setOnClickListener { viewModel.load() }
         binding.btnNotificacoes.setOnClickListener {
-            Toast.makeText(requireContext(), getString(R.string.em_breve), Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.action_homeFragment_to_notificacoesFragment)
         }
         binding.btnCriarTorneioOrg.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_criarTorneioFragment)
@@ -85,6 +85,10 @@ class HomeFragment : Fragment() {
                 is HomeUiState.OrganizadorState -> showOrganizador(state)
                 is HomeUiState.Error            -> showError(state.message)
             }
+        }
+        collectFlow(viewModel.countNaoLidas) { count ->
+            binding.viewNotifDot.visibility =
+                if (count > 0) View.VISIBLE else View.GONE
         }
     }
 
@@ -231,7 +235,7 @@ class HomeFragment : Fragment() {
         val b = ItemTorneioMeuBinding.inflate(layoutInflater, container, false)
         b.tvNomeTorneio.text = torneio.nome
         b.tvSubtitulo.text = "${torneio.formato.toFormatoLabel(ctx)} · ${torneio.modalidade.toModalidadeLabel()}"
-        b.tvLocalizacao.text = torneio.localizacao
+        b.tvLocalizacao.text = torneio.localizacaoNome
         applyBadge(b.tvEstado, torneio.estado, ctx)
         b.root.setOnClickListener {
             Toast.makeText(ctx, getString(R.string.em_breve), Toast.LENGTH_SHORT).show()

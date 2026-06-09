@@ -72,6 +72,35 @@ class EquipaRepository @Inject constructor(
 
     // ── Sincronização ─────────────────────────────────────────────────────────
 
+    /**
+     * Sincroniza as equipas onde o utilizador é membro (não apenas capitão).
+     * Necessário para o perfil mostrar as equipas aceites via convite.
+     */
+    suspend fun syncMinhasEquipasComoMembro(userId: String) {
+        try {
+            // 1. Pull de todas as filiações deste utilizador
+            val memberships = client.from("membro_equipa")
+                .select { filter { eq("utilizador_id", userId) } }
+                .decodeList<MembroEquipaDto>()
+                .map { it.toEntity() }
+
+            if (memberships.isEmpty()) return
+            membroEquipaDao.insertAll(memberships)
+
+            // 2. Pull das equipas correspondentes (para o JOIN local funcionar)
+            val equipaIds = memberships.mapNotNull { it.equipaId.toIntOrNull() }
+            if (equipaIds.isEmpty()) return
+
+            val equipas = client.from("equipa")
+                .select { filter { isIn("id", equipaIds) } }
+                .decodeList<EquipaDto>()
+                .map { it.toEntity() }
+            if (equipas.isNotEmpty()) equipaDao.insertAll(equipas)
+        } catch (e: Exception) {
+            Log.w(TAG, "syncMinhasEquipasComoMembro falhou: ${e.message}")
+        }
+    }
+
     /** Faz pull das equipas onde o utilizador é capitão e actualiza o Room. */
     suspend fun syncEquipas(capitaoId: String) {
         try {
@@ -169,6 +198,9 @@ class EquipaRepository @Inject constructor(
 
     /**
      * Inscreve uma equipa num torneio.
+     * Valida primeiro:
+     *   1. Se a equipa já está inscrita.
+     *   2. Se algum membro já está inscrito neste torneio com outra equipa.
      * [torneioId] e [equipaId] devem ser IDs inteiros em formato String.
      */
     suspend fun inscreverEquipa(
@@ -184,6 +216,12 @@ class EquipaRepository @Inject constructor(
             ?: return Result.failure(Exception("ID do torneio inválido."))
         val equipaIdInt = equipaId.toIntOrNull()
             ?: return Result.failure(Exception("ID da equipa inválido."))
+
+        // Verifica conflito de jogadores antes de tentar a inscrição
+        val conflito = verificarConflitoJogadores(torneioId, equipaId)
+        if (conflito != null) {
+            return Result.failure(Exception(conflito))
+        }
 
         return try {
             val dto = InscricaoEquipaInsertDto(
@@ -203,6 +241,49 @@ class EquipaRepository @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Falha ao inscrever equipa: ${e.message}", e)
             Result.failure(Exception(buildErrorMessage(e)))
+        }
+    }
+
+    /**
+     * Verifica se algum membro da equipa já está inscrito neste torneio com outra equipa.
+     * Sincroniza os dados antes de verificar para garantir frescura.
+     * Devolve null se não há conflito, ou a mensagem de erro se há.
+     */
+    private suspend fun verificarConflitoJogadores(
+        torneioId: String,
+        equipaId: String
+    ): String? {
+        return try {
+            // Garante que temos as inscrições e membros actualizados
+            syncInscricoes(torneioId)
+            syncMembros(equipaId)
+
+            // Obter membros activos desta equipa (em cache após sync)
+            val membros = membroEquipaDao.getMembrosAtivos(equipaId)
+            if (membros.isEmpty()) return null
+
+            // Obter todas as outras inscrições activas neste torneio
+            val outrasInscricoes = inscricaoEquipaDao.getByTorneioSuspend(torneioId)
+                .filter { it.equipaId != equipaId && it.estado != "Recusada" && it.estado != "Eliminada" }
+            if (outrasInscricoes.isEmpty()) return null
+
+            // Sincroniza membros das outras equipas para ter dados locais
+            outrasInscricoes.forEach { syncMembros(it.equipaId) }
+
+            // Verifica sobreposição
+            for (membro in membros) {
+                for (outraInscricao in outrasInscricoes) {
+                    if (membroEquipaDao.countMembroAtivo(outraInscricao.equipaId, membro.utilizadorId) > 0) {
+                        val nome = utilizadorDao.getById(membro.utilizadorId)?.nome
+                            ?: "Um jogador"
+                        return "\"$nome\" já está inscrito neste torneio com outra equipa."
+                    }
+                }
+            }
+            null
+        } catch (e: Exception) {
+            Log.w(TAG, "verificarConflitoJogadores falhou (será validado pelo servidor): ${e.message}")
+            null // Se falhar, o trigger DB vai barrar no servidor
         }
     }
 
@@ -277,18 +358,22 @@ class EquipaRepository @Inject constructor(
     private fun buildErrorMessage(e: Exception): String {
         val raw = e.message ?: "erro desconhecido"
         return when {
+            // Mensagens do trigger DB (passam directamente para a UI)
+            raw.contains("já está inscrito neste torneio", ignoreCase = true) ||
+            raw.contains("já participa neste torneio",     ignoreCase = true) -> raw
+            // Erros de permissão
             raw.contains("row-level security", ignoreCase = true) ||
-            raw.contains("permission denied", ignoreCase = true) ->
-                "Sem permissão. Verifica as políticas RLS no Supabase."
+            raw.contains("permission denied",  ignoreCase = true) ->
+                "Sem permissão para esta operação."
             raw.contains("foreign key", ignoreCase = true) ->
                 "Referência inválida (torneio ou equipa não existe)."
             raw.contains("Unable to resolve host", ignoreCase = true) ||
-            raw.contains("timeout", ignoreCase = true) ->
+            raw.contains("timeout",                ignoreCase = true) ->
                 "Sem ligação à internet."
             raw.contains("duplicate", ignoreCase = true) ||
-            raw.contains("unique", ignoreCase = true) ->
+            raw.contains("unique",    ignoreCase = true) ->
                 "Este utilizador já é membro desta equipa."
-            else -> "Erro: $raw"
+            else -> raw  // Devolve a mensagem original sem "Erro: " prefix desnecessário
         }
     }
 }

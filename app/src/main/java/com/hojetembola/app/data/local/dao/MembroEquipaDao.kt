@@ -17,6 +17,14 @@ interface MembroEquipaDao {
     @Query("SELECT COUNT(*) FROM membro_equipa WHERE equipa_id = :equipaId AND ativo = 1")
     suspend fun countMembros(equipaId: String): Int
 
+    /** Verifica se um utilizador específico é membro activo de uma equipa. */
+    @Query("SELECT COUNT(*) FROM membro_equipa WHERE equipa_id = :equipaId AND utilizador_id = :utilizadorId AND ativo = 1")
+    suspend fun countMembroAtivo(equipaId: String, utilizadorId: String): Int
+
+    /** Lista plana de membros activos — sem JOIN, para validações rápidas. */
+    @Query("SELECT * FROM membro_equipa WHERE equipa_id = :equipaId AND ativo = 1")
+    suspend fun getMembrosAtivos(equipaId: String): List<MembroEquipaEntity>
+
     /**
      * JOIN com utilizador para obter nomes e emails dos membros.
      * Requer que os registos de utilizador estejam em cache no Room.

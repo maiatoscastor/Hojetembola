@@ -15,6 +15,13 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_homeFragment_to_notificacoesFragment"
+            app:destination="@id/notificacoesFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment
@@ -128,5 +135,10 @@
         android:id="@+id/perfilFragment"
         android:name="com.hojetembola.app.ui.perfil.PerfilFragment"
         android:label="@string/nav_perfil" />
+
+    <fragment
+        android:id="@+id/notificacoesFragment"
+        android:name="com.hojetembola.app.ui.notificacoes.NotificacoesFragment"
+        android:label="@string/notificacoes" />
 
 </navigation>

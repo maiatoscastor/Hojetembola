@@ -11,6 +11,13 @@ import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.hojetembola.app.R
+import com.hojetembola.app.data.repository.UserRepository
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * Serviço FCM responsável por:
@@ -20,13 +27,20 @@ import com.hojetembola.app.R
  * Registado no AndroidManifest.xml com o intent-filter
  * "com.google.firebase.MESSAGING_EVENT".
  */
+@AndroidEntryPoint
 class HojeTemBolaFirebaseMessagingService : FirebaseMessagingService() {
+
+    @Inject
+    lateinit var userRepository: UserRepository
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG, "Novo token FCM: $token")
-        // TODO Passo 2: enviar token para Supabase via AuthRepository
-        // authRepository.updateFcmToken(token)
+        serviceScope.launch {
+            userRepository.updateFcmToken(token)
+        }
     }
 
     override fun onMessageReceived(message: RemoteMessage) {

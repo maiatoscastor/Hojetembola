@@ -268,6 +268,10 @@
     <string name="periodo_desde_sempre">Desde sempre</string>
     <string name="escopo_geral">Geral</string>
 
+    <!-- ── Perfil — papel na equipa ─────────────────────────────────────── -->
+    <string name="role_capitao">Capitão</string>
+    <string name="role_jogador">Jogador</string>
+
     <!-- ── Perfil — estados vazios ───────────────────────────────────────── -->
     <string name="sem_equipas_perfil">Ainda não fazes parte de nenhuma equipa</string>
     <string name="sem_conquistas_perfil">Ainda sem conquistas registadas</string>
@@ -279,6 +283,24 @@
     <string name="sem_notificacoes">Sem notificações de momento</string>
     <string name="aceitar">Aceitar</string>
     <string name="recusar">Recusar</string>
+
+    <!-- ── Convites ────────────────────────────────────────────────────────── -->
+    <string name="convidar">Convidar</string>
+    <string name="ja_convidado">Convite já enviado</string>
+    <string name="ja_membro">Já pertence à equipa</string>
+    <string name="erro_poucos_jogadores">São necessários pelo menos %1$d jogadores. Tens %2$d (faltam %3$d).</string>
+    <string name="erro_muitos_jogadores">O máximo é %1$d jogadores. Tens %2$d.</string>
+    <string name="erro_jogadores_insuficientes_generico">Número de jogadores não está dentro dos limites permitidos.</string>
+    <string name="convite_enviado">Convite enviado!</string>
+    <string name="convite_aceite">Convite aceite! Já és membro da equipa.</string>
+    <string name="convite_recusado">Convite recusado.</string>
+    <string name="convite_revogado">Convite revogado.</string>
+    <string name="convites_pendentes">Convites pendentes</string>
+    <string name="revogar_convite">Revogar convite</string>
+    <string name="convite_pendente_label">Convite pendente…</string>
+    <string name="convite_equipa_titulo">Convite para equipa</string>
+    <string name="convite_equipa_mensagem">Foste convidado para integrar a equipa \"%1$s\"</string>
+    <string name="jogadores_pendentes_formato">%1$d confirmados · %2$d pendentes</string>
 
     <!-- ── Equipa ───────────────────────────────────────────────────────────── -->
     <string name="criar_equipa">Criar equipa</string>

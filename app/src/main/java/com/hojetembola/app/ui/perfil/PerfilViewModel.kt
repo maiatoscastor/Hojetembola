@@ -62,8 +62,9 @@ class PerfilViewModel @Inject constructor(
             userRepository.getCurrentUser()
                 .onSuccess { user ->
                     _uiState.value = PerfilUiState.Success(user)
-                    // Sincroniza equipas remotas depois de ter o userId
+                    // Sincroniza equipas como capitão e como membro (convites aceites)
                     equipaRepository.syncEquipas(user.id)
+                    equipaRepository.syncMinhasEquipasComoMembro(user.id)
                     equipaRepository.getTodasMinhasEquipas(user.id).collect { equipas ->
                         _equipas.value = equipas
                     }

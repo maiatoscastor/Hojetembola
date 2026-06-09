@@ -3,8 +3,10 @@ package com.hojetembola.app.ui.equipa
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hojetembola.app.data.local.entity.ConviteEntity
 import com.hojetembola.app.data.local.entity.MembroComNome
 import com.hojetembola.app.data.local.entity.UtilizadorEntity
+import com.hojetembola.app.data.repository.ConviteRepository
 import com.hojetembola.app.data.repository.EquipaRepository
 import com.hojetembola.app.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,11 +15,19 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+enum class EstadoNaEquipa { DISPONIVEL, JA_CONVIDADO, JA_MEMBRO }
+
+data class UtilizadorComEstado(
+    val utilizador: UtilizadorEntity,
+    val estado: EstadoNaEquipa
+)
+
 sealed class GerirEquipaUiState {
     object Loading : GerirEquipaUiState()
     data class Content(
         val membros: List<MembroComNome>,
-        val podeContinuar: Boolean   // count dentro de [min, max]
+        val convitesPendentes: List<ConviteEntity>,
+        val podeContinuar: Boolean   // (membros + pendentes) dentro de [min, max]
     ) : GerirEquipaUiState()
     data class Error(val message: String) : GerirEquipaUiState()
 }
@@ -35,13 +45,14 @@ sealed class GerirEquipaAcao {
 class GerirEquipaViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val equipaRepository: EquipaRepository,
+    private val conviteRepository: ConviteRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    val equipaId: String  = checkNotNull(savedStateHandle["equipaId"])
+    val equipaId: String   = checkNotNull(savedStateHandle["equipaId"])
     val equipaNome: String = savedStateHandle["equipaNome"] ?: ""
 
-    /** Presente quando este ecrã deve inscrever a equipa após adicionar jogadores. */
+    /** Presente quando este ecrã deve inscrever a equipa após gerir jogadores. */
     val torneioId: String? = savedStateHandle["torneioId"]
     val minJogadores: Int  = savedStateHandle["minJogadores"] ?: 0
     val maxJogadores: Int  = savedStateHandle["maxJogadores"] ?: 99
@@ -52,8 +63,8 @@ class GerirEquipaViewModel @Inject constructor(
     private val _acao = MutableStateFlow<GerirEquipaAcao>(GerirEquipaAcao.Idle)
     val acao: StateFlow<GerirEquipaAcao> = _acao.asStateFlow()
 
-    private val _resultadosPesquisa = MutableStateFlow<List<UtilizadorEntity>>(emptyList())
-    val resultadosPesquisa: StateFlow<List<UtilizadorEntity>> = _resultadosPesquisa.asStateFlow()
+    private val _resultadosPesquisa = MutableStateFlow<List<UtilizadorComEstado>>(emptyList())
+    val resultadosPesquisa: StateFlow<List<UtilizadorComEstado>> = _resultadosPesquisa.asStateFlow()
 
     private val _isPesquisando = MutableStateFlow(false)
     val isPesquisando: StateFlow<Boolean> = _isPesquisando.asStateFlow()
@@ -66,18 +77,25 @@ class GerirEquipaViewModel @Inject constructor(
     fun loadMembros() {
         membrosJob?.cancel()
         membrosJob = viewModelScope.launch {
-            // Busca o id do utilizador actual (para não se poder remover a si próprio da lista)
+            // Busca o id do utilizador actual
             userRepository.getCurrentUser().onSuccess { capitaoId = it.id }
 
+            // Sincroniza membros e convites do servidor
             equipaRepository.syncMembros(equipaId)
+            conviteRepository.syncConvitesEnviados(equipaId)
 
-            equipaRepository.getMembrosComNome(equipaId).collect { membros ->
-                val count = membros.size
-                _uiState.value = GerirEquipaUiState.Content(
-                    membros      = membros,
-                    podeContinuar = count in minJogadores..maxJogadores
+            // Combina membros confirmados + convites pendentes num único estado
+            combine(
+                equipaRepository.getMembrosComNome(equipaId),
+                conviteRepository.getConvitesPendentes(equipaId)
+            ) { membros, convites ->
+                val total = membros.size + convites.size
+                GerirEquipaUiState.Content(
+                    membros           = membros,
+                    convitesPendentes = convites,
+                    podeContinuar     = total in minJogadores..maxJogadores
                 )
-            }
+            }.collect { _uiState.value = it }
         }
     }
 
@@ -86,19 +104,51 @@ class GerirEquipaViewModel @Inject constructor(
         viewModelScope.launch {
             _isPesquisando.value = true
             equipaRepository.pesquisarUtilizadores(query)
-                .onSuccess { _resultadosPesquisa.value = it }
+                .onSuccess { todos ->
+                    val state = _uiState.value as? GerirEquipaUiState.Content
+                    val membrosIds  = state?.membros?.map { it.utilizadorId }?.toSet() ?: emptySet()
+                    val convitesIds = state?.convitesPendentes?.map { it.convidadoId }?.toSet() ?: emptySet()
+
+                    _resultadosPesquisa.value = todos
+                        .filter { it.id != capitaoId }   // só esconde o próprio capitão
+                        .map { u ->
+                            val estado = when (u.id) {
+                                in membrosIds  -> EstadoNaEquipa.JA_MEMBRO
+                                in convitesIds -> EstadoNaEquipa.JA_CONVIDADO
+                                else           -> EstadoNaEquipa.DISPONIVEL
+                            }
+                            UtilizadorComEstado(u, estado)
+                        }
+                }
                 .onFailure { _resultadosPesquisa.value = emptyList() }
             _isPesquisando.value = false
         }
     }
 
-    fun limparPesquisa() { _resultadosPesquisa.value = emptyList() }
+    fun limparPesquisa() { _resultadosPesquisa.value = emptyList<UtilizadorComEstado>() }
 
-    fun adicionarJogador(utilizadorId: String) {
+    /**
+     * Envia um convite ao utilizador em vez de o adicionar directamente.
+     * O jogador só passa a membro após aceitar.
+     */
+    fun convidarJogador(utilizadorId: String) {
         viewModelScope.launch {
-            equipaRepository.adicionarMembro(equipaId, utilizadorId)
-                .onSuccess  { limparPesquisa() }
-                .onFailure  { e -> _acao.value = GerirEquipaAcao.Erro(e.message ?: "Erro ao adicionar.") }
+            val capitaoResult = userRepository.getCurrentUser()
+            val capitao = capitaoResult.getOrElse {
+                _acao.value = GerirEquipaAcao.Erro("Sessão expirada.")
+                return@launch
+            }
+            conviteRepository.enviarConvite(
+                equipaId    = equipaId,
+                equipaNome  = equipaNome,
+                convidadoId = utilizadorId,
+                criadoPorId = capitao.id
+            )
+                .onSuccess {
+                    limparPesquisa()
+                    _acao.value = GerirEquipaAcao.Sucesso("Convite enviado!")
+                }
+                .onFailure { e -> _acao.value = GerirEquipaAcao.Erro(e.message ?: "Erro ao convidar.") }
         }
     }
 
@@ -110,6 +160,13 @@ class GerirEquipaViewModel @Inject constructor(
         viewModelScope.launch {
             equipaRepository.removerMembro(equipaId, utilizadorId)
                 .onFailure { e -> _acao.value = GerirEquipaAcao.Erro(e.message ?: "Erro ao remover.") }
+        }
+    }
+
+    fun revogarConvite(conviteId: String) {
+        viewModelScope.launch {
+            conviteRepository.revogarConvite(conviteId)
+                .onFailure { e -> _acao.value = GerirEquipaAcao.Erro(e.message ?: "Erro ao revogar convite.") }
         }
     }
 

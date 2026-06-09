@@ -33,6 +33,9 @@ class PerfilFragment : Fragment() {
 
     private val viewModel: PerfilViewModel by viewModels()
 
+    /** ID do utilizador autenticado — usado para mostrar "Capitão" / "Jogador". */
+    private var currentUserId: String = ""
+
 
     // ── Ciclo de vida ─────────────────────────────────────────────────────────
 
@@ -125,6 +128,7 @@ class PerfilFragment : Fragment() {
     }
 
     private fun showContent(u: UtilizadorEntity) {
+        currentUserId = u.id
         binding.progressBar.visibility   = View.GONE
         binding.layoutErro.visibility    = View.GONE
         binding.scrollContent.visibility = View.VISIBLE
@@ -199,7 +203,7 @@ class PerfilFragment : Fragment() {
                 }
             }
 
-            // Nome + cidade
+            // Nome + cidade + papel (Capitão / Jogador)
             val textos = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.VERTICAL
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -218,8 +222,15 @@ class PerfilFragment : Fragment() {
                 textSize = 11f
                 isVisible = !equipa.cidade.isNullOrBlank()
             }
+            val isCapitao = equipa.capitaoId == currentUserId
+            val tvRole = TextView(requireContext()).apply {
+                text = if (isCapitao) getString(R.string.role_capitao) else getString(R.string.role_jogador)
+                setTextColor(Color.parseColor("#F57C00"))
+                textSize = 10f
+            }
             textos.addView(tvNome)
             textos.addView(tvSub)
+            textos.addView(tvRole)
 
             row.addView(avatar)
             row.addView(textos)

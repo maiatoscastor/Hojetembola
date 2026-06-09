@@ -21,9 +21,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.hojetembola.app.R
+import com.hojetembola.app.data.local.entity.ConviteEntity
 import com.hojetembola.app.data.local.entity.MembroComNome
-import com.hojetembola.app.data.local.entity.UtilizadorEntity
 import com.hojetembola.app.databinding.FragmentGerirEquipaBinding
+import com.hojetembola.app.databinding.ItemConvitePendenteBinding
 import com.hojetembola.app.databinding.ItemMembroEquipaBinding
 import com.hojetembola.app.databinding.ItemUtilizadorResultadoBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,12 +38,18 @@ class GerirEquipaFragment : Fragment() {
 
     private val viewModel: GerirEquipaViewModel by viewModels()
 
+    /** Estado atual — usado no click do botão inscrever para dar feedback. */
+    private var estadoAtual: GerirEquipaUiState.Content? = null
+
     private val membrosAdapter = MembroEquipaAdapter { utilizadorId ->
         viewModel.removerJogador(utilizadorId)
     }
-    private val resultadosAdapter = UtilizadorResultadoAdapter { utilizadorId ->
-        viewModel.adicionarJogador(utilizadorId)
+    private val convitesAdapter = ConvitePendenteAdapter { conviteId ->
+        viewModel.revogarConvite(conviteId)
     }
+    private val resultadosAdapter = UtilizadorResultadoAdapter(
+        onConvidar = { utilizadorId -> viewModel.convidarJogador(utilizadorId) }
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -71,11 +78,14 @@ class GerirEquipaFragment : Fragment() {
         binding.rvMembros.layoutManager = LinearLayoutManager(requireContext())
         binding.rvMembros.adapter = membrosAdapter
 
+        binding.rvConvitesPendentes.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvConvitesPendentes.adapter = convitesAdapter
+
         binding.rvResultadosPesquisa.layoutManager = LinearLayoutManager(requireContext())
         binding.rvResultadosPesquisa.adapter = resultadosAdapter
 
         binding.btnInscrever.isVisible = viewModel.torneioId != null
-        binding.btnInscrever.setOnClickListener { viewModel.inscreverEquipa() }
+        binding.btnInscrever.setOnClickListener { tentarInscrever() }
 
         setupPesquisa()
         observeState()
@@ -110,21 +120,35 @@ class GerirEquipaFragment : Fragment() {
                                 binding.rvMembros.isVisible   = false
                             }
                             is GerirEquipaUiState.Content -> {
+                                estadoAtual = state
                                 binding.progressBar.isVisible = false
                                 binding.rvMembros.isVisible   = true
+
                                 membrosAdapter.submitList(state.membros)
 
-                                val count = state.membros.size
+                                // Secção de convites pendentes
+                                val temConvites = state.convitesPendentes.isNotEmpty()
+                                binding.tvLabelConvites.isVisible     = temConvites
+                                binding.rvConvitesPendentes.isVisible = temConvites
+                                binding.dividerConvites.isVisible     = temConvites
+                                if (temConvites) convitesAdapter.submitList(state.convitesPendentes)
+
+                                // Contador: membros confirmados + pendentes
+                                val totalEfetivo = state.membros.size + state.convitesPendentes.size
                                 binding.tvContador.text = getString(
-                                    R.string.jogadores_count_formato, count
+                                    R.string.jogadores_count_formato, totalEfetivo
                                 )
 
                                 if (viewModel.torneioId != null) {
-                                    binding.btnInscrever.isEnabled = state.podeContinuar
-                                    val cor = if (state.podeContinuar) R.color.orange else R.color.text_muted
+                                    // Botão sempre clicável — feedback dado em tentarInscrever()
+                                    binding.btnInscrever.isEnabled = true
+                                    binding.btnInscrever.alpha =
+                                        if (state.podeContinuar) 1f else 0.5f
                                     binding.tvContador.setTextColor(
-                                        if (state.podeContinuar) resources.getColor(R.color.green, null)
-                                        else resources.getColor(R.color.color_live, null)
+                                        if (state.podeContinuar)
+                                            resources.getColor(R.color.green, null)
+                                        else
+                                            resources.getColor(R.color.color_live, null)
                                     )
                                 }
                             }
@@ -142,6 +166,7 @@ class GerirEquipaFragment : Fragment() {
                         binding.rvResultadosPesquisa.isVisible = resultados.isNotEmpty()
                     }
                 }
+
 
                 launch {
                     viewModel.isPesquisando.collect { loading ->
@@ -167,7 +192,6 @@ class GerirEquipaFragment : Fragment() {
                                     Snackbar.LENGTH_SHORT
                                 ).show()
                                 viewModel.resetAcao()
-                                // Volta ao TorneioDetalhe (pop 2 fragmentos: GerirEquipa + CriarEquipa se existir)
                                 findNavController().popBackStack(R.id.torneioDetalheFragment, false)
                             }
                             is GerirEquipaAcao.Loading -> Unit
@@ -176,6 +200,65 @@ class GerirEquipaFragment : Fragment() {
                     }
                 }
             }
+        }
+    }
+
+    // ── Lógica de inscrição ───────────────────────────────────────────────────
+
+    private fun tentarInscrever() {
+        val state = estadoAtual ?: return
+        if (!state.podeContinuar) {
+            val total = state.membros.size + state.convitesPendentes.size
+            val msg = when {
+                total < viewModel.minJogadores ->
+                    getString(
+                        R.string.erro_poucos_jogadores,
+                        viewModel.minJogadores,
+                        total,
+                        viewModel.minJogadores - total
+                    )
+                total > viewModel.maxJogadores ->
+                    getString(
+                        R.string.erro_muitos_jogadores,
+                        viewModel.maxJogadores,
+                        total
+                    )
+                else -> getString(R.string.erro_jogadores_insuficientes_generico)
+            }
+            Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
+            return
+        }
+        viewModel.inscreverEquipa()
+    }
+
+    // ── Adapter: convites pendentes ───────────────────────────────────────────
+
+    inner class ConvitePendenteAdapter(
+        private val onRevogar: (String) -> Unit
+    ) : ListAdapter<ConviteEntity, ConvitePendenteAdapter.VH>(
+        object : DiffUtil.ItemCallback<ConviteEntity>() {
+            override fun areItemsTheSame(old: ConviteEntity, new: ConviteEntity) = old.id == new.id
+            override fun areContentsTheSame(old: ConviteEntity, new: ConviteEntity) = old == new
+        }
+    ) {
+        inner class VH(val b: ItemConvitePendenteBinding) : RecyclerView.ViewHolder(b.root)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+            VH(ItemConvitePendenteBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val convite = getItem(position)
+            // Usa email como fallback se não temos o nome em cache
+            val nomeOuEmail = convite.convidadoEmail
+            holder.b.tvNome.text  = nomeOuEmail
+            holder.b.tvEmail.text = convite.convidadoEmail
+            holder.b.tvAvatar.text = nomeOuEmail.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+            holder.b.tvAvatar.background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.parseColor("#F57C00"))
+                alpha = 160
+            }
+            holder.b.btnRevogar.setOnClickListener { onRevogar(convite.id) }
         }
     }
 
@@ -210,11 +293,13 @@ class GerirEquipaFragment : Fragment() {
     // ── Adapter: resultados de pesquisa ───────────────────────────────────────
 
     inner class UtilizadorResultadoAdapter(
-        private val onAdicionar: (String) -> Unit
-    ) : ListAdapter<UtilizadorEntity, UtilizadorResultadoAdapter.VH>(
-        object : DiffUtil.ItemCallback<UtilizadorEntity>() {
-            override fun areItemsTheSame(old: UtilizadorEntity, new: UtilizadorEntity) = old.id == new.id
-            override fun areContentsTheSame(old: UtilizadorEntity, new: UtilizadorEntity) = old == new
+        private val onConvidar: (String) -> Unit
+    ) : ListAdapter<UtilizadorComEstado, UtilizadorResultadoAdapter.VH>(
+        object : DiffUtil.ItemCallback<UtilizadorComEstado>() {
+            override fun areItemsTheSame(old: UtilizadorComEstado, new: UtilizadorComEstado) =
+                old.utilizador.id == new.utilizador.id
+            override fun areContentsTheSame(old: UtilizadorComEstado, new: UtilizadorComEstado) =
+                old == new
         }
     ) {
         inner class VH(val b: ItemUtilizadorResultadoBinding) : RecyclerView.ViewHolder(b.root)
@@ -223,15 +308,54 @@ class GerirEquipaFragment : Fragment() {
             VH(ItemUtilizadorResultadoBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
         override fun onBindViewHolder(holder: VH, position: Int) {
-            val u = getItem(position)
+            val item = getItem(position)
+            val u    = item.utilizador
+
             holder.b.tvNome.text  = u.nome
             holder.b.tvEmail.text = u.email
             holder.b.tvAvatar.text = u.nome.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
-            holder.b.tvAvatar.background = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Color.parseColor("#F57C00"))
+
+            when (item.estado) {
+                EstadoNaEquipa.DISPONIVEL -> {
+                    holder.b.tvAvatar.background = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(Color.parseColor("#F57C00"))
+                    }
+                    holder.b.tvEstado.visibility = View.GONE
+                    holder.b.btnAdicionar.text    = getString(R.string.convidar)
+                    holder.b.btnAdicionar.isEnabled = true
+                    holder.b.btnAdicionar.alpha   = 1f
+                    holder.b.btnAdicionar.setOnClickListener { onConvidar(u.id) }
+                }
+                EstadoNaEquipa.JA_CONVIDADO -> {
+                    holder.b.tvAvatar.background = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(Color.parseColor("#F57C00"))
+                        alpha = 100
+                    }
+                    holder.b.tvEstado.visibility  = View.VISIBLE
+                    holder.b.tvEstado.text        = getString(R.string.ja_convidado)
+                    holder.b.tvEstado.setTextColor(Color.parseColor("#F57C00"))
+                    holder.b.btnAdicionar.text    = getString(R.string.convidar)
+                    holder.b.btnAdicionar.isEnabled = false
+                    holder.b.btnAdicionar.alpha   = 0.4f
+                    holder.b.btnAdicionar.setOnClickListener(null)
+                }
+                EstadoNaEquipa.JA_MEMBRO -> {
+                    holder.b.tvAvatar.background = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(Color.parseColor("#1E3260"))
+                        alpha = 100
+                    }
+                    holder.b.tvEstado.visibility  = View.VISIBLE
+                    holder.b.tvEstado.text        = getString(R.string.ja_membro)
+                    holder.b.tvEstado.setTextColor(Color.parseColor("#4CAF50"))
+                    holder.b.btnAdicionar.text    = getString(R.string.convidar)
+                    holder.b.btnAdicionar.isEnabled = false
+                    holder.b.btnAdicionar.alpha   = 0.4f
+                    holder.b.btnAdicionar.setOnClickListener(null)
+                }
             }
-            holder.b.btnAdicionar.setOnClickListener { onAdicionar(u.id) }
         }
     }
 }

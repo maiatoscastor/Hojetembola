@@ -19,7 +19,8 @@ data class UtilizadorDto(
     val perfil: String,
     @SerialName("foto_url")    val fotoUrl: String? = null,
     @SerialName("data_registo") val dataRegisto: String = "",
-    val ativo: Boolean = true
+    val ativo: Boolean = true,
+    @SerialName("fcm_token")   val fcmToken: String? = null
 ) {
     fun toEntity() = UtilizadorEntity(
         id          = id,
@@ -28,6 +29,7 @@ data class UtilizadorDto(
         perfil      = perfil,
         fotoUrl     = fotoUrl,
         dataRegisto = dataRegisto,
-        ativo       = ativo
+        ativo       = ativo,
+        fcmToken    = fcmToken
     )
 }

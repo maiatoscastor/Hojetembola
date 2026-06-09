@@ -17,6 +17,10 @@ interface InscricaoEquipaDao {
     @Query("SELECT * FROM inscricao_equipa WHERE torneio_id = :torneioId AND equipa_id = :equipaId LIMIT 1")
     suspend fun getByTorneioAndEquipa(torneioId: String, equipaId: String): InscricaoEquipaEntity?
 
+    /** Versão suspend — necessária para validações pontuais sem observar mudanças. */
+    @Query("SELECT * FROM inscricao_equipa WHERE torneio_id = :torneioId")
+    suspend fun getByTorneioSuspend(torneioId: String): List<InscricaoEquipaEntity>
+
     /** true se já existe uma inscrição activa (não Recusada) para esta equipa neste torneio. */
     @Query("""
         SELECT COUNT(*) FROM inscricao_equipa

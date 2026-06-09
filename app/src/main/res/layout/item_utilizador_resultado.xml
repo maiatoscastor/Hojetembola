@@ -24,7 +24,7 @@
         android:background="@color/bg_border"
         tools:text="D" />
 
-    <!-- Nome + email -->
+    <!-- Nome + email + estado -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -49,9 +49,21 @@
             android:textColor="@color/text_muted"
             android:textSize="11sp"
             tools:text="diogo@email.com" />
+
+        <!-- Visível só quando JA_MEMBRO ou JA_CONVIDADO -->
+        <TextView
+            android:id="@+id/tvEstado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/poppins_regular"
+            android:textSize="10sp"
+            android:visibility="gone"
+            tools:text="Já pertence à equipa"
+            tools:visibility="visible" />
     </LinearLayout>
 
-    <!-- Adicionar -->
+    <!-- Convidar / estado -->
     <Button
         android:id="@+id/btnAdicionar"
         style="@style/Widget.HojeTemBola.Button.Primary"

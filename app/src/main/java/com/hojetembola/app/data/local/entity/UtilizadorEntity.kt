@@ -22,5 +22,9 @@ data class UtilizadorEntity(
     @ColumnInfo(name = "data_registo")
     val dataRegisto: String = "",
 
-    val ativo: Boolean = true
+    val ativo: Boolean = true,
+
+    /** Token FCM para envio de push notifications. */
+    @ColumnInfo(name = "fcm_token")
+    val fcmToken: String? = null
 )

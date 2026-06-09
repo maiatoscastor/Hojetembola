@@ -148,7 +148,45 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Label membros actuais -->
+    <!-- Secção: convites pendentes -->
+    <TextView
+        android:id="@+id/tvLabelConvites"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_padding"
+        android:layout_marginEnd="@dimen/screen_padding"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:text="@string/convites_pendentes"
+        android:textColor="#F57C00"
+        android:textAllCaps="true"
+        android:textSize="11sp"
+        android:fontFamily="@font/poppins_semi_bold"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvConvitesPendentes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvLabelConvites"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Divider entre convites e membros -->
+    <View
+        android:id="@+id/dividerConvites"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/bg_border"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/rvConvitesPendentes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Label membros confirmados -->
     <TextView
         android:id="@+id/tvLabelMembros"
         android:layout_width="0dp"
@@ -161,7 +199,7 @@
         android:textAllCaps="true"
         android:textSize="11sp"
         android:fontFamily="@font/poppins_semi_bold"
-        app:layout_constraintTop_toBottomOf="@id/divider"
+        app:layout_constraintTop_toBottomOf="@id/dividerConvites"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

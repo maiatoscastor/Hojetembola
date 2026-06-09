@@ -121,6 +121,28 @@ object AppModule {
             client, equipaDao, inscricaoEquipaDao, membroEquipaDao, utilizadorDao
         )
 
+    @Provides
+    @Singleton
+    fun provideConviteRepository(
+        client: io.github.jan.supabase.SupabaseClient,
+        conviteDao: ConviteDao,
+        membroEquipaDao: MembroEquipaDao,
+        utilizadorDao: UtilizadorDao
+    ): com.hojetembola.app.data.repository.ConviteRepository =
+        com.hojetembola.app.data.repository.ConviteRepository(
+            client, conviteDao, membroEquipaDao, utilizadorDao
+        )
+
+    @Provides
+    @Singleton
+    fun provideNotificacaoRepository(
+        client: io.github.jan.supabase.SupabaseClient,
+        notificacaoDao: NotificacaoDao
+    ): com.hojetembola.app.data.repository.NotificacaoRepository =
+        com.hojetembola.app.data.repository.NotificacaoRepository(
+            client, notificacaoDao
+        )
+
     // ── Utils ─────────────────────────────────────────────────────────────────
 
     @Provides

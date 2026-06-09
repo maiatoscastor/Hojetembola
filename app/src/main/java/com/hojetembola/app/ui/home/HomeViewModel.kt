@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hojetembola.app.data.local.entity.TorneioEntity
 import com.hojetembola.app.data.local.entity.UtilizadorEntity
+import com.hojetembola.app.data.repository.ConviteRepository
 import com.hojetembola.app.data.repository.HomeRepository
+import com.hojetembola.app.data.repository.NotificacaoRepository
+import com.hojetembola.app.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -57,14 +57,34 @@ sealed class HomeUiState {
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val homeRepository: HomeRepository
+    private val homeRepository: HomeRepository,
+    private val notificacaoRepository: NotificacaoRepository,
+    private val conviteRepository: ConviteRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    /** Número de notificações não lidas + convites pendentes — alimenta o badge do sino. */
+    private val _countNaoLidas = MutableStateFlow(0)
+    val countNaoLidas: StateFlow<Int> = _countNaoLidas.asStateFlow()
+
     init {
         load()
+        observeBadge()
+    }
+
+    private fun observeBadge() {
+        viewModelScope.launch {
+            val user = userRepository.getCurrentUser().getOrNull() ?: return@launch
+            combine(
+                notificacaoRepository.countNaoLidas(user.id),
+                conviteRepository.getConvitesPendentesPorConvidado(user.id)
+            ) { naoLidas, convites ->
+                naoLidas + convites.size
+            }.collect { _countNaoLidas.value = it }
+        }
     }
 
     fun load() {

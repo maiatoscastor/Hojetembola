@@ -1,5 +1,6 @@
 package com.hojetembola.app.data.repository
 
+import android.util.Log
 import com.hojetembola.app.data.local.dao.UtilizadorDao
 import com.hojetembola.app.data.local.entity.UtilizadorEntity
 import com.hojetembola.app.data.remote.dto.UtilizadorDto
@@ -8,6 +9,8 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val TAG = "HTB-UserRepo"
 
 /**
  * Repositório do utilizador autenticado.
@@ -51,6 +54,26 @@ class UserRepository @Inject constructor(
             } else {
                 Result.failure(Exception("Não foi possível carregar o perfil. Verifica a ligação."))
             }
+        }
+    }
+
+    /**
+     * Actualiza o token FCM do utilizador autenticado no Supabase.
+     * Chamado pelo [HojeTemBolaFirebaseMessagingService] quando o token é renovado.
+     */
+    suspend fun updateFcmToken(token: String) {
+        val uid = client.auth.currentSessionOrNull()?.user?.id ?: return
+        try {
+            client.from("utilizador")
+                .update({ set("fcm_token", token) }) {
+                    filter { eq("id", uid) }
+                }
+            // Actualiza o cache local
+            val cached = utilizadorDao.getById(uid)
+            if (cached != null) utilizadorDao.insert(cached.copy(fcmToken = token))
+            Log.d(TAG, "FCM token actualizado para utilizador $uid")
+        } catch (e: Exception) {
+            Log.w(TAG, "updateFcmToken falhou: ${e.message}")
         }
     }
 

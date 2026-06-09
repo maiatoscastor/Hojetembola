@@ -31,7 +31,7 @@ import com.hojetembola.app.data.local.entity.*
         VotoMvpEntity::class,
         NotificacaoEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
