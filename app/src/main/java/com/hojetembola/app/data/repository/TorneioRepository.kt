@@ -42,6 +42,19 @@ class TorneioRepository @Inject constructor(
         torneioDao.getById(id)
 
     /**
+     * Se [localId] for um UUID (torneio criado offline antes da correcção),
+     * sincroniza com o Supabase e devolve o ID inteiro real.
+     * Necessário para torneios criados antes do padrão online-first.
+     */
+    suspend fun resolverTorneioId(localId: String, userId: String): String {
+        if (localId.toIntOrNull() != null) return localId   // já é inteiro, nada a fazer
+        val torneio = torneioDao.getById(localId) ?: return localId
+        syncTorneios(userId)
+        return torneioDao.getBySyncedOrganizadorAndNome(torneio.organizadorId, torneio.nome)?.id
+            ?: localId  // fallback: mantém UUID se sync falhar (offline)
+    }
+
+    /**
      * Tenta localizar um torneio privado pelo código de acesso de 4 dígitos.
      * Verifica primeiro o Room; se não encontrar, tenta o Supabase e insere localmente.
      * Devolve Result.failure se o código não existir ou houver erro de rede.
@@ -81,12 +94,10 @@ class TorneioRepository @Inject constructor(
                 .decodeList<TorneioDto>()
                 .map { it.toEntity() }
 
-            if (organizados.isNotEmpty()) {
-                // Apaga as entradas já sincronizadas locais (UUID) para evitar
-                // duplicados com as entradas vindas do Supabase (ID integer)
-                torneioDao.deleteSyncedByOrganizadorId(utilizadorId)
-                torneioDao.insertAll(organizados)
-            }
+            // Apaga SEMPRE os registos locais do organizador antes de re-inserir.
+            // Se organizados estiver vazio (torneios apagados na BD), o delete limpa o Room.
+            torneioDao.deleteAllByOrganizadorId(utilizadorId)
+            if (organizados.isNotEmpty()) torneioDao.insertAll(organizados)
 
             // 2. Torneios públicos de outros organizadores
             val outrosPublicos = client.from("torneio")
@@ -95,6 +106,9 @@ class TorneioRepository @Inject constructor(
                 .filter { it.organizadorId != utilizadorId }
                 .map { it.toEntity() }
 
+            // Substitui todos os públicos de outros para remover os apagados na BD
+            val outrosIds = outrosPublicos.map { it.id }.toSet()
+            torneioDao.deletePublicosDeOutros(utilizadorId, outrosIds.toList())
             if (outrosPublicos.isNotEmpty()) torneioDao.insertAll(outrosPublicos)
 
         } catch (_: Exception) {
@@ -194,20 +208,22 @@ class TorneioRepository @Inject constructor(
             isSynced                  = false
         )
 
-        // Persiste localmente primeiro (sempre — garante funcionamento offline)
-        torneioDao.insert(entity)
-
-        // Sincroniza com Supabase — propaga o erro se falhar
+        // Tenta inserir no Supabase primeiro — assim recebe o ID inteiro real.
+        // Só guarda UUID local se estiver offline (fallback).
         return try {
-            client.from("torneio").insert(entity.toInsertDto())
-            torneioDao.markAsSynced(id)
-            Log.i(TAG, "Torneio ${entity.id} sincronizado com Supabase com sucesso.")
-            Result.success(entity.copy(isSynced = true))
+            val created = client.from("torneio")
+                .insert(entity.toInsertDto()) { select() }
+                .decodeSingle<TorneioDto>()
+
+            val realEntity = created.toEntity()
+            torneioDao.insert(realEntity)
+            Log.i(TAG, "Torneio ${realEntity.id} criado no Supabase com sucesso.")
+            Result.success(realEntity)
         } catch (e: Exception) {
             Log.e(TAG, "Falha ao inserir torneio no Supabase: ${e::class.simpleName} — ${e.message}", e)
-            Result.failure(
-                Exception(buildSupabaseErrorMessage(e))
-            )
+            // Fallback offline: guarda com UUID local para sincronizar depois
+            torneioDao.insert(entity)
+            Result.failure(Exception(buildSupabaseErrorMessage(e)))
         }
     }
 

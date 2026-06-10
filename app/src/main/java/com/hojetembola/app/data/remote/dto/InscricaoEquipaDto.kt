@@ -1,6 +1,7 @@
 package com.hojetembola.app.data.remote.dto
 
 import com.hojetembola.app.data.local.entity.InscricaoEquipaEntity
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -32,5 +33,5 @@ data class InscricaoEquipaInsertDto(
     @SerialName("torneio_id")     val torneioId: Int,
     @SerialName("equipa_id")      val equipaId: Int,
     @SerialName("inscrita_por_id") val inscritaPorId: String? = null,
-    val estado: String            = "Pendente"
+    @EncodeDefault val estado: String = "Pendente"
 )

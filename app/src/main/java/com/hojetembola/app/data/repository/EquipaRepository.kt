@@ -4,6 +4,7 @@ import android.util.Log
 import com.hojetembola.app.data.local.dao.EquipaDao
 import com.hojetembola.app.data.local.dao.InscricaoEquipaDao
 import com.hojetembola.app.data.local.dao.MembroEquipaDao
+import com.hojetembola.app.data.local.dao.TorneioDao
 import com.hojetembola.app.data.local.dao.UtilizadorDao
 import com.hojetembola.app.data.local.entity.EquipaEntity
 import com.hojetembola.app.data.local.entity.InscricaoEquipaEntity
@@ -31,7 +32,8 @@ class EquipaRepository @Inject constructor(
     private val equipaDao: EquipaDao,
     private val inscricaoEquipaDao: InscricaoEquipaDao,
     private val membroEquipaDao: MembroEquipaDao,
-    private val utilizadorDao: UtilizadorDao
+    private val utilizadorDao: UtilizadorDao,
+    private val torneioDao: TorneioDao
 ) {
 
     // ── Leitura local — equipas ───────────────────────────────────────────────
@@ -262,9 +264,15 @@ class EquipaRepository @Inject constructor(
             val membros = membroEquipaDao.getMembrosAtivos(equipaId)
             if (membros.isEmpty()) return null
 
+            // Verifica se o organizador do torneio faz parte da equipa
+            val organizadorId = torneioDao.getById(torneioId)?.organizadorId
+            if (organizadorId != null && membros.any { it.utilizadorId == organizadorId }) {
+                return "O organizador não pode inscrever uma equipa em que participa no seu próprio torneio."
+            }
+
             // Obter todas as outras inscrições activas neste torneio
             val outrasInscricoes = inscricaoEquipaDao.getByTorneioSuspend(torneioId)
-                .filter { it.equipaId != equipaId && it.estado != "Recusada" && it.estado != "Eliminada" }
+                .filter { it.equipaId != equipaId && it.estado !in listOf("Rejeitada", "Desistente") }
             if (outrasInscricoes.isEmpty()) return null
 
             // Sincroniza membros das outras equipas para ter dados locais
@@ -284,6 +292,23 @@ class EquipaRepository @Inject constructor(
         } catch (e: Exception) {
             Log.w(TAG, "verificarConflitoJogadores falhou (será validado pelo servidor): ${e.message}")
             null // Se falhar, o trigger DB vai barrar no servidor
+        }
+    }
+
+    /**
+     * Devolve os IDs dos utilizadores já inscritos neste torneio por outra equipa.
+     * Usado para assinalar conflitos no ecrã de seleção de jogadores.
+     */
+    suspend fun getUtilizadoresNoTorneio(torneioId: String, equipaId: String): List<String> {
+        return try {
+            syncInscricoes(torneioId)
+            val outrasInscricoes = inscricaoEquipaDao.getByTorneioSuspend(torneioId)
+                .filter { it.equipaId != equipaId && it.estado !in listOf("Rejeitada", "Desistente") }
+            outrasInscricoes.forEach { syncMembros(it.equipaId) }
+            membroEquipaDao.getUtilizadoresNoTorneio(torneioId, equipaId)
+        } catch (e: Exception) {
+            Log.w(TAG, "getUtilizadoresNoTorneio falhou: ${e.message}")
+            emptyList()
         }
     }
 

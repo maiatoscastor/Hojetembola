@@ -58,4 +58,15 @@ interface MembroEquipaDao {
 
     @Query("DELETE FROM membro_equipa WHERE equipa_id = :equipaId AND utilizador_id = :utilizadorId")
     suspend fun deleteByEquipaAndUtilizador(equipaId: String, utilizadorId: String)
+
+    /** IDs de utilizadores já inscritos neste torneio por outra equipa (para detectar conflitos). */
+    @Query("""
+        SELECT DISTINCT m.utilizador_id
+        FROM membro_equipa m
+        INNER JOIN inscricao_equipa ie ON ie.equipa_id = m.equipa_id
+        WHERE ie.torneio_id = :torneioId
+          AND m.equipa_id != :equipaId
+          AND ie.estado NOT IN ('Rejeitada', 'Desistente')
+    """)
+    suspend fun getUtilizadoresNoTorneio(torneioId: String, equipaId: String): List<String>
 }

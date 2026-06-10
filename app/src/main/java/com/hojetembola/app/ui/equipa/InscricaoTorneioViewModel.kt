@@ -91,14 +91,21 @@ class InscricaoTorneioViewModel @Inject constructor(
     }
 
     /**
-     * Valida contagem de membros antes de inscrever:
+     * Valida antes de abrir a seleção de jogadores:
+     * - Utilizador já tem outra equipa inscrita → Erro
      * - count < min → PoucosMembros (deve ir gerir a equipa)
-     * - count > max → MuitosMembros (deve selecionar jogadores)
-     * - ok          → inscreve directamente
+     * - count >= min → MuitosMembros (abre seleção de jogadores sempre)
      */
     fun inscrever(equipaId: String, equipaNome: String) {
         viewModelScope.launch {
             _acao.value = InscricaoAcao.Loading
+
+            // Verifica se o utilizador já tem outra equipa inscrita neste torneio
+            val state = _uiState.value as? InscricaoUiState.Content
+            if (state != null && state.equipas.any { it.jaInscrita && it.equipa.id != equipaId }) {
+                _acao.value = InscricaoAcao.Erro("Já tens uma equipa inscrita neste torneio.")
+                return@launch
+            }
 
             val torneio = torneioRepository.getTorneioByIdSuspend(torneioId)
             if (torneio == null) {
@@ -112,8 +119,7 @@ class InscricaoTorneioViewModel @Inject constructor(
 
             when {
                 count < min -> _acao.value = InscricaoAcao.PoucosMembros(equipaId, equipaNome, count, min, max)
-                count > max -> _acao.value = InscricaoAcao.MuitosMembros(equipaId, equipaNome, min, max)
-                else        -> executarInscricao(equipaId, equipaNome)
+                else        -> _acao.value = InscricaoAcao.MuitosMembros(equipaId, equipaNome, min, max)
             }
         }
     }

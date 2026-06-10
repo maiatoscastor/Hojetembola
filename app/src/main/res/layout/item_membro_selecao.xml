@@ -62,6 +62,17 @@
             android:ellipsize="end"
             tools:text="diogo@email.com" />
 
+        <TextView
+            android:id="@+id/tvConflito"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="#F57C00"
+            android:textSize="10sp"
+            android:visibility="gone"
+            tools:text="Já participa neste torneio com outra equipa"
+            tools:visibility="visible" />
+
     </LinearLayout>
 
 </LinearLayout>

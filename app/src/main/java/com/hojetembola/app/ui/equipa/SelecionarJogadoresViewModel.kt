@@ -12,7 +12,8 @@ import javax.inject.Inject
 
 data class MembroSelecao(
     val membro: MembroComNome,
-    val selecionado: Boolean = true
+    val selecionado: Boolean = true,
+    val emConflito: Boolean = false
 )
 
 sealed class SelecionarJogadoresUiState {
@@ -34,22 +35,26 @@ class SelecionarJogadoresViewModel @Inject constructor(
     val equipaNome: String = savedStateHandle["equipaNome"] ?: ""
     val min: Int           = savedStateHandle["min"] ?: 0
     val max: Int           = savedStateHandle["max"] ?: 99
+    val torneioId: String  = savedStateHandle["torneioId"] ?: ""
 
     private val _uiState = MutableStateFlow<SelecionarJogadoresUiState>(SelecionarJogadoresUiState.Loading)
     val uiState: StateFlow<SelecionarJogadoresUiState> = _uiState.asStateFlow()
 
-    /** Mantém o estado de seleção: utilizadorId → selecionado */
     private val selecao = mutableMapOf<String, Boolean>()
+    private var emConflito: Set<String> = emptySet()
 
     init { loadMembros() }
 
     private fun loadMembros() {
         viewModelScope.launch {
+            if (torneioId.isNotEmpty()) {
+                emConflito = equipaRepository.getUtilizadoresNoTorneio(torneioId, equipaId).toSet()
+            }
+
             equipaRepository.getMembrosComNome(equipaId).collect { membros ->
-                // Inicializar todos como selecionados se ainda não temos estado
                 membros.forEach { m ->
                     if (!selecao.containsKey(m.utilizadorId)) {
-                        selecao[m.utilizadorId] = true
+                        selecao[m.utilizadorId] = m.utilizadorId !in emConflito
                     }
                 }
                 emitContent(membros)
@@ -58,8 +63,8 @@ class SelecionarJogadoresViewModel @Inject constructor(
     }
 
     fun toggleSelecao(utilizadorId: String) {
+        if (utilizadorId in emConflito) return
         selecao[utilizadorId] = !(selecao[utilizadorId] ?: true)
-        // Rebuild content with current member list
         viewModelScope.launch {
             val membros = equipaRepository.getMembrosComNome(equipaId).first()
             emitContent(membros)
@@ -68,9 +73,13 @@ class SelecionarJogadoresViewModel @Inject constructor(
 
     private fun emitContent(membros: List<MembroComNome>) {
         val lista = membros.map { m ->
-            MembroSelecao(membro = m, selecionado = selecao[m.utilizadorId] ?: true)
+            MembroSelecao(
+                membro     = m,
+                selecionado = selecao[m.utilizadorId] ?: true,
+                emConflito  = m.utilizadorId in emConflito
+            )
         }
-        val count = lista.count { it.selecionado }
+        val count = lista.count { it.selecionado && !it.emConflito }
         _uiState.value = SelecionarJogadoresUiState.Content(
             membros       = lista,
             podeContinuar = count in min..max

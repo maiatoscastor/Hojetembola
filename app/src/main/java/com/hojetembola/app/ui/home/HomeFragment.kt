@@ -58,6 +58,9 @@ class HomeFragment : Fragment() {
         binding.btnNotificacoes.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_notificacoesFragment)
         }
+        binding.btnNotificacoesOrg.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_notificacoesFragment)
+        }
         binding.btnCriarTorneioOrg.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_criarTorneioFragment)
         }
@@ -87,8 +90,9 @@ class HomeFragment : Fragment() {
             }
         }
         collectFlow(viewModel.countNaoLidas) { count ->
-            binding.viewNotifDot.visibility =
-                if (count > 0) View.VISIBLE else View.GONE
+            val visible = if (count > 0) View.VISIBLE else View.GONE
+            binding.viewNotifDot.visibility    = visible
+            binding.viewNotifDotOrg.visibility = visible
         }
     }
 

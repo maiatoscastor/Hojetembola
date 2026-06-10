@@ -61,10 +61,25 @@ interface TorneioDao {
 
     /**
      * Remove os torneios já sincronizados de um organizador.
-     * Usado em syncTorneios para evitar duplicados UUID/integer-id após re-sync.
+     * (mantido por compatibilidade — preferir deleteAllByOrganizadorId)
      */
     @Query("DELETE FROM torneio WHERE organizador_id = :organizadorId AND sincronizado = 1")
     suspend fun deleteSyncedByOrganizadorId(organizadorId: String)
+
+    /** Remove todos os torneios locais de um organizador (incluindo UUID offline). */
+    @Query("DELETE FROM torneio WHERE organizador_id = :organizadorId")
+    suspend fun deleteAllByOrganizadorId(organizadorId: String)
+
+    /** Localiza um torneio sincronizado pelo organizador e nome — usado para resolver UUID → integer ID. */
+    @Query("SELECT * FROM torneio WHERE organizador_id = :organizadorId AND nome = :nome AND sincronizado = 1 LIMIT 1")
+    suspend fun getBySyncedOrganizadorAndNome(organizadorId: String, nome: String): TorneioEntity?
+
+    /**
+     * Remove torneios públicos de outros organizadores que já não existem no Supabase.
+     * Chamado após sync para limpar registos apagados remotamente.
+     */
+    @Query("DELETE FROM torneio WHERE organizador_id != :meuId AND visibilidade = 'Publico' AND id NOT IN (:idsActuais)")
+    suspend fun deletePublicosDeOutros(meuId: String, idsActuais: List<String>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(torneio: TorneioEntity)

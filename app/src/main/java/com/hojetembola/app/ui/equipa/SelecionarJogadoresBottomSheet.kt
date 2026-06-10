@@ -142,13 +142,25 @@ class SelecionarJogadoresBottomSheet : BottomSheetDialogFragment() {
                 setColor(Color.parseColor("#1E3260"))
             }
 
-            // Prevent listener firing during rebind
-            holder.b.checkBox.setOnCheckedChangeListener(null)
-            holder.b.checkBox.isChecked = item.selecionado
-            holder.b.checkBox.setOnCheckedChangeListener { _, _ ->
-                onToggle(m.utilizadorId)
+            if (item.emConflito) {
+                holder.b.checkBox.setOnCheckedChangeListener(null)
+                holder.b.checkBox.isChecked = false
+                holder.b.checkBox.isEnabled = false
+                holder.b.tvConflito.visibility = android.view.View.VISIBLE
+                holder.b.tvConflito.text = holder.b.root.context.getString(
+                    R.string.jogador_ja_no_torneio
+                )
+                holder.b.root.setOnClickListener(null)
+            } else {
+                holder.b.checkBox.isEnabled = true
+                holder.b.tvConflito.visibility = android.view.View.GONE
+                holder.b.checkBox.setOnCheckedChangeListener(null)
+                holder.b.checkBox.isChecked = item.selecionado
+                holder.b.checkBox.setOnCheckedChangeListener { _, _ ->
+                    onToggle(m.utilizadorId)
+                }
+                holder.b.root.setOnClickListener { onToggle(m.utilizadorId) }
             }
-            holder.b.root.setOnClickListener { onToggle(m.utilizadorId) }
         }
     }
 
@@ -160,6 +172,7 @@ class SelecionarJogadoresBottomSheet : BottomSheetDialogFragment() {
         fun newInstance(
             equipaId: String,
             equipaNome: String,
+            torneioId: String,
             min: Int,
             max: Int
         ): SelecionarJogadoresBottomSheet =
@@ -167,6 +180,7 @@ class SelecionarJogadoresBottomSheet : BottomSheetDialogFragment() {
                 arguments = bundleOf(
                     "equipaId"   to equipaId,
                     "equipaNome" to equipaNome,
+                    "torneioId"  to torneioId,
                     "min"        to min,
                     "max"        to max
                 )

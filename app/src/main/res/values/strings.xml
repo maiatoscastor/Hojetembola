@@ -272,6 +272,9 @@
     <string name="role_capitao">Capitão</string>
     <string name="role_jogador">Jogador</string>
 
+    <!-- ── Seleção de jogadores ─────────────────────────────────────────── -->
+    <string name="jogador_ja_no_torneio">Já participa neste torneio com outra equipa</string>
+
     <!-- ── Perfil — estados vazios ───────────────────────────────────────── -->
     <string name="sem_equipas_perfil">Ainda não fazes parte de nenhuma equipa</string>
     <string name="sem_conquistas_perfil">Ainda sem conquistas registadas</string>

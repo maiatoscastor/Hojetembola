@@ -38,13 +38,20 @@ class TorneioDetalheViewModel @Inject constructor(
             val utilizadorResult = userRepository.getCurrentUser()
             val utilizadorId = utilizadorResult.getOrNull()?.id
 
-            torneioRepository.getTorneioById(torneioId)
+            // Se o ID for UUID (torneio criado antes do fix), resolve para o ID inteiro real
+            val effectiveId = if (torneioId.toIntOrNull() == null && utilizadorId != null) {
+                torneioRepository.resolverTorneioId(torneioId, utilizadorId)
+            } else {
+                torneioId
+            }
+
+            torneioRepository.getTorneioById(effectiveId)
                 .collect { torneio ->
                     _uiState.value = if (torneio == null) {
                         TorneioDetalheUiState.Error("Torneio não encontrado.")
                     } else {
                         TorneioDetalheUiState.Content(
-                            torneio      = torneio,
+                            torneio       = torneio,
                             isOrganizador = torneio.organizadorId == utilizadorId
                         )
                     }

@@ -115,10 +115,11 @@ object AppModule {
         equipaDao: EquipaDao,
         inscricaoEquipaDao: InscricaoEquipaDao,
         membroEquipaDao: MembroEquipaDao,
-        utilizadorDao: UtilizadorDao
+        utilizadorDao: UtilizadorDao,
+        torneioDao: TorneioDao
     ): com.hojetembola.app.data.repository.EquipaRepository =
         com.hojetembola.app.data.repository.EquipaRepository(
-            client, equipaDao, inscricaoEquipaDao, membroEquipaDao, utilizadorDao
+            client, equipaDao, inscricaoEquipaDao, membroEquipaDao, utilizadorDao, torneioDao
         )
 
     @Provides

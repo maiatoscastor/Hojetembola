@@ -146,6 +146,7 @@ class InscricaoTorneioBottomSheet : BottomSheetDialogFragment() {
                                 val sheet = SelecionarJogadoresBottomSheet.newInstance(
                                     equipaId   = acao.equipaId,
                                     equipaNome = acao.equipaNome,
+                                    torneioId  = viewModel.torneioId,
                                     min        = acao.min,
                                     max        = acao.max
                                 )
