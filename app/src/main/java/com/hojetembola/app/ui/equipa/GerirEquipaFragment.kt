@@ -208,14 +208,16 @@ class GerirEquipaFragment : Fragment() {
     private fun tentarInscrever() {
         val state = estadoAtual ?: return
         if (!state.podeContinuar) {
-            val total = state.membros.size + state.convitesPendentes.size
+            val confirmed = state.membros.size           // apenas membros confirmados
+            val total     = confirmed + state.convitesPendentes.size
             val msg = when {
-                total < viewModel.minJogadores ->
+                // Convites pendentes NÃO contam para o mínimo
+                confirmed < viewModel.minJogadores ->
                     getString(
-                        R.string.erro_poucos_jogadores,
+                        R.string.erro_poucos_confirmados,
                         viewModel.minJogadores,
-                        total,
-                        viewModel.minJogadores - total
+                        confirmed,
+                        viewModel.minJogadores - confirmed
                     )
                 total > viewModel.maxJogadores ->
                     getString(
@@ -350,6 +352,20 @@ class GerirEquipaFragment : Fragment() {
                     holder.b.tvEstado.visibility  = View.VISIBLE
                     holder.b.tvEstado.text        = getString(R.string.ja_membro)
                     holder.b.tvEstado.setTextColor(Color.parseColor("#4CAF50"))
+                    holder.b.btnAdicionar.text    = getString(R.string.convidar)
+                    holder.b.btnAdicionar.isEnabled = false
+                    holder.b.btnAdicionar.alpha   = 0.4f
+                    holder.b.btnAdicionar.setOnClickListener(null)
+                }
+                EstadoNaEquipa.NO_TORNEIO -> {
+                    holder.b.tvAvatar.background = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(Color.parseColor("#F44336"))
+                        alpha = 100
+                    }
+                    holder.b.tvEstado.visibility  = View.VISIBLE
+                    holder.b.tvEstado.text        = getString(R.string.ja_no_torneio)
+                    holder.b.tvEstado.setTextColor(Color.parseColor("#F44336"))
                     holder.b.btnAdicionar.text    = getString(R.string.convidar)
                     holder.b.btnAdicionar.isEnabled = false
                     holder.b.btnAdicionar.alpha   = 0.4f

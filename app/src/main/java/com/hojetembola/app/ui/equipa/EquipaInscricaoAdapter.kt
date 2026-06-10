@@ -8,6 +8,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.hojetembola.app.R
 import com.hojetembola.app.databinding.ItemEquipaInscricaoBinding
 
 class EquipaInscricaoAdapter(
@@ -48,13 +49,25 @@ class EquipaInscricaoAdapter(
         b.tvNumMembros.text = "👥 ${item.numMembros} jogador${if (item.numMembros != 1) "es" else ""}"
 
         // ── Inscription state ────────────────────────────────────────────────
-        if (item.jaInscrita) {
-            b.btnInscrever.isVisible = false
-            b.tvJaInscrita.isVisible = true
-        } else {
-            b.btnInscrever.isVisible = true
-            b.tvJaInscrita.isVisible = false
-            b.btnInscrever.setOnClickListener { onInscrever(item) }
+        when (item.estadoInscricao) {
+            "Pendente" -> {
+                b.btnInscrever.isVisible = false
+                b.tvJaInscrita.isVisible = true
+                b.tvJaInscrita.text = b.root.context.getString(R.string.estado_pendente)
+                b.tvJaInscrita.setTextColor(Color.parseColor("#F57C00"))
+            }
+            "Confirmada" -> {
+                b.btnInscrever.isVisible = false
+                b.tvJaInscrita.isVisible = true
+                b.tvJaInscrita.text = b.root.context.getString(R.string.estado_confirmada)
+                b.tvJaInscrita.setTextColor(Color.parseColor("#4CAF50"))
+            }
+            else -> {
+                // null = nunca inscrito, "Rejeitada"/"Desistente" = pode inscrever de novo
+                b.btnInscrever.isVisible = true
+                b.tvJaInscrita.isVisible = false
+                b.btnInscrever.setOnClickListener { onInscrever(item) }
+            }
         }
     }
 

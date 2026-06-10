@@ -169,12 +169,15 @@ class TorneioDetalheFragment : Fragment() {
     private fun setupActionButton(state: TorneioDetalheUiState.Content) {
         val t = state.torneio
         when {
-            // Organizador vê o botão de gerir (apenas placeholder por agora)
+            // Organizador navega para Gerir Torneio
             state.isOrganizador -> {
                 binding.btnAcao.isVisible = true
                 binding.btnAcao.text = getString(R.string.gerir_torneio)
                 binding.btnAcao.setOnClickListener {
-                    Snackbar.make(binding.root, R.string.em_breve, Snackbar.LENGTH_SHORT).show()
+                    findNavController().navigate(
+                        R.id.action_torneioDetalheFragment_to_gerirTorneioFragment,
+                        bundleOf("torneioId" to t.id)
+                    )
                 }
             }
             // Utilizador regular pode inscrever equipa quando inscrições estão abertas

@@ -275,6 +275,16 @@
     <!-- ── Seleção de jogadores ─────────────────────────────────────────── -->
     <string name="jogador_ja_no_torneio">Já participa neste torneio com outra equipa</string>
 
+    <!-- ── Gerir Torneio ─────────────────────────────────────────────────── -->
+    <string name="rejeitar">Rejeitar</string>
+    <string name="confirmar_todas">Confirmar todas</string>
+    <string name="gerar_calendario">Gerar calendário</string>
+    <string name="inscricoes_contador">%1$d inscri&#231;&#245;es · %2$d pendentes</string>
+    <string name="sem_inscricoes">Ainda não há equipas inscritas.</string>
+    <string name="estado_pendente">Pendente</string>
+    <string name="estado_confirmada">Confirmada</string>
+    <string name="estado_rejeitada">Rejeitada</string>
+
     <!-- ── Perfil — estados vazios ───────────────────────────────────────── -->
     <string name="sem_equipas_perfil">Ainda não fazes parte de nenhuma equipa</string>
     <string name="sem_conquistas_perfil">Ainda sem conquistas registadas</string>
@@ -291,7 +301,9 @@
     <string name="convidar">Convidar</string>
     <string name="ja_convidado">Convite já enviado</string>
     <string name="ja_membro">Já pertence à equipa</string>
+    <string name="ja_no_torneio">Já no torneio</string>
     <string name="erro_poucos_jogadores">São necessários pelo menos %1$d jogadores. Tens %2$d (faltam %3$d).</string>
+    <string name="erro_poucos_confirmados">São necessários %1$d jogadores confirmados. Tens %2$d confirmados (faltam %3$d). Convites pendentes não contam.</string>
     <string name="erro_muitos_jogadores">O máximo é %1$d jogadores. Tens %2$d.</string>
     <string name="erro_jogadores_insuficientes_generico">Número de jogadores não está dentro dos limites permitidos.</string>
     <string name="convite_enviado">Convite enviado!</string>

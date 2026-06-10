@@ -70,6 +70,13 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_torneioDetalheFragment_to_gerirTorneioFragment"
+            app:destination="@id/gerirTorneioFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment
@@ -124,6 +131,15 @@
             android:name="maxJogadores"
             app:argType="integer"
             android:defaultValue="99" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/gerirTorneioFragment"
+        android:name="com.hojetembola.app.ui.torneios.GerirTorneioFragment"
+        android:label="@string/gerir_torneio">
+        <argument
+            android:name="torneioId"
+            app:argType="string" />
     </fragment>
 
     <fragment

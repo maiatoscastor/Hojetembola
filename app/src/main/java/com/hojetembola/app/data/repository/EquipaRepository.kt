@@ -7,6 +7,7 @@ import com.hojetembola.app.data.local.dao.MembroEquipaDao
 import com.hojetembola.app.data.local.dao.TorneioDao
 import com.hojetembola.app.data.local.dao.UtilizadorDao
 import com.hojetembola.app.data.local.entity.EquipaEntity
+import com.hojetembola.app.data.local.entity.InscricaoComEquipa
 import com.hojetembola.app.data.local.entity.InscricaoEquipaEntity
 import com.hojetembola.app.data.local.entity.MembroComNome
 import com.hojetembola.app.data.local.entity.UtilizadorEntity
@@ -58,9 +59,17 @@ class EquipaRepository @Inject constructor(
     fun getInscricoesDoTorneio(torneioId: String): Flow<List<InscricaoEquipaEntity>> =
         inscricaoEquipaDao.getByTorneio(torneioId)
 
-    /** Verifica localmente se esta equipa já está inscrita neste torneio. */
+    /** Inscrições com dados da equipa — para o ecrã de Gerir Torneio. */
+    fun getInscricoesComEquipa(torneioId: String): Flow<List<InscricaoComEquipa>> =
+        inscricaoEquipaDao.getByTorneioComEquipa(torneioId)
+
+    /** Verifica localmente se esta equipa já está inscrita neste torneio (estado activo). */
     suspend fun jaInscrita(torneioId: String, equipaId: String): Boolean =
         inscricaoEquipaDao.countInscricaoAtiva(torneioId, equipaId) > 0
+
+    /** Devolve o estado actual da inscrição, ou null se não existe nenhuma. */
+    suspend fun getEstadoInscricao(torneioId: String, equipaId: String): String? =
+        inscricaoEquipaDao.getByTorneioAndEquipa(torneioId, equipaId)?.estado
 
     // ── Leitura local — membros ───────────────────────────────────────────────
 
@@ -226,6 +235,20 @@ class EquipaRepository @Inject constructor(
         }
 
         return try {
+            // Re-inscrição após rejeição: apagar a linha rejeitada e inserir de novo.
+            // Usar DELETE+INSERT (em vez de UPDATE) para:
+            //   1. respeitar o RLS (capitão pode INSERT e DELETE das suas próprias inscrições)
+            //   2. disparar o trigger de notificação ao organizador (só activa em INSERT)
+            val existente = inscricaoEquipaDao.getByTorneioAndEquipa(torneioId, equipaId)
+            if (existente != null && existente.estado == "Rejeitada") {
+                existente.id.toIntOrNull()?.let { existenteIdInt ->
+                    client.from("inscricao_equipa")
+                        .delete { filter { eq("id", existenteIdInt) } }
+                    inscricaoEquipaDao.delete(existente)
+                    Log.i(TAG, "Inscrição rejeitada ${existente.id} removida para re-inscrição.")
+                }
+            }
+
             val dto = InscricaoEquipaInsertDto(
                 torneioId     = torneioIdInt,
                 equipaId      = equipaIdInt,
@@ -309,6 +332,82 @@ class EquipaRepository @Inject constructor(
         } catch (e: Exception) {
             Log.w(TAG, "getUtilizadoresNoTorneio falhou: ${e.message}")
             emptyList()
+        }
+    }
+
+    // ── Gestão de inscrições (organizador) ────────────────────────────────────
+
+    /** Sincroniza inscrições e equipas de um torneio (para o Gerir Torneio). */
+    suspend fun syncInscricoesComEquipas(torneioId: String) {
+        try {
+            syncInscricoes(torneioId)
+            val inscricoes = inscricaoEquipaDao.getByTorneioSuspend(torneioId)
+            inscricoes.forEach { syncEquipaById(it.equipaId) }
+        } catch (e: Exception) {
+            Log.w(TAG, "syncInscricoesComEquipas falhou: ${e.message}")
+        }
+    }
+
+    private suspend fun syncEquipaById(equipaId: String) {
+        val equipaIdInt = equipaId.toIntOrNull() ?: return
+        try {
+            val dto = client.from("equipa")
+                .select { filter { eq("id", equipaIdInt) } }
+                .decodeList<EquipaDto>()
+                .firstOrNull() ?: return
+            equipaDao.insert(dto.toEntity())
+        } catch (_: Exception) {}
+    }
+
+    /** Aceita uma inscrição (Pendente → Confirmada). */
+    suspend fun aceitarInscricao(inscricaoId: String): Result<Unit> {
+        val id = inscricaoId.toIntOrNull() ?: return Result.failure(Exception("ID inválido."))
+        return try {
+            client.from("inscricao_equipa")
+                .update({ set("estado", "Confirmada") }) {
+                    filter { eq("id", id) }
+                }
+            inscricaoEquipaDao.updateEstadoById(inscricaoId, "Confirmada")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "aceitarInscricao falhou: ${e.message}", e)
+            Result.failure(Exception(buildErrorMessage(e)))
+        }
+    }
+
+    /** Rejeita uma inscrição (qualquer estado → Rejeitada). */
+    suspend fun rejeitarInscricao(inscricaoId: String): Result<Unit> {
+        val id = inscricaoId.toIntOrNull() ?: return Result.failure(Exception("ID inválido."))
+        return try {
+            client.from("inscricao_equipa")
+                .update({ set("estado", "Rejeitada") }) {
+                    filter { eq("id", id) }
+                }
+            inscricaoEquipaDao.updateEstadoById(inscricaoId, "Rejeitada")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "rejeitarInscricao falhou: ${e.message}", e)
+            Result.failure(Exception(buildErrorMessage(e)))
+        }
+    }
+
+    /** Confirma todas as inscrições Pendentes de um torneio de uma vez. */
+    suspend fun confirmarTodasPendentes(torneioId: String): Result<Int> {
+        val tId = torneioId.toIntOrNull() ?: return Result.failure(Exception("ID inválido."))
+        return try {
+            val pendentes = inscricaoEquipaDao.getByTorneioSuspend(torneioId)
+                .filter { it.estado == "Pendente" }
+            if (pendentes.isEmpty()) return Result.success(0)
+
+            client.from("inscricao_equipa")
+                .update({ set("estado", "Confirmada") }) {
+                    filter { eq("torneio_id", tId); eq("estado", "Pendente") }
+                }
+            pendentes.forEach { inscricaoEquipaDao.updateEstado(torneioId, it.equipaId, "Confirmada") }
+            Result.success(pendentes.size)
+        } catch (e: Exception) {
+            Log.e(TAG, "confirmarTodasPendentes falhou: ${e.message}", e)
+            Result.failure(Exception(buildErrorMessage(e)))
         }
     }
 

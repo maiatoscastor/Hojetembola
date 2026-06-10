@@ -15,9 +15,12 @@ import javax.inject.Inject
 
 data class EquipaComEstado(
     val equipa: EquipaEntity,
-    val jaInscrita: Boolean,
+    val estadoInscricao: String?,   // null = não inscrita
     val numMembros: Int = 0
-)
+) {
+    val jaInscrita: Boolean
+        get() = estadoInscricao != null && estadoInscricao !in listOf("Rejeitada", "Desistente")
+}
 
 sealed class InscricaoUiState {
     object Loading : InscricaoUiState()
@@ -73,6 +76,7 @@ class InscricaoTorneioViewModel @Inject constructor(
             capitaoId = utilizador.id
 
             equipaRepository.syncEquipas(capitaoId)
+            equipaRepository.syncInscricoes(torneioId)
 
             equipaRepository.getMinhasEquipas(capitaoId).collect { equipas ->
                 // Sincroniza membros de cada equipa para ter contagem correcta
@@ -80,9 +84,9 @@ class InscricaoTorneioViewModel @Inject constructor(
 
                 val comEstado = equipas.map { e ->
                     EquipaComEstado(
-                        equipa     = e,
-                        jaInscrita = equipaRepository.jaInscrita(torneioId, e.id),
-                        numMembros = equipaRepository.contarMembros(e.id)
+                        equipa          = e,
+                        estadoInscricao = equipaRepository.getEstadoInscricao(torneioId, e.id),
+                        numMembros      = equipaRepository.contarMembros(e.id)
                     )
                 }
                 _uiState.value = InscricaoUiState.Content(comEstado)

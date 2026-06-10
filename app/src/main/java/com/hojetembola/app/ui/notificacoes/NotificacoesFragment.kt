@@ -150,11 +150,14 @@ class NotificacoesFragment : Fragment() {
         }
 
         private fun iconForTipo(tipo: String): Pair<Int, String> = when (tipo) {
-            "convite"             -> Pair(R.drawable.ic_notification, "#F57C00")
-            "jogo_marcado"        -> Pair(R.drawable.ic_calendar,     "#4CAF50")
-            "resultado"           -> Pair(R.drawable.ic_notification, "#1E3260")
-            "suspensao"           -> Pair(R.drawable.ic_notification, "#E53935")
-            else                  -> Pair(R.drawable.ic_notification, "#8A9BB8")
+            "convite"               -> Pair(R.drawable.ic_notification, "#F57C00")
+            "jogo_marcado"          -> Pair(R.drawable.ic_calendar,     "#4CAF50")
+            "resultado"             -> Pair(R.drawable.ic_notification, "#1E3260")
+            "suspensao"             -> Pair(R.drawable.ic_notification, "#E53935")
+            "inscricao_aceite"      -> Pair(R.drawable.ic_notification, "#4CAF50")
+            "inscricao_rejeitada"   -> Pair(R.drawable.ic_notification, "#E53935")
+            "nova_inscricao"        -> Pair(R.drawable.ic_notification, "#1E3260")
+            else                    -> Pair(R.drawable.ic_notification, "#8A9BB8")
         }
     }
 }

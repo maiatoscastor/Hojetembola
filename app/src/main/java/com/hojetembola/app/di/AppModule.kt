@@ -144,6 +144,19 @@ object AppModule {
             client, notificacaoDao
         )
 
+    @Provides
+    @Singleton
+    fun provideJogoRepository(
+        client: io.github.jan.supabase.SupabaseClient,
+        jogoDao: JogoDao,
+        jornadaDao: JornadaDao,
+        torneioDao: TorneioDao,
+        inscricaoEquipaDao: InscricaoEquipaDao
+    ): com.hojetembola.app.data.repository.JogoRepository =
+        com.hojetembola.app.data.repository.JogoRepository(
+            client, jogoDao, jornadaDao, torneioDao, inscricaoEquipaDao
+        )
+
     // ── Utils ─────────────────────────────────────────────────────────────────
 
     @Provides

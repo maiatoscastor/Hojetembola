@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class EstadoNaEquipa { DISPONIVEL, JA_CONVIDADO, JA_MEMBRO }
+enum class EstadoNaEquipa { DISPONIVEL, JA_CONVIDADO, JA_MEMBRO, NO_TORNEIO }
 
 data class UtilizadorComEstado(
     val utilizador: UtilizadorEntity,
@@ -27,7 +27,7 @@ sealed class GerirEquipaUiState {
     data class Content(
         val membros: List<MembroComNome>,
         val convitesPendentes: List<ConviteEntity>,
-        val podeContinuar: Boolean   // (membros + pendentes) dentro de [min, max]
+        val podeContinuar: Boolean   // membros confirmados dentro de [min, max]
     ) : GerirEquipaUiState()
     data class Error(val message: String) : GerirEquipaUiState()
 }
@@ -66,6 +66,9 @@ class GerirEquipaViewModel @Inject constructor(
     private val _resultadosPesquisa = MutableStateFlow<List<UtilizadorComEstado>>(emptyList())
     val resultadosPesquisa: StateFlow<List<UtilizadorComEstado>> = _resultadosPesquisa.asStateFlow()
 
+    /** IDs de utilizadores já inscritos no torneio por outras equipas (só carregado quando torneioId != null). */
+    private val _emConflito = MutableStateFlow<Set<String>>(emptySet())
+
     private val _isPesquisando = MutableStateFlow(false)
     val isPesquisando: StateFlow<Boolean> = _isPesquisando.asStateFlow()
 
@@ -84,16 +87,22 @@ class GerirEquipaViewModel @Inject constructor(
             equipaRepository.syncMembros(equipaId)
             conviteRepository.syncConvitesEnviados(equipaId)
 
+            // Carrega IDs de jogadores já inscritos no torneio por outras equipas
+            if (!torneioId.isNullOrEmpty()) {
+                _emConflito.value =
+                    equipaRepository.getUtilizadoresNoTorneio(torneioId, equipaId).toSet()
+            }
+
             // Combina membros confirmados + convites pendentes num único estado
             combine(
                 equipaRepository.getMembrosComNome(equipaId),
                 conviteRepository.getConvitesPendentes(equipaId)
             ) { membros, convites ->
-                val total = membros.size + convites.size
                 GerirEquipaUiState.Content(
                     membros           = membros,
                     convitesPendentes = convites,
-                    podeContinuar     = total in minJogadores..maxJogadores
+                    // Só membros confirmados contam para o mínimo (convites pendentes não garantem presença)
+                    podeContinuar     = membros.size in minJogadores..maxJogadores
                 )
             }.collect { _uiState.value = it }
         }
@@ -105,17 +114,19 @@ class GerirEquipaViewModel @Inject constructor(
             _isPesquisando.value = true
             equipaRepository.pesquisarUtilizadores(query)
                 .onSuccess { todos ->
-                    val state = _uiState.value as? GerirEquipaUiState.Content
-                    val membrosIds  = state?.membros?.map { it.utilizadorId }?.toSet() ?: emptySet()
-                    val convitesIds = state?.convitesPendentes?.map { it.convidadoId }?.toSet() ?: emptySet()
+                    val state        = _uiState.value as? GerirEquipaUiState.Content
+                    val membrosIds   = state?.membros?.map { it.utilizadorId }?.toSet() ?: emptySet()
+                    val convitesIds  = state?.convitesPendentes?.map { it.convidadoId }?.toSet() ?: emptySet()
+                    val conflitosIds = _emConflito.value
 
                     _resultadosPesquisa.value = todos
                         .filter { it.id != capitaoId }   // só esconde o próprio capitão
                         .map { u ->
                             val estado = when (u.id) {
-                                in membrosIds  -> EstadoNaEquipa.JA_MEMBRO
-                                in convitesIds -> EstadoNaEquipa.JA_CONVIDADO
-                                else           -> EstadoNaEquipa.DISPONIVEL
+                                in conflitosIds -> EstadoNaEquipa.NO_TORNEIO   // já noutras equipas deste torneio
+                                in membrosIds   -> EstadoNaEquipa.JA_MEMBRO
+                                in convitesIds  -> EstadoNaEquipa.JA_CONVIDADO
+                                else            -> EstadoNaEquipa.DISPONIVEL
                             }
                             UtilizadorComEstado(u, estado)
                         }
@@ -133,6 +144,11 @@ class GerirEquipaViewModel @Inject constructor(
      */
     fun convidarJogador(utilizadorId: String) {
         viewModelScope.launch {
+            // Bloquear convite se o jogador já está noutras equipa confirmada/pendente no torneio
+            if (utilizadorId in _emConflito.value) {
+                _acao.value = GerirEquipaAcao.Erro("Este jogador já participa neste torneio com outra equipa.")
+                return@launch
+            }
             val capitaoResult = userRepository.getCurrentUser()
             val capitao = capitaoResult.getOrElse {
                 _acao.value = GerirEquipaAcao.Erro("Sessão expirada.")
@@ -175,6 +191,17 @@ class GerirEquipaViewModel @Inject constructor(
         val tid = torneioId ?: return
         viewModelScope.launch {
             _acao.value = GerirEquipaAcao.Loading
+
+            // Validação: apenas membros confirmados contam; convites pendentes não garantem presença
+            val state = _uiState.value as? GerirEquipaUiState.Content
+            if (state != null && state.membros.size < minJogadores) {
+                _acao.value = GerirEquipaAcao.Erro(
+                    "São necessários pelo menos $minJogadores jogadores confirmados. " +
+                    "Tens apenas ${state.membros.size}. Convites pendentes não contam."
+                )
+                return@launch
+            }
+
             val utilizador = userRepository.getCurrentUser().getOrElse {
                 _acao.value = GerirEquipaAcao.Erro("Sessão expirada.")
                 return@launch
