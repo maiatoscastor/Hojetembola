@@ -337,6 +337,23 @@
     <string name="poucos_membros_aviso">A equipa precisa de pelo menos %1$d jogadores (tem %2$d). Adiciona jogadores antes de inscrever.</string>
     <string name="muitos_membros_aviso">A equipa tem %1$d jogadores, mas o máximo é %2$d. Seleciona quais participam.</string>
 
+    <!-- ── Editar Perfil / Definições ──────────────────────────────────── -->
+    <string name="guardar_alteracoes">Guardar alterações</string>
+    <string name="perfil_atualizado">Perfil atualizado com sucesso</string>
+    <string name="erro_nome_vazio">O nome não pode estar vazio</string>
+    <string name="notificacoes_push">Notificações push</string>
+    <string name="notificacoes_push_desc">Alertas de jogos e torneios</string>
+    <string name="versao_app">Versão</string>
+    <string name="tipo_conta">Tipo de conta</string>
+    <string name="alterar_password">Alterar password</string>
+    <string name="nova_password">Nova password</string>
+    <string name="confirmar_nova_password">Confirmar nova password</string>
+    <string name="password_alterada">Password alterada com sucesso</string>
+    <string name="erro_passwords_nao_coincidem">As passwords não coincidem</string>
+    <string name="confirmar_troca_titulo">Confirmar alteração</string>
+    <string name="confirmar_troca_msg">Para confirmar, escreve \"%s\" abaixo.</string>
+    <string name="erro_confirmacao_perfil">Texto incorreto. Tenta novamente.</string>
+
     <!-- ── Erros ──────────────────────────────────────────────────────────── -->
     <string name="erro_abrir_mapa">Não foi possível abrir o mapa.</string>
     <string name="erro_email_invalido">Email inválido.</string>

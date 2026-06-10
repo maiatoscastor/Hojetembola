@@ -160,6 +160,41 @@
         <item name="android:colorBackground">@color/bg_primary</item>
     </style>
 
+    <!-- ── Bottom Sheet ─────────────────────────────────────────────────── -->
+    <style name="Theme.HojeTemBola.BottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.HojeTemBola.BottomSheetModal</item>
+    </style>
+    <style name="Widget.HojeTemBola.BottomSheetModal" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@color/bg_surface</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.HojeTemBola.BottomSheet</item>
+    </style>
+    <style name="ShapeAppearance.HojeTemBola.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">20dp</item>
+        <item name="cornerSizeTopRight">20dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <!-- ── Alert Dialog ──────────────────────────────────────────────────── -->
+    <style name="Theme.HojeTemBola.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <!-- M3 usa colorSurfaceContainerHigh como fundo do dialog -->
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorSurfaceContainerHigh">@color/bg_surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/Widget.HojeTemBola.Dialog.Title</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/Widget.HojeTemBola.Dialog.Body</item>
+    </style>
+    <style name="Widget.HojeTemBola.Dialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="Widget.HojeTemBola.Dialog.Body" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
     <!-- ── Bottom Navigation ────────────────────────────────────────────── -->
     <style name="Widget.HojeTemBola.BottomNav" parent="Widget.Material3.BottomNavigationView">
         <item name="android:background">@color/bg_surface</item>

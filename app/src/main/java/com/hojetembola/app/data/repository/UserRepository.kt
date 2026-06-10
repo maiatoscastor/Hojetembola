@@ -57,6 +57,32 @@ class UserRepository @Inject constructor(
         }
     }
 
+    suspend fun updateProfile(nome: String, perfil: String): Result<Unit> {
+        val uid = client.auth.currentSessionOrNull()?.user?.id
+            ?: return Result.failure(Exception("Sessão expirada. Faz login novamente."))
+        return try {
+            client.from("utilizador")
+                .update({
+                    set("nome", nome)
+                    set("perfil", perfil)
+                }) { filter { eq("id", uid) } }
+            val cached = utilizadorDao.getById(uid)
+            if (cached != null) utilizadorDao.insert(cached.copy(nome = nome, perfil = perfil))
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Não foi possível actualizar o perfil."))
+        }
+    }
+
+    suspend fun changePassword(newPassword: String): Result<Unit> {
+        return try {
+            client.auth.updateUser { password = newPassword }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Não foi possível alterar a password."))
+        }
+    }
+
     /**
      * Actualiza o token FCM do utilizador autenticado no Supabase.
      * Chamado pelo [HojeTemBolaFirebaseMessagingService] quando o token é renovado.

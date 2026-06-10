@@ -10,13 +10,13 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.core.view.isVisible
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.snackbar.Snackbar
 import com.hojetembola.app.R
 import com.hojetembola.app.data.local.entity.EquipaEntity
 import com.hojetembola.app.data.local.entity.UtilizadorEntity
@@ -32,6 +32,9 @@ class PerfilFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: PerfilViewModel by viewModels()
+
+    /** Exposto para os BottomSheets filhos partilharem o mesmo ViewModel. */
+    val perfilViewModel get() = viewModel
 
     /** ID do utilizador autenticado — usado para mostrar "Capitão" / "Jogador". */
     private var currentUserId: String = ""
@@ -88,11 +91,19 @@ class PerfilFragment : Fragment() {
         binding.btnTerminarSessao.setOnClickListener { viewModel.signOut() }
         binding.btnTentarNovamente.setOnClickListener { viewModel.loadProfile() }
         binding.btnEditarPerfil.setOnClickListener {
-            Toast.makeText(requireContext(), getString(R.string.em_breve), Toast.LENGTH_SHORT).show()
+            val user = (viewModel.uiState.value as? PerfilUiState.Success)?.utilizador ?: return@setOnClickListener
+            BottomSheetEditarPerfilFragment.newInstance(user.nome, user.email)
+                .show(childFragmentManager, "editar_perfil")
         }
         binding.btnDefinicoes.setOnClickListener {
-            Toast.makeText(requireContext(), getString(R.string.em_breve), Toast.LENGTH_SHORT).show()
+            BottomSheetDefinicoesFragment.newInstance()
+                .show(childFragmentManager, "definicoes")
         }
+    }
+
+    fun showAlterarPassword() {
+        BottomSheetAlterarPasswordFragment.newInstance()
+            .show(childFragmentManager, "alterar_password")
     }
 
     // ── Observadores ──────────────────────────────────────────────────────────
@@ -114,6 +125,36 @@ class PerfilFragment : Fragment() {
                 }
                 launch {
                     viewModel.signOutEvent.collect { navigateToAuth() }
+                }
+                launch {
+                    viewModel.saveState.collect { state ->
+                        when (state) {
+                            is PerfilSaveState.Success -> {
+                                Snackbar.make(binding.root, getString(R.string.perfil_atualizado), Snackbar.LENGTH_SHORT).show()
+                                viewModel.resetSaveState()
+                            }
+                            is PerfilSaveState.Error -> {
+                                Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
+                                viewModel.resetSaveState()
+                            }
+                            else -> {}
+                        }
+                    }
+                }
+                launch {
+                    viewModel.passState.collect { state ->
+                        when (state) {
+                            is PerfilSaveState.Success -> {
+                                Snackbar.make(binding.root, getString(R.string.password_alterada), Snackbar.LENGTH_SHORT).show()
+                                viewModel.resetPassState()
+                            }
+                            is PerfilSaveState.Error -> {
+                                Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
+                                viewModel.resetPassState()
+                            }
+                            else -> {}
+                        }
+                    }
                 }
             }
         }

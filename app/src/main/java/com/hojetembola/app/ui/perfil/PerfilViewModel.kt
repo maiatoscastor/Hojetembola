@@ -16,7 +16,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// ── Estado da UI ──────────────────────────────────────────────────────────────
+// ── Estados ───────────────────────────────────────────────────────────────────
+
+sealed class PerfilSaveState {
+    object Idle : PerfilSaveState()
+    object Loading : PerfilSaveState()
+    object Success : PerfilSaveState()
+    data class Error(val message: String) : PerfilSaveState()
+}
 
 sealed class PerfilUiState {
     /** A carregar dados do perfil. */
@@ -48,6 +55,12 @@ class PerfilViewModel @Inject constructor(
     private val _equipas = MutableStateFlow<List<EquipaEntity>>(emptyList())
     val equipas: StateFlow<List<EquipaEntity>> = _equipas.asStateFlow()
 
+    private val _saveState = MutableStateFlow<PerfilSaveState>(PerfilSaveState.Idle)
+    val saveState: StateFlow<PerfilSaveState> = _saveState.asStateFlow()
+
+    private val _passState = MutableStateFlow<PerfilSaveState>(PerfilSaveState.Idle)
+    val passState: StateFlow<PerfilSaveState> = _passState.asStateFlow()
+
     /** Evento de navegação one-shot — emitido uma única vez ao terminar sessão. */
     private val _signOutEvent = MutableSharedFlow<Unit>()
     val signOutEvent: SharedFlow<Unit> = _signOutEvent.asSharedFlow()
@@ -72,6 +85,33 @@ class PerfilViewModel @Inject constructor(
                 .onFailure { e -> _uiState.value = PerfilUiState.Error(e.message ?: "Erro desconhecido") }
         }
     }
+
+    fun updateProfile(nome: String, perfil: String) {
+        viewModelScope.launch {
+            _saveState.value = PerfilSaveState.Loading
+            userRepository.updateProfile(nome, perfil)
+                .onSuccess {
+                    _saveState.value = PerfilSaveState.Success
+                    loadProfile()
+                }
+                .onFailure { e ->
+                    _saveState.value = PerfilSaveState.Error(e.message ?: "Erro ao atualizar perfil.")
+                }
+        }
+    }
+
+    fun resetSaveState() { _saveState.value = PerfilSaveState.Idle }
+
+    fun changePassword(newPassword: String) {
+        viewModelScope.launch {
+            _passState.value = PerfilSaveState.Loading
+            userRepository.changePassword(newPassword)
+                .onSuccess { _passState.value = PerfilSaveState.Success }
+                .onFailure { e -> _passState.value = PerfilSaveState.Error(e.message ?: "Erro ao alterar password.") }
+        }
+    }
+
+    fun resetPassState() { _passState.value = PerfilSaveState.Idle }
 
     fun signOut() {
         viewModelScope.launch {

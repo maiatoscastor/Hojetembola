@@ -222,6 +222,23 @@
     <string name="aceitar">Accept</string>
     <string name="recusar">Decline</string>
 
+    <!-- ── Edit Profile / Settings ──────────────────────────────────────── -->
+    <string name="guardar_alteracoes">Save changes</string>
+    <string name="perfil_atualizado">Profile updated successfully</string>
+    <string name="erro_nome_vazio">Name cannot be empty</string>
+    <string name="notificacoes_push">Push notifications</string>
+    <string name="notificacoes_push_desc">Match and tournament alerts</string>
+    <string name="versao_app">Version</string>
+    <string name="tipo_conta">Account type</string>
+    <string name="alterar_password">Change password</string>
+    <string name="nova_password">New password</string>
+    <string name="confirmar_nova_password">Confirm new password</string>
+    <string name="password_alterada">Password changed successfully</string>
+    <string name="erro_passwords_nao_coincidem">Passwords do not match</string>
+    <string name="confirmar_troca_titulo">Confirm change</string>
+    <string name="confirmar_troca_msg">To confirm, type \"%s\" below.</string>
+    <string name="erro_confirmacao_perfil">Incorrect text. Please try again.</string>
+
     <!-- ── Errors ─────────────────────────────────────────────────────────── -->
     <string name="erro_email_invalido">Invalid email address.</string>
     <string name="erro_password_curta">Password must be at least 6 characters.</string>
