@@ -71,7 +71,7 @@ class TorneioDetalheFragment : Fragment() {
         binding.progressBar.isVisible  = true
         binding.scrollContent.isVisible = false
         binding.tvError.isVisible       = false
-        binding.btnAcao.isVisible       = false
+        binding.layoutBotoesInferiores.isVisible = false
     }
 
     private fun showError(msg: String) {
@@ -79,7 +79,7 @@ class TorneioDetalheFragment : Fragment() {
         binding.scrollContent.isVisible = false
         binding.tvError.isVisible       = true
         binding.tvError.text            = msg
-        binding.btnAcao.isVisible       = false
+        binding.layoutBotoesInferiores.isVisible = false
     }
 
     private fun showContent(state: TorneioDetalheUiState.Content) {
@@ -168,8 +168,11 @@ class TorneioDetalheFragment : Fragment() {
 
     private fun setupActionButton(state: TorneioDetalheUiState.Content) {
         val t = state.torneio
+        // Always show the outer container
+        binding.layoutBotoesInferiores.isVisible = true
+
         when {
-            // Organizador navega para Gerir Torneio
+            // Organizador: só mostra Gerir Torneio (calendário/classificação ficam no TorneioEmCurso)
             state.isOrganizador -> {
                 binding.btnAcao.isVisible = true
                 binding.btnAcao.text = getString(R.string.gerir_torneio)
@@ -179,6 +182,9 @@ class TorneioDetalheFragment : Fragment() {
                         bundleOf("torneioId" to t.id)
                     )
                 }
+                // Estes botões só fazem sentido quando o torneio já tem jogos
+                binding.btnVerCalendario.isVisible = false
+                binding.btnVerClassificacao.isVisible = false
             }
             // Utilizador regular pode inscrever equipa quando inscrições estão abertas
             t.estado == "InscricoesAbertas" || t.estado == "inscricoes_abertas" -> {
@@ -187,8 +193,30 @@ class TorneioDetalheFragment : Fragment() {
                 binding.btnAcao.setOnClickListener {
                     abrirInscricaoBottomSheet(state.torneio)
                 }
+                binding.btnVerCalendario.isVisible = false
+                binding.btnVerClassificacao.isVisible = false
             }
-            else -> binding.btnAcao.isVisible = false
+            // Torneio a decorrer — mostrar calendário para utilizador regular
+            t.estado == "ADecorrer" || t.estado == "a_decorrer" -> {
+                binding.btnAcao.isVisible = false
+                binding.btnVerCalendario.isVisible = true
+                binding.btnVerCalendario.setOnClickListener {
+                    findNavController().navigate(
+                        R.id.action_torneioDetalheFragment_to_calendarioFragment,
+                        bundleOf(
+                            "torneioId" to t.id,
+                            "torneioNome" to t.nome,
+                            "isOrganizador" to false
+                        )
+                    )
+                }
+                binding.btnVerClassificacao.isVisible = false
+            }
+            else -> {
+                binding.btnAcao.isVisible = false
+                binding.btnVerCalendario.isVisible = false
+                binding.btnVerClassificacao.isVisible = false
+            }
         }
     }
 
@@ -237,7 +265,7 @@ class TorneioDetalheFragment : Fragment() {
 
     private fun applyEstadoBadge(estado: String) {
         val (label, bgRes, hexColor) = when (estado) {
-            "ADecorrer",         "a_decorrer"       -> Triple(getString(R.string.estado_a_decorrer),         R.drawable.bg_badge_live, "#F57C00")
+            "ADecorrer",         "a_decorrer"       -> Triple(getString(R.string.estado_a_decorrer),         R.drawable.bg_badge_live, "#FFFFFF")
             "InscricoesAbertas", "inscricoes_abertas" -> Triple(getString(R.string.estado_inscricoes_abertas), R.drawable.bg_badge_open, "#4CAF50")
             "Terminado",         "terminado"         -> Triple(getString(R.string.estado_terminado),          R.drawable.bg_badge_done, "#8A9BB8")
             else                                     -> Triple(getString(R.string.estado_criado),             R.drawable.bg_badge_done, "#8A9BB8")

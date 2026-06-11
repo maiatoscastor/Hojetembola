@@ -62,6 +62,11 @@ class SelecionarJogadoresViewModel @Inject constructor(
         }
     }
 
+    fun getSelectedIds(): List<String> =
+        selecao.entries
+            .filter { (id, selected) -> selected && id !in emConflito }
+            .map { it.key }
+
     fun toggleSelecao(utilizadorId: String) {
         if (utilizadorId in emConflito) return
         selecao[utilizadorId] = !(selecao[utilizadorId] ?: true)

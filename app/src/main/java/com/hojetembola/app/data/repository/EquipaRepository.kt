@@ -3,6 +3,8 @@ package com.hojetembola.app.data.repository
 import android.util.Log
 import com.hojetembola.app.data.local.dao.EquipaDao
 import com.hojetembola.app.data.local.dao.InscricaoEquipaDao
+import com.hojetembola.app.data.local.dao.JogadorInscricaoDao
+import com.hojetembola.app.data.local.dao.JogadorInscricaoComNome
 import com.hojetembola.app.data.local.dao.MembroEquipaDao
 import com.hojetembola.app.data.local.dao.TorneioDao
 import com.hojetembola.app.data.local.dao.UtilizadorDao
@@ -15,6 +17,8 @@ import com.hojetembola.app.data.remote.dto.EquipaDto
 import com.hojetembola.app.data.remote.dto.EquipaInsertDto
 import com.hojetembola.app.data.remote.dto.InscricaoEquipaDto
 import com.hojetembola.app.data.remote.dto.InscricaoEquipaInsertDto
+import com.hojetembola.app.data.remote.dto.JogadorInscricaoDto
+import com.hojetembola.app.data.remote.dto.JogadorInscricaoInsertDto
 import com.hojetembola.app.data.remote.dto.MembroEquipaDto
 import com.hojetembola.app.data.remote.dto.MembroEquipaInsertDto
 import com.hojetembola.app.data.remote.dto.UtilizadorDto
@@ -34,7 +38,8 @@ class EquipaRepository @Inject constructor(
     private val inscricaoEquipaDao: InscricaoEquipaDao,
     private val membroEquipaDao: MembroEquipaDao,
     private val utilizadorDao: UtilizadorDao,
-    private val torneioDao: TorneioDao
+    private val torneioDao: TorneioDao,
+    private val jogadorInscricaoDao: JogadorInscricaoDao
 ) {
 
     // ── Leitura local — equipas ───────────────────────────────────────────────
@@ -252,7 +257,8 @@ class EquipaRepository @Inject constructor(
     suspend fun inscreverEquipa(
         torneioId: String,
         equipaId: String,
-        capitaoId: String
+        capitaoId: String,
+        jogadoresIds: List<String> = emptyList()
     ): Result<InscricaoEquipaEntity> {
         if (jaInscrita(torneioId, equipaId)) {
             return Result.failure(Exception("Esta equipa já está inscrita neste torneio."))
@@ -264,7 +270,7 @@ class EquipaRepository @Inject constructor(
             ?: return Result.failure(Exception("ID da equipa inválido."))
 
         // Verifica conflito de jogadores antes de tentar a inscrição
-        val conflito = verificarConflitoJogadores(torneioId, equipaId)
+        val conflito = verificarConflitoJogadores(torneioId, equipaId, jogadoresIds.ifEmpty { null })
         if (conflito != null) {
             return Result.failure(Exception(conflito))
         }
@@ -297,6 +303,36 @@ class EquipaRepository @Inject constructor(
             val entity = created.toEntity()
             inscricaoEquipaDao.insert(entity)
             Log.i(TAG, "Inscrição ${entity.id} criada com sucesso.")
+
+            // Guarda os jogadores selecionados para esta inscrição
+            if (jogadoresIds.isNotEmpty()) {
+                val inscricaoIdInt = entity.id.toIntOrNull()
+                Log.d(TAG, "A guardar ${jogadoresIds.size} jogadores para inscrição ${entity.id} (int=$inscricaoIdInt)")
+                if (inscricaoIdInt != null) {
+                    val inserts = jogadoresIds.map { uid ->
+                        JogadorInscricaoInsertDto(
+                            inscricaoId = inscricaoIdInt,
+                            utilizadorId = uid
+                        )
+                    }
+                    try {
+                        val criados = client.from("jogador_inscricao")
+                            .insert(inserts) { select() }
+                            .decodeList<JogadorInscricaoDto>()
+                            .map { it.toEntity() }
+                        Log.i(TAG, "Jogadores guardados: ${criados.size}")
+                        if (criados.isNotEmpty()) jogadorInscricaoDao.insertAll(criados)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Falha ao guardar jogadores da inscrição: ${e.message}", e)
+                        // Propaga como aviso — inscrição continua válida mas sem jogadores registados
+                    }
+                } else {
+                    Log.w(TAG, "ID da inscrição '${entity.id}' não é inteiro — jogadores não guardados")
+                }
+            } else {
+                Log.d(TAG, "Sem jogadores para guardar (lista vazia)")
+            }
+
             Result.success(entity)
         } catch (e: Exception) {
             Log.e(TAG, "Falha ao inscrever equipa: ${e.message}", e)
@@ -308,23 +344,29 @@ class EquipaRepository @Inject constructor(
      * Verifica se algum membro da equipa já está inscrito neste torneio com outra equipa.
      * Sincroniza os dados antes de verificar para garantir frescura.
      * Devolve null se não há conflito, ou a mensagem de erro se há.
+     * Se [jogadoresIds] não é null, verifica apenas esses IDs em vez de todos os membros activos.
      */
     private suspend fun verificarConflitoJogadores(
         torneioId: String,
-        equipaId: String
+        equipaId: String,
+        jogadoresIds: List<String>? = null
     ): String? {
         return try {
             // Garante que temos as inscrições e membros actualizados
             syncInscricoes(torneioId)
             syncMembros(equipaId)
 
-            // Obter membros activos desta equipa (em cache após sync)
-            val membros = membroEquipaDao.getMembrosAtivos(equipaId)
-            if (membros.isEmpty()) return null
+            // Obter IDs dos utilizadores a verificar: lista fornecida ou todos os membros activos
+            val utilizadorIds = if (jogadoresIds != null) {
+                jogadoresIds
+            } else {
+                membroEquipaDao.getMembrosAtivos(equipaId).map { it.utilizadorId }
+            }
+            if (utilizadorIds.isEmpty()) return null
 
             // Verifica se o organizador do torneio faz parte da equipa
             val organizadorId = torneioDao.getById(torneioId)?.organizadorId
-            if (organizadorId != null && membros.any { it.utilizadorId == organizadorId }) {
+            if (organizadorId != null && utilizadorIds.any { it == organizadorId }) {
                 return "O organizador não pode inscrever uma equipa em que participa no seu próprio torneio."
             }
 
@@ -333,15 +375,30 @@ class EquipaRepository @Inject constructor(
                 .filter { it.equipaId != equipaId && it.estado !in listOf("Rejeitada", "Desistente") }
             if (outrasInscricoes.isEmpty()) return null
 
-            // Sincroniza membros das outras equipas para ter dados locais
-            outrasInscricoes.forEach { syncMembros(it.equipaId) }
+            // Sincroniza membros e jogadores selecionados das outras equipas
+            outrasInscricoes.forEach { inscricao ->
+                syncMembros(inscricao.equipaId)
+                syncJogadoresInscricao(inscricao.id)
+            }
 
-            // Verifica sobreposição
-            for (membro in membros) {
+            // Verifica sobreposição: só conflito se o jogador foi explicitamente selecionado
+            // na inscrição da outra equipa (ou é membro e não há seleção explícita)
+            for (uid in utilizadorIds) {
                 for (outraInscricao in outrasInscricoes) {
-                    if (membroEquipaDao.countMembroAtivo(outraInscricao.equipaId, membro.utilizadorId) > 0) {
-                        val nome = utilizadorDao.getById(membro.utilizadorId)?.nome
-                            ?: "Um jogador"
+                    val countSelecao = jogadorInscricaoDao.countByInscricao(outraInscricao.id)
+                    val temSelecao = countSelecao > 0
+                    Log.d(TAG, "Conflito check: uid=$uid inscricao=${outraInscricao.id} temSelecao=$temSelecao (count=$countSelecao)")
+                    val conflito = if (temSelecao) {
+                        val c = jogadorInscricaoDao.countByInscricaoAndUtilizador(outraInscricao.id, uid)
+                        Log.d(TAG, "  → jogador_inscricao count=$c para uid=$uid")
+                        c > 0
+                    } else {
+                        val c = membroEquipaDao.countMembroAtivo(outraInscricao.equipaId, uid)
+                        Log.d(TAG, "  → membro_equipa count=$c para uid=$uid equipa=${outraInscricao.equipaId}")
+                        c > 0
+                    }
+                    if (conflito) {
+                        val nome = utilizadorDao.getById(uid)?.nome ?: "Um jogador"
                         return "\"$nome\" já está inscrito neste torneio com outra equipa."
                     }
                 }
@@ -362,7 +419,12 @@ class EquipaRepository @Inject constructor(
             syncInscricoes(torneioId)
             val outrasInscricoes = inscricaoEquipaDao.getByTorneioSuspend(torneioId)
                 .filter { it.equipaId != equipaId && it.estado !in listOf("Rejeitada", "Desistente") }
-            outrasInscricoes.forEach { syncMembros(it.equipaId) }
+            outrasInscricoes.forEach { inscricao ->
+                syncMembros(inscricao.equipaId)
+                // Sincroniza jogadores selecionados para que a query UNION funcione correctamente:
+                // só bloqueia membros que foram explicitamente inscritos
+                syncJogadoresInscricao(inscricao.id)
+            }
             membroEquipaDao.getUtilizadoresNoTorneio(torneioId, equipaId)
         } catch (e: Exception) {
             Log.w(TAG, "getUtilizadoresNoTorneio falhou: ${e.message}")
@@ -372,12 +434,16 @@ class EquipaRepository @Inject constructor(
 
     // ── Gestão de inscrições (organizador) ────────────────────────────────────
 
-    /** Sincroniza inscrições e equipas de um torneio (para o Gerir Torneio). */
+    /** Sincroniza inscrições, equipas e jogadores inscritos de um torneio (para o Gerir Torneio). */
     suspend fun syncInscricoesComEquipas(torneioId: String) {
         try {
             syncInscricoes(torneioId)
             val inscricoes = inscricaoEquipaDao.getByTorneioSuspend(torneioId)
-            inscricoes.forEach { syncEquipaById(it.equipaId) }
+            inscricoes.forEach { inscricao ->
+                syncEquipaById(inscricao.equipaId)
+                // Sync jogadores selecionados para que num_membros reflicta a escolha do capitão
+                syncJogadoresInscricao(inscricao.id)
+            }
         } catch (e: Exception) {
             Log.w(TAG, "syncInscricoesComEquipas falhou: ${e.message}")
         }
@@ -511,6 +577,37 @@ class EquipaRepository @Inject constructor(
             Result.failure(Exception("Não foi possível pesquisar utilizadores."))
         }
     }
+
+    // ── Jogadores inscritos ───────────────────────────────────────────────────
+
+    /** Sincroniza os jogadores de uma inscrição específica a partir do Supabase. */
+    suspend fun syncJogadoresInscricao(inscricaoId: String) {
+        val inscricaoIdInt = inscricaoId.toIntOrNull() ?: return
+        try {
+            val jogadores = client.from("jogador_inscricao")
+                .select { filter { eq("inscricao_id", inscricaoIdInt) } }
+                .decodeList<JogadorInscricaoDto>()
+                .map { it.toEntity() }
+            if (jogadores.isNotEmpty()) {
+                jogadorInscricaoDao.insertAll(jogadores)
+                val userIds = jogadores.map { it.utilizadorId }
+                val utilizadores = client.from("utilizador")
+                    .select { filter { isIn("id", userIds) } }
+                    .decodeList<UtilizadorDto>()
+                    .map { it.toEntity() }
+                if (utilizadores.isNotEmpty()) utilizadorDao.insertAll(utilizadores)
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "syncJogadoresInscricao falhou: ${e.message}")
+        }
+    }
+
+    /** Flow dos jogadores inscritos com nome e email, a partir do cache local. */
+    fun getJogadoresInscricao(inscricaoId: String): Flow<List<JogadorInscricaoComNome>> =
+        jogadorInscricaoDao.getComNome(inscricaoId)
+
+    /** Devolve a entidade da equipa pelo ID, ou null se não está em cache. */
+    suspend fun getEquipaById(equipaId: String): EquipaEntity? = equipaDao.getById(equipaId)
 
     // ── Helper ────────────────────────────────────────────────────────────────
 

@@ -101,7 +101,7 @@ class TorneioAdapter(
 // Helper: apply badge visual to a TextView
 private fun applyBadge(tv: android.widget.TextView, estado: String, ctx: Context) {
     val (label, bgRes, hexColor) = when (estado) {
-        "ADecorrer",         "a_decorrer"        -> Triple(ctx.getString(R.string.estado_a_decorrer),         R.drawable.bg_badge_live, "#F57C00")
+        "ADecorrer",         "a_decorrer"        -> Triple(ctx.getString(R.string.estado_a_decorrer),         R.drawable.bg_badge_live, "#FFFFFF")
         "InscricoesAbertas", "inscricoes_abertas" -> Triple(ctx.getString(R.string.estado_inscricoes_abertas), R.drawable.bg_badge_open, "#4CAF50")
         "Terminado",         "terminado"          -> Triple(ctx.getString(R.string.estado_terminado),          R.drawable.bg_badge_done, "#8A9BB8")
         else                                      -> Triple(ctx.getString(R.string.estado_criado),             R.drawable.bg_badge_done, "#8A9BB8")

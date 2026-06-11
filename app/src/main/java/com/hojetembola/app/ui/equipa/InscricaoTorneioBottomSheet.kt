@@ -150,8 +150,8 @@ class InscricaoTorneioBottomSheet : BottomSheetDialogFragment() {
                                     min        = acao.min,
                                     max        = acao.max
                                 )
-                                sheet.onConfirmar = { equipaId, equipaNome ->
-                                    viewModel.inscreverComJogadores(equipaId, equipaNome)
+                                sheet.onConfirmar = { equipaId, equipaNome, playerIds ->
+                                    viewModel.inscreverComJogadores(equipaId, equipaNome, playerIds)
                                 }
                                 sheet.show(parentFragmentManager, SelecionarJogadoresBottomSheet.TAG)
                             }

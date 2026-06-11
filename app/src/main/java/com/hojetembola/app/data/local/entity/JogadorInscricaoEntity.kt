@@ -10,7 +10,7 @@ data class JogadorInscricaoEntity(
     @PrimaryKey
     val id: String,
 
-    @ColumnInfo(name = "inscricao_equipa_id")
+    @ColumnInfo(name = "inscricao_id")
     val inscricaoEquipaId: String,
 
     @ColumnInfo(name = "utilizador_id")

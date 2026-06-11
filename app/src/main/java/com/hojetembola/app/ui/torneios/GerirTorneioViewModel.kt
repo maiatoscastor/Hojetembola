@@ -29,6 +29,8 @@ sealed class GerirTorneioAcao {
     object Loading : GerirTorneioAcao()
     data class Sucesso(val message: String) : GerirTorneioAcao()
     data class Erro(val message: String) : GerirTorneioAcao()
+    /** Calendário gerado — navegar para o ecrã do torneio em curso */
+    data class CalendarioGerado(val torneioId: String) : GerirTorneioAcao()
 }
 
 @HiltViewModel
@@ -58,6 +60,9 @@ class GerirTorneioViewModel @Inject constructor(
             }
 
             equipaRepository.syncInscricoesComEquipas(torneioId)
+            // Sincroniza jornadas/jogos do Supabase para que temCalendario reflita
+            // a realidade remota (ex: calendário apagado remotamente)
+            jogoRepository.syncJogosETorneio(torneioId)
 
             equipaRepository.getInscricoesComEquipa(torneioId)
                 .catch { e -> _uiState.value = GerirTorneioUiState.Error(e.message ?: "Erro") }
@@ -106,8 +111,9 @@ class GerirTorneioViewModel @Inject constructor(
         viewModelScope.launch {
             _acao.value = GerirTorneioAcao.Loading
             jogoRepository.gerarCalendario(torneioId)
-                .onSuccess { count ->
-                    _acao.value = GerirTorneioAcao.Sucesso("Calendário gerado: $count jogos criados.")
+                .onSuccess {
+                    // Navega imediatamente para o ecrã em curso (popUpTo limpa a backstack)
+                    _acao.value = GerirTorneioAcao.CalendarioGerado(torneioId)
                 }
                 .onFailure { e ->
                     _acao.value = GerirTorneioAcao.Erro(e.message ?: "Erro ao gerar calendário.")

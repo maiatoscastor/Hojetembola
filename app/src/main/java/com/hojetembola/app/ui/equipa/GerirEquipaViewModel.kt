@@ -238,7 +238,8 @@ class GerirEquipaViewModel @Inject constructor(
                 _acao.value = GerirEquipaAcao.Erro("Sessão expirada.")
                 return@launch
             }
-            equipaRepository.inscreverEquipa(tid, equipaId, utilizador.id)
+            val memberIds = (state?.membros?.map { it.utilizadorId } ?: emptyList())
+            equipaRepository.inscreverEquipa(tid, equipaId, utilizador.id, memberIds)
                 .onSuccess { _acao.value = GerirEquipaAcao.InscricaoConcluida(equipaNome) }
                 .onFailure { e -> _acao.value = GerirEquipaAcao.Erro(e.message ?: "Erro ao inscrever.") }
         }

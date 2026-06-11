@@ -29,7 +29,12 @@ interface InscricaoEquipaDao {
                COALESCE(e.nome, '?') AS nome,
                COALESCE(e.iniciais, '?') AS iniciais,
                COALESCE(e.cor_avatar, '#888888') AS cor_avatar,
-               (SELECT COUNT(*) FROM membro_equipa m WHERE m.equipa_id = ie.equipa_id AND m.ativo = 1) AS num_membros
+               COALESCE(e.cidade, '') AS cidade,
+               CASE
+                   WHEN (SELECT COUNT(*) FROM jogador_inscricao ji WHERE ji.inscricao_id = ie.id) > 0
+                   THEN (SELECT COUNT(*) FROM jogador_inscricao ji WHERE ji.inscricao_id = ie.id)
+                   ELSE (SELECT COUNT(*) FROM membro_equipa m WHERE m.equipa_id = ie.equipa_id AND m.ativo = 1)
+               END AS num_membros
         FROM inscricao_equipa ie
         LEFT JOIN equipa e ON e.id = ie.equipa_id
         WHERE ie.torneio_id = :torneioId

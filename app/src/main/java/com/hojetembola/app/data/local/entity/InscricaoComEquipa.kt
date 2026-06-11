@@ -14,5 +14,6 @@ data class InscricaoComEquipa(
     val nome: String,
     val iniciais: String,
     @ColumnInfo(name = "cor_avatar") val corAvatar: String,
-    @ColumnInfo(name = "num_membros") val numMembros: Int = 0
+    @ColumnInfo(name = "num_membros") val numMembros: Int = 0,
+    @ColumnInfo(name = "cidade") val cidade: String? = null
 )

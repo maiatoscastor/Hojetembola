@@ -32,7 +32,7 @@ class SelecionarJogadoresBottomSheet : BottomSheetDialogFragment() {
     private val viewModel: SelecionarJogadoresViewModel by viewModels()
 
     /** Callback disparado quando o utilizador confirma a seleção. */
-    var onConfirmar: ((equipaId: String, equipaNome: String) -> Unit)? = null
+    var onConfirmar: ((equipaId: String, equipaNome: String, playerIds: List<String>) -> Unit)? = null
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -65,7 +65,8 @@ class SelecionarJogadoresBottomSheet : BottomSheetDialogFragment() {
 
         binding.btnFechar.setOnClickListener { dismiss() }
         binding.btnConfirmar.setOnClickListener {
-            onConfirmar?.invoke(viewModel.equipaId, viewModel.equipaNome)
+            val selectedIds = viewModel.getSelectedIds()
+            onConfirmar?.invoke(viewModel.equipaId, viewModel.equipaNome, selectedIds)
             dismiss()
         }
 

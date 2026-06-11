@@ -27,4 +27,7 @@ interface JornadaDao {
 
     @Delete
     suspend fun delete(jornada: JornadaEntity)
+
+    @Query("DELETE FROM jornada WHERE torneio_id = :torneioId")
+    suspend fun deleteByTorneio(torneioId: String)
 }

@@ -4,6 +4,17 @@ import androidx.room.*
 import com.hojetembola.app.data.local.entity.EventoJogoEntity
 import kotlinx.coroutines.flow.Flow
 
+data class EventoComNome(
+    @ColumnInfo(name = "evento_id") val eventoId: String,
+    @ColumnInfo(name = "jogo_id") val jogoId: String,
+    val tipo: String,
+    val minuto: Int,
+    @ColumnInfo(name = "equipa_id") val equipaId: String?,
+    @ColumnInfo(name = "jogador_nome") val jogadorNome: String?,
+    @ColumnInfo(name = "jogador_sai_nome") val jogadorSaiNome: String?,
+    @ColumnInfo(name = "jogador_entra_nome") val jogadorEntraNome: String?
+)
+
 @Dao
 interface EventoJogoDao {
 
@@ -49,4 +60,21 @@ interface EventoJogoDao {
 
     @Query("UPDATE evento_jogo SET is_synced = 1 WHERE id = :id")
     suspend fun markAsSynced(id: String)
+
+    @Query("""
+        SELECT e.id AS evento_id, e.jogo_id, e.tipo, e.minuto, e.equipa_id,
+               u1.nome AS jogador_nome,
+               u2.nome AS jogador_sai_nome,
+               u3.nome AS jogador_entra_nome
+        FROM evento_jogo e
+        LEFT JOIN utilizador u1 ON u1.id = e.jogador_id
+        LEFT JOIN utilizador u2 ON u2.id = e.jogador_sai_id
+        LEFT JOIN utilizador u3 ON u3.id = e.jogador_entra_id
+        WHERE e.jogo_id = :jogoId
+        ORDER BY e.minuto ASC
+    """)
+    fun getEventosComNome(jogoId: String): Flow<List<EventoComNome>>
+
+    @Query("DELETE FROM evento_jogo WHERE jogo_id = :jogoId")
+    suspend fun deleteByJogo(jogoId: String)
 }

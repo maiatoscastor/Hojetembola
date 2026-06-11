@@ -129,15 +129,15 @@ class InscricaoTorneioViewModel @Inject constructor(
     }
 
     /** Chamado após o utilizador selecionar jogadores no SelecionarJogadoresBottomSheet. */
-    fun inscreverComJogadores(equipaId: String, equipaNome: String) {
+    fun inscreverComJogadores(equipaId: String, equipaNome: String, playerIds: List<String> = emptyList()) {
         viewModelScope.launch {
             _acao.value = InscricaoAcao.Loading
-            executarInscricao(equipaId, equipaNome)
+            executarInscricao(equipaId, equipaNome, playerIds)
         }
     }
 
-    private suspend fun executarInscricao(equipaId: String, equipaNome: String) {
-        equipaRepository.inscreverEquipa(torneioId, equipaId, capitaoId)
+    private suspend fun executarInscricao(equipaId: String, equipaNome: String, playerIds: List<String> = emptyList()) {
+        equipaRepository.inscreverEquipa(torneioId, equipaId, capitaoId, playerIds)
             .onSuccess { _acao.value = InscricaoAcao.Sucesso(equipaNome) }
             .onFailure { e -> _acao.value = InscricaoAcao.Erro(e.message ?: "Erro ao inscrever.") }
     }

@@ -126,6 +126,14 @@ class GerirTorneioFragment : Fragment() {
                             Snackbar.make(binding.root, acao.message, Snackbar.LENGTH_LONG).show()
                             viewModel.resetAcao()
                         }
+                        is GerirTorneioAcao.CalendarioGerado -> {
+                            // Vai direto para o ecrã do torneio em curso, limpando a backstack
+                            findNavController().navigate(
+                                R.id.action_gerirTorneioFragment_to_torneioEmCursoFragment,
+                                androidx.core.os.bundleOf("torneioId" to acao.torneioId)
+                            )
+                            viewModel.resetAcao()
+                        }
                         else -> Unit
                     }
                 }
@@ -192,6 +200,17 @@ class GerirTorneioFragment : Fragment() {
                     b.tvEstado.text = item.estado
                     b.tvEstado.setTextColor(Color.parseColor("#8A9BB8"))
                     b.layoutBotoes.isVisible = false
+                }
+            }
+
+            // Tap on the card opens the detail bottom sheet
+            b.root.setOnClickListener {
+                if (parentFragmentManager.findFragmentByTag(DetalheInscricaoBottomSheet.TAG) == null) {
+                    DetalheInscricaoBottomSheet.newInstance(
+                        inscricaoId = item.id,
+                        equipaId    = item.equipaId,
+                        equipaNome  = item.nome
+                    ).show(parentFragmentManager, DetalheInscricaoBottomSheet.TAG)
                 }
             }
         }

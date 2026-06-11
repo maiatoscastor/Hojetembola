@@ -42,6 +42,13 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_torneiosFragment_to_torneioEmCursoFragment"
+            app:destination="@id/torneioEmCursoFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment
@@ -73,6 +80,20 @@
         <action
             android:id="@+id/action_torneioDetalheFragment_to_gerirTorneioFragment"
             app:destination="@id/gerirTorneioFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_torneioDetalheFragment_to_calendarioFragment"
+            app:destination="@id/calendarioFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_torneioDetalheFragment_to_classificacaoFragment"
+            app:destination="@id/classificacaoFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
@@ -140,6 +161,78 @@
         <argument
             android:name="torneioId"
             app:argType="string" />
+        <action
+            android:id="@+id/action_gerirTorneioFragment_to_calendarioFragment"
+            app:destination="@id/calendarioFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_gerirTorneioFragment_to_torneioEmCursoFragment"
+            app:destination="@id/torneioEmCursoFragment"
+            app:popUpTo="@id/torneioDetalheFragment"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/calendarioFragment"
+        android:name="com.hojetembola.app.ui.torneios.CalendarioFragment"
+        android:label="@string/calendario">
+        <argument android:name="torneioId" app:argType="string" />
+        <argument android:name="torneioNome" app:argType="string" android:defaultValue="" />
+        <argument android:name="isOrganizador" app:argType="boolean" android:defaultValue="false" />
+        <action
+            android:id="@+id/action_calendarioFragment_to_jogoDetalheFragment"
+            app:destination="@id/jogoDetalheFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/jogoDetalheFragment"
+        android:name="com.hojetembola.app.ui.torneios.JogoDetalheFragment"
+        android:label="@string/jogo_detalhe">
+        <argument android:name="jogoId" app:argType="string" />
+        <argument android:name="torneioId" app:argType="string" />
+        <argument android:name="isOrganizador" app:argType="boolean" android:defaultValue="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/classificacaoFragment"
+        android:name="com.hojetembola.app.ui.torneios.ClassificacaoFragment"
+        android:label="@string/classificacao">
+        <argument android:name="torneioId" app:argType="string" />
+        <argument android:name="torneioNome" app:argType="string" android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/torneioEmCursoFragment"
+        android:name="com.hojetembola.app.ui.torneios.TorneioEmCursoFragment"
+        android:label="@string/torneio_em_curso">
+        <argument
+            android:name="torneioId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_torneioEmCursoFragment_to_jogoDetalheFragment"
+            app:destination="@id/jogoDetalheFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_torneioEmCursoFragment_to_gerirTorneioFragment"
+            app:destination="@id/gerirTorneioFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment

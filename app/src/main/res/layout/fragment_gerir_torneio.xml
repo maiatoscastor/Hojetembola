@@ -105,19 +105,26 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
-        <Button
-            android:id="@+id/btnGerarCalendario"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="32dp"
-            android:layout_marginStart="@dimen/spacing_sm"
-            android:text="@string/gerar_calendario"
-            android:fontFamily="@font/poppins_semi_bold"
-            android:textSize="11sp"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
     </LinearLayout>
+
+    <!-- Gerar Calendário — só visível quando há ≥2 equipas confirmadas e ainda sem calendário -->
+    <Button
+        android:id="@+id/btnGerarCalendario"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_padding"
+        android:layout_marginEnd="@dimen/screen_padding"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginBottom="@dimen/spacing_sm"
+        android:text="@string/gerar_calendario"
+        android:fontFamily="@font/poppins_semi_bold"
+        android:textSize="13sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/layoutContador"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
 
     <!-- Loading -->
     <ProgressBar
@@ -125,7 +132,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/layoutContador"
+        app:layout_constraintTop_toBottomOf="@id/btnGerarCalendario"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -141,7 +148,7 @@
         android:textSize="14sp"
         android:padding="@dimen/screen_padding"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/layoutContador"
+        app:layout_constraintTop_toBottomOf="@id/btnGerarCalendario"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -153,7 +160,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/layoutContador"
+        app:layout_constraintTop_toBottomOf="@id/btnGerarCalendario"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

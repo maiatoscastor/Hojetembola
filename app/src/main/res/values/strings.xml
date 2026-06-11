@@ -108,6 +108,10 @@
     <!-- ── Tabs Torneios ─────────────────────────────────────────────────── -->
     <string name="tab_torneios">Torneios</string>
     <string name="tab_os_meus">Os meus</string>
+    <string name="tab_classificacao">Classificação</string>
+    <string name="tab_jornadas">Jornadas</string>
+    <string name="tab_equipas">Equipas</string>
+    <string name="tab_info">Info</string>
 
     <!-- ── Entrar com código ─────────────────────────────────────────────── -->
     <string name="entrar_com_codigo_titulo">Torneio privado?</string>
@@ -193,6 +197,13 @@
     <string name="minuto">Minuto</string>
     <string name="jogador_label">Jogador</string>
     <string name="equipa_label">Equipa</string>
+    <string name="qual_jogador">Qual jogador?</string>
+    <string name="qual_equipa">Qual equipa?</string>
+    <string name="quem_sai">Quem sai?</string>
+    <string name="quem_entra">Quem entra?</string>
+    <string name="anonimo">Anónimo</string>
+    <string name="golo_anonimo">Golo</string>
+    <string name="cartao_anonimo">Cartão</string>
     <string name="jogador_sai">Jogador que sai</string>
     <string name="jogador_entra">Jogador que entra</string>
     <string name="confirmar">Confirmar</string>
@@ -368,6 +379,25 @@
     <string name="confirmar_troca_titulo">Confirmar alteração</string>
     <string name="confirmar_troca_msg">Para confirmar, escreve \"%s\" abaixo.</string>
     <string name="erro_confirmacao_perfil">Texto incorreto. Tenta novamente.</string>
+
+    <!-- ── Detalhe de Inscrição ────────────────────────────────────────────── -->
+    <string name="jogadores_inscritos_label">JOGADORES INSCRITOS</string>
+    <string name="sem_jogadores_inscritos">Nenhum jogador inscrito registado.</string>
+
+    <!-- ── Torneio em curso ─────────────────────────────────────────────── -->
+    <string name="torneio_em_curso">Torneio</string>
+
+    <!-- ── Calendário / Jogos ───────────────────────────────────────────── -->
+    <string name="calendario">Calendário</string>
+    <string name="jogo_detalhe">Jogo</string>
+    <string name="jornada_n">Jornada %d</string>
+    <string name="golo_casa">⚽ Golo Casa</string>
+    <string name="golo_visitante">⚽ Golo Visitante</string>
+    <string name="sem_jogos">Ainda não há jogos agendados.</string>
+    <string name="ver_calendario">Ver Calendário</string>
+    <string name="ver_classificacao">Ver Classificação</string>
+    <string name="minuto_dialog_title">Minuto do evento</string>
+    <string name="confirmar_terminar_jogo">Tens a certeza que queres terminar o jogo?</string>
 
     <!-- ── Erros ──────────────────────────────────────────────────────────── -->
     <string name="erro_abrir_mapa">Não foi possível abrir o mapa.</string>

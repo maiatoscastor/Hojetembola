@@ -116,10 +116,11 @@ object AppModule {
         inscricaoEquipaDao: InscricaoEquipaDao,
         membroEquipaDao: MembroEquipaDao,
         utilizadorDao: UtilizadorDao,
-        torneioDao: TorneioDao
+        torneioDao: TorneioDao,
+        jogadorInscricaoDao: JogadorInscricaoDao
     ): com.hojetembola.app.data.repository.EquipaRepository =
         com.hojetembola.app.data.repository.EquipaRepository(
-            client, equipaDao, inscricaoEquipaDao, membroEquipaDao, utilizadorDao, torneioDao
+            client, equipaDao, inscricaoEquipaDao, membroEquipaDao, utilizadorDao, torneioDao, jogadorInscricaoDao
         )
 
     @Provides
@@ -151,10 +152,14 @@ object AppModule {
         jogoDao: JogoDao,
         jornadaDao: JornadaDao,
         torneioDao: TorneioDao,
-        inscricaoEquipaDao: InscricaoEquipaDao
+        inscricaoEquipaDao: InscricaoEquipaDao,
+        eventoJogoDao: EventoJogoDao,
+        classificacaoDao: ClassificacaoDao,
+        equipaDao: EquipaDao
     ): com.hojetembola.app.data.repository.JogoRepository =
         com.hojetembola.app.data.repository.JogoRepository(
-            client, jogoDao, jornadaDao, torneioDao, inscricaoEquipaDao
+            client, jogoDao, jornadaDao, torneioDao, inscricaoEquipaDao,
+            eventoJogoDao, classificacaoDao, equipaDao
         )
 
     // ── Utils ─────────────────────────────────────────────────────────────────

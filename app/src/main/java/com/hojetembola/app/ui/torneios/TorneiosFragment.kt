@@ -59,8 +59,8 @@ class TorneiosFragment : Fragment() {
 
     private fun setupAdapter() {
         torneioAdapter = TorneioAdapter(
-            onMeuClick     = { torneio -> navegarParaDetalhe(torneio.id) },
-            onPublicoClick = { torneio -> navegarParaDetalhe(torneio.id) },
+            onMeuClick     = { torneio -> navegarParaDetalhe(torneio) },
+            onPublicoClick = { torneio -> navegarParaDetalhe(torneio) },
             onInscrever    = { Snackbar.make(binding.root, R.string.em_breve, Snackbar.LENGTH_SHORT).show() }
         )
         binding.rvTorneios.apply {
@@ -169,6 +169,21 @@ class TorneiosFragment : Fragment() {
 
     // ── Navegação ─────────────────────────────────────────────────────────────
 
+    private fun navegarParaDetalhe(torneio: com.hojetembola.app.data.local.entity.TorneioEntity) {
+        val emCurso = torneio.estado in listOf("ADecorrer", "a_decorrer", "Terminado", "terminado")
+        if (emCurso) {
+            findNavController().navigate(
+                R.id.action_torneiosFragment_to_torneioEmCursoFragment,
+                bundleOf("torneioId" to torneio.id)
+            )
+        } else {
+            findNavController().navigate(
+                R.id.action_torneiosFragment_to_torneioDetalheFragment,
+                bundleOf("torneioId" to torneio.id)
+            )
+        }
+    }
+
     private fun navegarParaDetalhe(torneioId: String) {
         findNavController().navigate(
             R.id.action_torneiosFragment_to_torneioDetalheFragment,
@@ -213,7 +228,7 @@ class TorneiosFragment : Fragment() {
                         is EntrarCodigoState.Success -> {
                             dialog.dismiss()
                             codigoViewModel.resetState()
-                            navegarParaDetalhe(state.torneio.id)
+                            navegarParaDetalhe(state.torneio)
                         }
                     }
                 }
