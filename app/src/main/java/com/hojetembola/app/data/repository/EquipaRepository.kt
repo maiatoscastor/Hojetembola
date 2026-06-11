@@ -205,6 +205,41 @@ class EquipaRepository @Inject constructor(
         }
     }
 
+    // ── Editar equipa ─────────────────────────────────────────────────────────
+
+    suspend fun getEquipaById(equipaId: String): EquipaEntity? = equipaDao.getById(equipaId)
+
+    suspend fun updateEquipa(
+        equipaId: String,
+        nome: String,
+        iniciais: String,
+        corAvatar: String,
+        cidade: String?
+    ): Result<Unit> {
+        return try {
+            client.from("equipa")
+                .update({
+                    set("nome", nome.trim())
+                    set("iniciais", iniciais.trim().uppercase())
+                    set("cor_avatar", corAvatar)
+                    set("cidade", cidade?.ifBlank { null })
+                }) { filter { eq("id", equipaId.toInt()) } }
+            val cached = equipaDao.getById(equipaId)
+            if (cached != null) {
+                equipaDao.insert(cached.copy(
+                    nome = nome.trim(),
+                    iniciais = iniciais.trim().uppercase(),
+                    corAvatar = corAvatar,
+                    cidade = cidade?.ifBlank { null }
+                ))
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.w(TAG, "updateEquipa falhou: ${e.message}")
+            Result.failure(Exception("Não foi possível atualizar a equipa."))
+        }
+    }
+
     // ── Inscrever equipa ──────────────────────────────────────────────────────
 
     /**

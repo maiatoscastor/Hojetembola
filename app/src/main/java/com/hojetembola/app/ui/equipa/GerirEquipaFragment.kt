@@ -64,6 +64,11 @@ class GerirEquipaFragment : Fragment() {
         binding.btnBack.setOnClickListener { findNavController().navigateUp() }
         binding.tvEquipaNome.text = viewModel.equipaNome
 
+        binding.btnEditarEquipa.setOnClickListener {
+            BottomSheetEditarEquipaFragment.newInstance()
+                .show(childFragmentManager, "editar_equipa")
+        }
+
         // Mostrar limites se há torneio associado
         if (viewModel.torneioId != null) {
             binding.tvLimites.text = getString(
@@ -175,6 +180,22 @@ class GerirEquipaFragment : Fragment() {
                 }
 
                 launch {
+                    viewModel.isCapitao.collect { isCapitao ->
+                        binding.btnEditarEquipa.isVisible = isCapitao
+                        membrosAdapter.isCapitao = isCapitao
+                        convitesAdapter.isCapitao = isCapitao
+                        membrosAdapter.notifyDataSetChanged()
+                        convitesAdapter.notifyDataSetChanged()
+                    }
+                }
+
+                launch {
+                    viewModel.equipaInfo.collect { equipa ->
+                        if (equipa != null) binding.tvEquipaNome.text = equipa.nome
+                    }
+                }
+
+                launch {
                     viewModel.acao.collect { acao ->
                         when (acao) {
                             is GerirEquipaAcao.Sucesso -> {
@@ -243,6 +264,8 @@ class GerirEquipaFragment : Fragment() {
             override fun areContentsTheSame(old: ConviteEntity, new: ConviteEntity) = old == new
         }
     ) {
+        var isCapitao: Boolean = false
+
         inner class VH(val b: ItemConvitePendenteBinding) : RecyclerView.ViewHolder(b.root)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -250,7 +273,6 @@ class GerirEquipaFragment : Fragment() {
 
         override fun onBindViewHolder(holder: VH, position: Int) {
             val convite = getItem(position)
-            // Usa email como fallback se não temos o nome em cache
             val nomeOuEmail = convite.convidadoEmail
             holder.b.tvNome.text  = nomeOuEmail
             holder.b.tvEmail.text = convite.convidadoEmail
@@ -260,6 +282,7 @@ class GerirEquipaFragment : Fragment() {
                 setColor(Color.parseColor("#F57C00"))
                 alpha = 160
             }
+            holder.b.btnRevogar.isVisible = isCapitao
             holder.b.btnRevogar.setOnClickListener { onRevogar(convite.id) }
         }
     }
@@ -274,6 +297,8 @@ class GerirEquipaFragment : Fragment() {
             override fun areContentsTheSame(old: MembroComNome, new: MembroComNome) = old == new
         }
     ) {
+        var isCapitao: Boolean = false
+
         inner class VH(val b: ItemMembroEquipaBinding) : RecyclerView.ViewHolder(b.root)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -288,6 +313,7 @@ class GerirEquipaFragment : Fragment() {
                 shape = GradientDrawable.OVAL
                 setColor(Color.parseColor("#1E3260"))
             }
+            holder.b.btnRemover.isVisible = isCapitao
             holder.b.btnRemover.setOnClickListener { onRemover(membro.utilizadorId) }
         }
     }

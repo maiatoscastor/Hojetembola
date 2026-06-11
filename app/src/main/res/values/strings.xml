@@ -362,6 +362,9 @@
     <string name="confirmar_nova_password">Confirmar nova password</string>
     <string name="password_alterada">Password alterada com sucesso</string>
     <string name="erro_passwords_nao_coincidem">As passwords não coincidem</string>
+    <string name="editar_equipa">Editar equipa</string>
+    <string name="equipa_atualizada">Equipa atualizada com sucesso</string>
+    <string name="cor_equipa">Cor da equipa</string>
     <string name="confirmar_troca_titulo">Confirmar alteração</string>
     <string name="confirmar_troca_msg">Para confirmar, escreve \"%s\" abaixo.</string>
     <string name="erro_confirmacao_perfil">Texto incorreto. Tenta novamente.</string>

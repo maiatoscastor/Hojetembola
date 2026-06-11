@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import com.hojetembola.app.R
 import com.hojetembola.app.databinding.DialogAlterarPasswordBinding
 import com.hojetembola.app.utils.collectFlow
@@ -67,6 +68,11 @@ class BottomSheetAlterarPasswordFragment : BottomSheetDialogFragment() {
                 }
                 is PerfilSaveState.Success -> {
                     binding.progressBar.gone()
+                    Snackbar.make(
+                        requireParentFragment().requireView(),
+                        getString(R.string.password_alterada),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                     dismiss()
                 }
                 is PerfilSaveState.Error -> {

@@ -11,8 +11,10 @@ import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -141,21 +143,6 @@ class PerfilFragment : Fragment() {
                         }
                     }
                 }
-                launch {
-                    viewModel.passState.collect { state ->
-                        when (state) {
-                            is PerfilSaveState.Success -> {
-                                Snackbar.make(binding.root, getString(R.string.password_alterada), Snackbar.LENGTH_SHORT).show()
-                                viewModel.resetPassState()
-                            }
-                            is PerfilSaveState.Error -> {
-                                Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
-                                viewModel.resetPassState()
-                            }
-                            else -> {}
-                        }
-                    }
-                }
             }
         }
     }
@@ -225,6 +212,20 @@ class PerfilFragment : Fragment() {
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply { bottomMargin = (10 * density).toInt() }
                 layoutParams = lp
+                isClickable = true
+                isFocusable = true
+                setBackgroundResource(android.R.attr.selectableItemBackground.let { attr ->
+                    val ta = requireContext().obtainStyledAttributes(intArrayOf(attr))
+                    val res = ta.getResourceId(0, 0)
+                    ta.recycle()
+                    res
+                })
+                setOnClickListener {
+                    findNavController().navigate(
+                        R.id.action_perfilFragment_to_gerirEquipaFragment,
+                        bundleOf("equipaId" to equipa.id, "equipaNome" to equipa.nome)
+                    )
+                }
             }
 
             // Círculo colorido com iniciais
@@ -273,8 +274,19 @@ class PerfilFragment : Fragment() {
             textos.addView(tvSub)
             textos.addView(tvRole)
 
+            val chevron = android.widget.ImageView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    (16 * density).toInt(), (16 * density).toInt()
+                ).apply { marginStart = (8 * density).toInt() }
+                setImageResource(R.drawable.ic_chevron_right)
+                imageTintList = android.content.res.ColorStateList.valueOf(
+                    resources.getColor(R.color.text_muted, null)
+                )
+            }
+
             row.addView(avatar)
             row.addView(textos)
+            row.addView(chevron)
             binding.containerEquipas.addView(row)
         }
     }

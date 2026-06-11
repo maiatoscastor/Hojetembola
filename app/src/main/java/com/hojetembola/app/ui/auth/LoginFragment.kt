@@ -116,7 +116,7 @@ class LoginFragment : Fragment() {
 
         // ⚡ DEV ONLY — remover antes da entrega final
         binding.btnDevLoginOrganizador.setOnClickListener {
-            viewModel.login("diogosa@gmail.com", "diogosa123")
+            viewModel.login("diogosa@gmail.com", "Diogo123")
         }
         binding.btnDevLoginUser.setOnClickListener {
             viewModel.login("diogo.esteves.sa@gmail.com", "diogosa123")
