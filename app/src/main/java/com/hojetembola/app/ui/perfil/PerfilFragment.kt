@@ -101,6 +101,9 @@ class PerfilFragment : Fragment() {
             BottomSheetDefinicoesFragment.newInstance()
                 .show(childFragmentManager, "definicoes")
         }
+        binding.btnCriarEquipa.setOnClickListener {
+            findNavController().navigate(R.id.action_perfilFragment_to_criarEquipaFragment)
+        }
     }
 
     fun showAlterarPassword() {

@@ -42,7 +42,7 @@ object AppModule {
             AppDatabase.DATABASE_NAME
         )
             .addMigrations(AppDatabase.MIGRATION_8_9, AppDatabase.MIGRATION_9_10)
-            // fallbackToDestructiveMigration removido — migrations explícitas preservam os dados
+            .fallbackToDestructiveMigration()
             .build()
 
     // ── DAOs ──────────────────────────────────────────────────────────────────
