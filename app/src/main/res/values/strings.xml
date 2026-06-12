@@ -426,4 +426,14 @@
     <string name="cd_foto_perfil">Foto de perfil de %s</string>
     <string name="cd_botao_incrementar">Aumentar</string>
     <string name="cd_botao_decrementar">Diminuir</string>
+    <string name="casa">Casa</string>
+    <string name="registar_evento">Registar evento</string>
+    <string name="tipo_de_evento">Tipo de evento</string>
+    <string name="minuto_hint">Minuto</string>
+    <string name="jogador_hint">Jogador</string>
+    <string name="fluxo_do_jogo">Fluxo do jogo</string>
+    <string name="sem_eventos">Ainda não há eventos</string>
+    <string name="definir_titulares">Definir Titulares</string>
+    <string name="guardar_titulares">Guardar Titulares</string>
+    <string name="titulares_hint">Seleciona os jogadores que iniciam o jogo</string>
 </resources>

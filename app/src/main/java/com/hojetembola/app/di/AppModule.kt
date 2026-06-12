@@ -41,7 +41,8 @@ object AppModule {
             AppDatabase::class.java,
             AppDatabase.DATABASE_NAME
         )
-            .fallbackToDestructiveMigration()   // só para desenvolvimento
+            .addMigrations(AppDatabase.MIGRATION_8_9, AppDatabase.MIGRATION_9_10)
+            // fallbackToDestructiveMigration removido — migrations explícitas preservam os dados
             .build()
 
     // ── DAOs ──────────────────────────────────────────────────────────────────
@@ -155,11 +156,14 @@ object AppModule {
         inscricaoEquipaDao: InscricaoEquipaDao,
         eventoJogoDao: EventoJogoDao,
         classificacaoDao: ClassificacaoDao,
-        equipaDao: EquipaDao
+        equipaDao: EquipaDao,
+        convocatoriaJogoDao: ConvocatoriaJogoDao,
+        jogadorInscricaoDao: JogadorInscricaoDao
     ): com.hojetembola.app.data.repository.JogoRepository =
         com.hojetembola.app.data.repository.JogoRepository(
             client, jogoDao, jornadaDao, torneioDao, inscricaoEquipaDao,
-            eventoJogoDao, classificacaoDao, equipaDao
+            eventoJogoDao, classificacaoDao, equipaDao,
+            convocatoriaJogoDao, jogadorInscricaoDao
         )
 
     // ── Utils ─────────────────────────────────────────────────────────────────

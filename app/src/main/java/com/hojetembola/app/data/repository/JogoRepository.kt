@@ -2,18 +2,24 @@ package com.hojetembola.app.data.repository
 
 import android.util.Log
 import com.hojetembola.app.data.local.dao.ClassificacaoDao
+import com.hojetembola.app.data.local.dao.ConvocatoriaJogoDao
 import com.hojetembola.app.data.local.dao.EquipaDao
 import com.hojetembola.app.data.local.dao.EventoComNome
 import com.hojetembola.app.data.local.dao.EventoJogoDao
 import com.hojetembola.app.data.local.dao.InscricaoEquipaDao
+import com.hojetembola.app.data.local.dao.JogadorInscricaoDao
 import com.hojetembola.app.data.local.dao.JogoComEquipas
 import com.hojetembola.app.data.local.dao.JogoDao
 import com.hojetembola.app.data.local.dao.JornadaDao
 import com.hojetembola.app.data.local.dao.TorneioDao
 import com.hojetembola.app.data.local.entity.ClassificacaoEntity
+import com.hojetembola.app.data.local.entity.ConvocatoriaJogoEntity
 import com.hojetembola.app.data.local.entity.EventoJogoEntity
 import com.hojetembola.app.data.local.entity.JogoEntity
 import com.hojetembola.app.data.local.entity.JornadaEntity
+import com.hojetembola.app.data.remote.dto.ConvocatoriaJogoDto
+import com.hojetembola.app.data.remote.dto.ConvocatoriaJogoInsertDto
+import com.hojetembola.app.data.remote.dto.EquipaDto
 import com.hojetembola.app.data.remote.dto.EventoJogoDto
 import com.hojetembola.app.data.remote.dto.EventoJogoInsertDto
 import com.hojetembola.app.data.remote.dto.JogoDto
@@ -30,6 +36,13 @@ import javax.inject.Singleton
 import kotlin.math.ceil
 import kotlin.math.sqrt
 
+/** One entry passed to [JogoRepository.definirTitulares] per player. */
+data class ConvocatoriaEntrada(
+    val utilizadorId: String,
+    val equipaId: String,
+    val isTitular: Boolean
+)
+
 private const val TAG = "HTB-JogoRepo"
 
 @Singleton
@@ -41,7 +54,9 @@ class JogoRepository @Inject constructor(
     private val inscricaoEquipaDao: InscricaoEquipaDao,
     private val eventoJogoDao: EventoJogoDao,
     private val classificacaoDao: ClassificacaoDao,
-    private val equipaDao: EquipaDao
+    private val equipaDao: EquipaDao,
+    private val convocatoriaJogoDao: ConvocatoriaJogoDao,
+    private val jogadorInscricaoDao: JogadorInscricaoDao
 ) {
 
     // ── Leitura local ─────────────────────────────────────────────────────────
@@ -70,10 +85,17 @@ class JogoRepository @Inject constructor(
     suspend fun iniciarJogo(jogoId: String): Result<Unit> {
         val idInt = jogoId.toIntOrNull() ?: return Result.failure(Exception("ID inválido."))
         return try {
-            client.from("jogo").update({ set("estado", "EmCurso"); set("minuto_atual", 0) }) {
-                filter { eq("id", idInt) }
-            }
+            // Offline-first: atualiza Room primeiro para o UI reagir imediatamente
             jogoDao.updateEstadoMinuto(jogoId, "ao_vivo", 0)
+            // Supabase best-effort — falha se o enum ainda não tiver 'EmCurso'
+            // (correr no Supabase SQL Editor: ALTER TYPE estado_jogo ADD VALUE IF NOT EXISTS 'EmCurso';)
+            try {
+                client.from("jogo").update({ set("estado", "EmCurso"); set("minuto_atual", 0) }) {
+                    filter { eq("id", idInt) }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "iniciarJogo Supabase sync falhou (enum?): ${e.message}")
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "iniciarJogo falhou: ${e.message}", e)
@@ -84,14 +106,19 @@ class JogoRepository @Inject constructor(
     suspend fun terminarJogo(jogoId: String, golosCasa: Int, golosVisitante: Int): Result<Unit> {
         val idInt = jogoId.toIntOrNull() ?: return Result.failure(Exception("ID inválido."))
         return try {
-            client.from("jogo").update({
-                set("estado", "Terminado")
-                set("golos_casa", golosCasa)
-                set("golos_fora", golosVisitante)
-                set("minuto_atual", null as Int?)
-            }) { filter { eq("id", idInt) } }
+            // Offline-first: Room primeiro
             jogoDao.updateEstadoMinuto(jogoId, "terminado", null)
             jogoDao.updateResultado(jogoId, golosCasa, golosVisitante)
+            try {
+                client.from("jogo").update({
+                    set("estado", "Terminado")
+                    set("golos_casa", golosCasa)
+                    set("golos_fora", golosVisitante)
+                    set("minuto_atual", null as Int?)
+                }) { filter { eq("id", idInt) } }
+            } catch (e: Exception) {
+                Log.w(TAG, "terminarJogo Supabase sync falhou: ${e.message}")
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "terminarJogo falhou: ${e.message}", e)
@@ -109,9 +136,17 @@ class JogoRepository @Inject constructor(
         jogadorEntraId: String? = null
     ): Result<Unit> {
         return try {
+            // Supabase expects PascalCase enum values for tipo_evento
+            val tipoDb = when (tipo) {
+                "golo"         -> "Golo"
+                "amarelo"      -> "Amarelo"
+                "vermelho"     -> "Vermelho"
+                "substituicao" -> "Substituicao"
+                else           -> tipo.replaceFirstChar { it.uppercase() }
+            }
             val dto = EventoJogoInsertDto(
                 jogoId = jogoId.toInt(),
-                tipo = tipo,
+                tipo = tipoDb,
                 minuto = minuto,
                 equipaId = equipaId?.toIntOrNull(),
                 jogadorId = jogadorId,
@@ -162,6 +197,94 @@ class JogoRepository @Inject constructor(
             eventoJogoDao.insertAll(eventos)
         } catch (e: Exception) {
             Log.w(TAG, "syncEventos falhou: ${e.message}")
+        }
+    }
+
+    // ── Convocatórias / Titulares ─────────────────────────────────────────────
+
+    /** Live flow of all convocatoria entries for a game (used by the ViewModel). */
+    fun getConvocatoriaFlow(jogoId: String): Flow<List<ConvocatoriaJogoEntity>> =
+        convocatoriaJogoDao.getByJogo(jogoId)
+
+    /**
+     * Persists the starting lineup for both teams.
+     * Offline-first: writes to Room immediately, then syncs to Supabase.
+     *
+     * Supabase requirement (run once in SQL Editor):
+     *   ALTER TABLE convocatoria_jogo
+     *       ADD COLUMN IF NOT EXISTS is_titular BOOLEAN NOT NULL DEFAULT false;
+     */
+    suspend fun definirTitulares(
+        jogoId: String,
+        entradas: List<ConvocatoriaEntrada>
+    ): Result<Unit> {
+        return try {
+            val jogoIdInt = jogoId.toIntOrNull()
+                ?: return Result.failure(Exception("ID inválido."))
+
+            // 1. Clear previous convocatorias for this game in Room
+            convocatoriaJogoDao.deleteByJogo(jogoId)
+
+            // 2. Write to Room immediately (offline-first)
+            val entities = entradas.map { e ->
+                ConvocatoriaJogoEntity(
+                    id           = UUID.randomUUID().toString(),
+                    jogoId       = jogoId,
+                    utilizadorId = e.utilizadorId,
+                    equipaId     = e.equipaId,
+                    isTitular    = e.isTitular
+                )
+            }
+            convocatoriaJogoDao.insertAll(entities)
+
+            // 3. Sync to Supabase (best-effort)
+            try {
+                // Delete remote entries
+                client.from("convocatoria_jogo")
+                    .delete { filter { eq("jogo_id", jogoIdInt) } }
+
+                // Batch insert and get back real IDs
+                val insertDtos = entradas.mapNotNull { e ->
+                    val equipaIdInt = e.equipaId.toIntOrNull() ?: return@mapNotNull null
+                    ConvocatoriaJogoInsertDto(
+                        jogoId       = jogoIdInt,
+                        utilizadorId = e.utilizadorId,
+                        equipaId     = equipaIdInt,
+                        isTitular    = e.isTitular
+                    )
+                }
+                if (insertDtos.isNotEmpty()) {
+                    val created = client.from("convocatoria_jogo")
+                        .insert(insertDtos) { select() }
+                        .decodeList<ConvocatoriaJogoDto>()
+
+                    // Replace Room entities with real Supabase IDs
+                    convocatoriaJogoDao.deleteByJogo(jogoId)
+                    convocatoriaJogoDao.insertAll(created.map { it.toEntity() })
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "definirTitulares Supabase sync falhou: ${e.message}")
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "definirTitulares falhou: ${e.message}", e)
+            Result.failure(Exception(e.message ?: "Erro ao definir titulares."))
+        }
+    }
+
+    /** Fetches convocatoria for a game from Supabase and caches in Room. */
+    suspend fun syncConvocatoria(jogoId: String) {
+        val jogoIdInt = jogoId.toIntOrNull() ?: return
+        try {
+            val convocatorias = client.from("convocatoria_jogo")
+                .select { filter { eq("jogo_id", jogoIdInt) } }
+                .decodeList<ConvocatoriaJogoDto>()
+                .map { it.toEntity() }
+            convocatoriaJogoDao.deleteByJogo(jogoId)
+            convocatoriaJogoDao.insertAll(convocatorias)
+        } catch (e: Exception) {
+            Log.w(TAG, "syncConvocatoria falhou: ${e.message}")
         }
     }
 
@@ -238,6 +361,29 @@ class JogoRepository @Inject constructor(
                 .decodeList<JogoDto>()
             jogoDao.deleteByTorneio(torneioId)
             jogoDao.insertAll(jogos.map { it.toEntity() })
+
+            // Sync equipa records needed for the JOIN in getJogosComEquipas.
+            // This ensures the calendar always shows real team names even after
+            // a local DB wipe (fallbackToDestructiveMigration on version bump).
+            val equipaIds = jogos.flatMap { listOf(it.equipaCasaId, it.equipaForaId) }
+                .toSet().toList()
+            Log.d(TAG, "syncJogosETorneio: a sincronizar ${equipaIds.size} equipas: $equipaIds")
+            if (equipaIds.isNotEmpty()) {
+                try {
+                    val equipas = client.from("equipa")
+                        .select { filter { isIn("id", equipaIds) } }
+                        .decodeList<EquipaDto>()
+                    Log.d(TAG, "syncJogosETorneio: ${equipas.size} equipas recebidas do Supabase")
+                    if (equipas.isNotEmpty()) {
+                        equipaDao.insertAll(equipas.map { it.toEntity() })
+                        Log.d(TAG, "syncJogosETorneio: equipas guardadas no Room")
+                    } else {
+                        Log.w(TAG, "syncJogosETorneio: Supabase devolveu 0 equipas para IDs $equipaIds — verificar RLS")
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "syncEquipas (via jogo) falhou: ${e.message}", e)
+                }
+            }
         } catch (e: Exception) {
             Log.w(TAG, "syncJogosETorneio falhou: ${e.message}")
         }

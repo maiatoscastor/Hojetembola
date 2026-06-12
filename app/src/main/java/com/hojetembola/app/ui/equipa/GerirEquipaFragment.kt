@@ -82,12 +82,15 @@ class GerirEquipaFragment : Fragment() {
 
         binding.rvMembros.layoutManager = LinearLayoutManager(requireContext())
         binding.rvMembros.adapter = membrosAdapter
+        binding.rvMembros.clipToOutline = true
 
         binding.rvConvitesPendentes.layoutManager = LinearLayoutManager(requireContext())
         binding.rvConvitesPendentes.adapter = convitesAdapter
+        binding.rvConvitesPendentes.clipToOutline = true
 
         binding.rvResultadosPesquisa.layoutManager = LinearLayoutManager(requireContext())
         binding.rvResultadosPesquisa.adapter = resultadosAdapter
+        binding.rvResultadosPesquisa.clipToOutline = true
 
         binding.btnInscrever.isVisible = viewModel.torneioId != null
         binding.btnInscrever.setOnClickListener { tentarInscrever() }
@@ -182,6 +185,12 @@ class GerirEquipaFragment : Fragment() {
                 launch {
                     viewModel.isCapitao.collect { isCapitao ->
                         binding.btnEditarEquipa.isVisible = isCapitao
+                        // Só o capitão pode convidar — esconder secção de pesquisa para jogadores
+                        binding.tilPesquisa.isVisible = isCapitao
+                        if (!isCapitao) {
+                            binding.rvResultadosPesquisa.isVisible = false
+                            binding.progressPesquisa.isVisible     = false
+                        }
                         membrosAdapter.isCapitao = isCapitao
                         convitesAdapter.isCapitao = isCapitao
                         membrosAdapter.notifyDataSetChanged()

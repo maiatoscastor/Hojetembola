@@ -18,7 +18,14 @@ data class EventoJogoDto(
     fun toEntity() = EventoJogoEntity(
         id = id.toString(),
         jogoId = jogoId.toString(),
-        tipo = tipo,
+        // Normalise Supabase PascalCase enums → lowercase used internally
+        tipo = when (tipo) {
+            "Golo"          -> "golo"
+            "Amarelo"       -> "amarelo"
+            "Vermelho"      -> "vermelho"
+            "Substituicao"  -> "substituicao"
+            else            -> tipo.lowercase()
+        },
         minuto = minuto,
         equipaId = equipaId?.toString(),
         jogadorId = jogadorId,

@@ -198,11 +198,12 @@ class CalendarioAdapter(
                     binding.tvEstado.setTextColor(Color.parseColor("#F57C00"))
                 }
                 "terminado" -> {
-                    binding.tvEstado.text = "FIM"
+                    binding.tvEstado.text = binding.root.context.getString(R.string.terminado)
                     binding.tvEstado.setTextColor(Color.parseColor("#8A9BB8"))
                 }
                 else -> {
-                    binding.tvEstado.text = ""
+                    binding.tvEstado.text = binding.root.context.getString(R.string.agendado)
+                    binding.tvEstado.setTextColor(Color.parseColor("#8A9BB8"))
                 }
             }
 

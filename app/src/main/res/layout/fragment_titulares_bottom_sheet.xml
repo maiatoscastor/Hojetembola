@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="24dp">
+
+        <!-- Drag handle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="#3A4A6B" />
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="2dp"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:text="@string/definir_titulares" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="12dp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@color/text_muted"
+            android:textSize="13sp"
+            android:text="@string/titulares_hint" />
+
+        <!-- ── Casa team ──────────────────────────────────────────────────── -->
+        <TextView
+            android:id="@+id/tvEquipaCasaHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="6dp"
+            android:background="@color/bg_primary"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/text_muted"
+            android:textSize="11sp"
+            android:textAllCaps="true"
+            android:letterSpacing="0.06" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCasaJogadores"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:background="@color/bg_surface" />
+
+        <!-- ── Visitante team ─────────────────────────────────────────────── -->
+        <TextView
+            android:id="@+id/tvEquipaVisitanteHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="6dp"
+            android:background="@color/bg_primary"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/text_muted"
+            android:textSize="11sp"
+            android:textAllCaps="true"
+            android:letterSpacing="0.06" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvVisitanteJogadores"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:background="@color/bg_surface" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/bg_border" />
+
+        <!-- Save button -->
+        <Button
+            android:id="@+id/btnGuardarTitulares"
+            style="@style/Widget.HojeTemBola.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/guardar_titulares" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -31,7 +31,8 @@ data class JogoDto(
         localLink         = localizacaoMapsUrl,
         estado            = when (estado) {
             "Agendado"  -> "agendado"
-            "EmCurso"   -> "ao_vivo"
+            "EmCurso",
+            "ao_vivo"   -> "ao_vivo"
             "Terminado" -> "terminado"
             else        -> estado.lowercase()
         }

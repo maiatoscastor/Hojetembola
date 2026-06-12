@@ -1,32 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp">
+    android:background="@drawable/bg_event_item"
+    android:layout_marginBottom="6dp"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
 
     <TextView
         android:id="@+id/tvMinuto"
-        android:layout_width="40dp"
+        android:layout_width="36dp"
         android:layout_height="wrap_content"
         android:fontFamily="@font/poppins_bold"
         android:textColor="@color/orange"
-        android:textSize="12sp"
-        android:gravity="center" />
+        android:textSize="11sp"
+        android:gravity="center"
+        tools:text="47'" />
 
     <TextView
         android:id="@+id/tvTipoIcon"
         android:layout_width="28dp"
         android:layout_height="wrap_content"
         android:fontFamily="@font/poppins_regular"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:gravity="center"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        tools:text="⚽" />
 
     <TextView
         android:id="@+id/tvDescricao"
@@ -34,7 +40,8 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:fontFamily="@font/poppins_regular"
-        android:textColor="@color/text_primary"
-        android:textSize="13sp" />
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        tools:text="João M." />
 
 </LinearLayout>

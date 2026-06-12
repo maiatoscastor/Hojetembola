@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Section title em laranja — igual ao .section-title do mockup -->
 <TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/tvJornada"
@@ -6,10 +7,11 @@
     android:layout_height="wrap_content"
     android:background="@color/bg_primary"
     android:fontFamily="@font/poppins_semi_bold"
-    android:textColor="@color/text_secondary"
-    android:textSize="12sp"
+    android:textColor="@color/orange"
+    android:textSize="11sp"
     android:textAllCaps="true"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
+    android:letterSpacing="0.08"
+    android:paddingStart="@dimen/screen_padding"
+    android:paddingEnd="@dimen/screen_padding"
     android:paddingTop="16dp"
     android:paddingBottom="8dp" />

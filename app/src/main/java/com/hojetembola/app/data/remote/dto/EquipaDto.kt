@@ -8,25 +8,25 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EquipaDto(
     val id: Int,
-    val nome: String,
-    val iniciais: String,
-    @SerialName("cor_avatar")     val corAvatar: String,
-    val cidade: String?           = null,
+    val nome: String?               = null,
+    val iniciais: String?           = null,
+    @SerialName("cor_avatar")      val corAvatar: String?     = null,
+    val cidade: String?             = null,
     @SerialName("foto_escudo_uri") val fotoEscudoUri: String? = null,
-    @SerialName("data_criacao")   val dataCriacao: String    = "",
-    val ativa: Boolean            = true,
-    @SerialName("capitao_id")     val capitaoId: String
+    @SerialName("data_criacao")    val dataCriacao: String?   = null,
+    val ativa: Boolean?             = null,
+    @SerialName("capitao_id")      val capitaoId: String?     = null
 ) {
     fun toEntity() = EquipaEntity(
-        id           = id.toString(),
-        nome         = nome,
-        iniciais     = iniciais,
-        corAvatar    = corAvatar,
-        cidade       = cidade,
+        id            = id.toString(),
+        nome          = nome ?: "",
+        iniciais      = iniciais ?: "?",
+        corAvatar     = corAvatar ?: "#3D5A80",
+        cidade        = cidade,
         fotoEscudoUri = fotoEscudoUri,
-        dataCriacao  = dataCriacao,
-        ativa        = ativa,
-        capitaoId    = capitaoId
+        dataCriacao   = dataCriacao ?: "",
+        ativa         = ativa ?: true,
+        capitaoId     = capitaoId ?: ""
     )
 }
 

@@ -12,7 +12,10 @@ data class EventoComNome(
     @ColumnInfo(name = "equipa_id") val equipaId: String?,
     @ColumnInfo(name = "jogador_nome") val jogadorNome: String?,
     @ColumnInfo(name = "jogador_sai_nome") val jogadorSaiNome: String?,
-    @ColumnInfo(name = "jogador_entra_nome") val jogadorEntraNome: String?
+    @ColumnInfo(name = "jogador_entra_nome") val jogadorEntraNome: String?,
+    /** IDs needed to track who is on the field after substitutions. */
+    @ColumnInfo(name = "jogador_sai_id") val jogadorSaiId: String?,
+    @ColumnInfo(name = "jogador_entra_id") val jogadorEntraId: String?
 )
 
 @Dao
@@ -65,7 +68,9 @@ interface EventoJogoDao {
         SELECT e.id AS evento_id, e.jogo_id, e.tipo, e.minuto, e.equipa_id,
                u1.nome AS jogador_nome,
                u2.nome AS jogador_sai_nome,
-               u3.nome AS jogador_entra_nome
+               u3.nome AS jogador_entra_nome,
+               e.jogador_sai_id,
+               e.jogador_entra_id
         FROM evento_jogo e
         LEFT JOIN utilizador u1 ON u1.id = e.jogador_id
         LEFT JOIN utilizador u2 ON u2.id = e.jogador_sai_id

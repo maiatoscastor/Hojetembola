@@ -6,7 +6,9 @@
     android:layout_height="match_parent"
     android:background="@color/bg_primary">
 
-    <!-- Toolbar -->
+    <!-- ═══════════════════════════════════════════════════════════════════
+         TOOLBAR
+    ═══════════════════════════════════════════════════════════════════════ -->
     <LinearLayout
         android:id="@+id/layoutToolbar"
         android:layout_width="0dp"
@@ -15,7 +17,7 @@
         android:gravity="center_vertical"
         android:paddingStart="@dimen/spacing_sm"
         android:paddingEnd="@dimen/screen_padding"
-        android:paddingTop="@dimen/spacing_lg"
+        android:paddingTop="20dp"
         android:paddingBottom="@dimen/spacing_md"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -64,22 +66,38 @@
             app:tint="@color/text_secondary" />
     </LinearLayout>
 
-    <!-- Contador jogadores + indicador min/max -->
+    <!-- ═══════════════════════════════════════════════════════════════════
+         HERO CARD — contador de jogadores e limites
+    ═══════════════════════════════════════════════════════════════════════ -->
     <LinearLayout
         android:id="@+id/layoutContador"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:layout_marginStart="@dimen/screen_padding"
+        android:layout_marginEnd="@dimen/screen_padding"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_card"
         android:paddingStart="@dimen/screen_padding"
         android:paddingEnd="@dimen/screen_padding"
-        android:paddingTop="@dimen/spacing_sm"
-        android:paddingBottom="@dimen/spacing_sm"
-        android:background="@color/bg_surface"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
         app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Ícone decorativo "equipa" -->
+        <TextView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:gravity="center"
+            android:text="⚽"
+            android:textSize="16sp"
+            android:background="@drawable/bg_tag"
+            android:layout_marginEnd="10dp" />
+
+        <!-- Contador de jogadores -->
         <TextView
             android:id="@+id/tvContador"
             android:layout_width="0dp"
@@ -87,18 +105,26 @@
             android:layout_weight="1"
             android:fontFamily="@font/poppins_semi_bold"
             android:textColor="@color/text_primary"
-            android:textSize="13sp" />
+            android:textSize="14sp" />
 
+        <!-- Limites min/max (badge pill) -->
         <TextView
             android:id="@+id/tvLimites"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_tag"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             android:fontFamily="@font/poppins_regular"
             android:textColor="@color/text_secondary"
             android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- Pesquisa de utilizadores -->
+    <!-- ═══════════════════════════════════════════════════════════════════
+         PESQUISA DE UTILIZADORES
+    ═══════════════════════════════════════════════════════════════════════ -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilPesquisa"
         style="@style/Widget.HojeTemBola.TextInputLayout"
@@ -122,57 +148,37 @@
             android:imeOptions="actionSearch" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Loading pesquisa -->
+    <!-- Loading da pesquisa (overlay sobre o campo) -->
     <ProgressBar
         android:id="@+id/progressPesquisa"
         style="?android:attr/progressBarStyleSmall"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginEnd="@dimen/screen_padding"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="22dp"
         android:indeterminateTint="@color/orange"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="@id/tilPesquisa"
         app:layout_constraintBottom_toBottomOf="@id/tilPesquisa"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Resultados de pesquisa -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvResultadosPesquisa"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:maxHeight="180dp"
-        android:background="@color/bg_surface"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tilPesquisa"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Divider -->
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="@color/bg_border"
-        android:layout_marginTop="@dimen/spacing_md"
-        app:layout_constraintTop_toBottomOf="@id/rvResultadosPesquisa"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Secção: convites pendentes -->
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECÇÃO: CONVITES PENDENTES
+    ═══════════════════════════════════════════════════════════════════════ -->
     <TextView
         android:id="@+id/tvLabelConvites"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/screen_padding"
         android:layout_marginEnd="@dimen/screen_padding"
-        android:layout_marginTop="@dimen/spacing_md"
+        android:layout_marginTop="@dimen/spacing_lg"
         android:text="@string/convites_pendentes"
-        android:textColor="#F57C00"
+        android:textColor="@color/orange"
         android:textAllCaps="true"
+        android:letterSpacing="0.08"
         android:textSize="11sp"
         android:fontFamily="@font/poppins_semi_bold"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/divider"
+        app:layout_constraintTop_toBottomOf="@id/tilPesquisa"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -180,68 +186,80 @@
         android:id="@+id/rvConvitesPendentes"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_padding"
+        android:layout_marginEnd="@dimen/screen_padding"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:background="@drawable/bg_card"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvLabelConvites"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Divider entre convites e membros -->
+    <!-- Espaçador entre convites e membros (controlado pelo Fragment) -->
     <View
         android:id="@+id/dividerConvites"
         android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="@color/bg_border"
-        android:visibility="gone"
+        android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/rvConvitesPendentes"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Label membros confirmados -->
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECÇÃO: JOGADORES DA EQUIPA
+    ═══════════════════════════════════════════════════════════════════════ -->
     <TextView
         android:id="@+id/tvLabelMembros"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/screen_padding"
         android:layout_marginEnd="@dimen/screen_padding"
-        android:layout_marginTop="@dimen/spacing_md"
+        android:layout_marginTop="@dimen/spacing_lg"
         android:text="@string/jogadores_equipa"
         android:textColor="@color/orange"
         android:textAllCaps="true"
+        android:letterSpacing="0.08"
         android:textSize="11sp"
         android:fontFamily="@font/poppins_semi_bold"
         app:layout_constraintTop_toBottomOf="@id/dividerConvites"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Loading membros -->
+    <!-- Loading inicial de membros -->
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_xl"
         android:indeterminateTint="@color/orange"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvLabelMembros"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Lista de membros actuais -->
+    <!-- Lista de membros dentro de card -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMembros"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginStart="@dimen/screen_padding"
+        android:layout_marginEnd="@dimen/screen_padding"
         android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginBottom="@dimen/spacing_sm"
+        android:background="@drawable/bg_card"
         app:layout_constraintTop_toBottomOf="@id/tvLabelMembros"
         app:layout_constraintBottom_toTopOf="@id/btnInscrever"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Botão inscrever (visível só quando torneioId presente e count ok) -->
+    <!-- ═══════════════════════════════════════════════════════════════════
+         BOTÃO INSCREVER (fixo na base)
+    ═══════════════════════════════════════════════════════════════════════ -->
     <Button
         android:id="@+id/btnInscrever"
         style="@style/Widget.HojeTemBola.Button.Primary"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/button_height"
         android:layout_marginStart="@dimen/screen_padding"
         android:layout_marginEnd="@dimen/screen_padding"
         android:layout_marginBottom="24dp"
@@ -250,5 +268,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         RESULTADOS DE PESQUISA — overlay flutuante (declarado por último
+         para ficar acima de todo o conteúdo — z-order ConstraintLayout)
+    ═══════════════════════════════════════════════════════════════════════ -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvResultadosPesquisa"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:maxHeight="220dp"
+        android:background="@drawable/bg_search_dropdown"
+        android:elevation="8dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tilPesquisa"
+        app:layout_constraintStart_toStartOf="@id/tilPesquisa"
+        app:layout_constraintEnd_toEndOf="@id/tilPesquisa" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

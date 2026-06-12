@@ -137,9 +137,10 @@ class EquipaRepository @Inject constructor(
                 .select { filter { eq("torneio_id", torneioId.toInt()) } }
                 .decodeList<InscricaoEquipaDto>()
                 .map { it.toEntity() }
+            Log.d(TAG, "syncInscricoes: ${inscricoes.size} inscricoes para torneio $torneioId")
             if (inscricoes.isNotEmpty()) inscricaoEquipaDao.insertAll(inscricoes)
         } catch (e: Exception) {
-            Log.w(TAG, "syncInscricoes falhou: ${e.message}")
+            Log.e(TAG, "syncInscricoes falhou: ${e.message}", e)
         }
     }
 
@@ -439,25 +440,48 @@ class EquipaRepository @Inject constructor(
         try {
             syncInscricoes(torneioId)
             val inscricoes = inscricaoEquipaDao.getByTorneioSuspend(torneioId)
+            Log.d(TAG, "syncInscricoesComEquipas: ${inscricoes.size} inscricoes para torneio $torneioId")
+
+            // Bulk fetch all equipas in one query instead of N individual requests
+            val equipaIds = inscricoes.mapNotNull { it.equipaId.toIntOrNull() }
+            Log.d(TAG, "syncInscricoesComEquipas: a buscar equipas com IDs $equipaIds")
+            if (equipaIds.isNotEmpty()) {
+                try {
+                    val equipas = client.from("equipa")
+                        .select { filter { isIn("id", equipaIds) } }
+                        .decodeList<EquipaDto>()
+                    Log.d(TAG, "syncInscricoesComEquipas: ${equipas.size} equipas recebidas do Supabase")
+                    if (equipas.isNotEmpty()) equipaDao.insertAll(equipas.map { it.toEntity() })
+                } catch (e: Exception) {
+                    Log.e(TAG, "syncEquipas bulk falhou: ${e.message}", e)
+                    // Fallback: try one by one to isolate which equipa is failing
+                    equipaIds.forEach { id -> syncEquipaById(id) }
+                }
+            }
+
             inscricoes.forEach { inscricao ->
-                syncEquipaById(inscricao.equipaId)
-                // Sync jogadores selecionados para que num_membros reflicta a escolha do capitão
                 syncJogadoresInscricao(inscricao.id)
             }
         } catch (e: Exception) {
-            Log.w(TAG, "syncInscricoesComEquipas falhou: ${e.message}")
+            Log.e(TAG, "syncInscricoesComEquipas falhou: ${e.message}", e)
         }
     }
 
-    private suspend fun syncEquipaById(equipaId: String) {
-        val equipaIdInt = equipaId.toIntOrNull() ?: return
+    private suspend fun syncEquipaById(equipaId: Int) {
         try {
             val dto = client.from("equipa")
-                .select { filter { eq("id", equipaIdInt) } }
+                .select { filter { eq("id", equipaId) } }
                 .decodeList<EquipaDto>()
-                .firstOrNull() ?: return
-            equipaDao.insert(dto.toEntity())
-        } catch (_: Exception) {}
+                .firstOrNull()
+            if (dto != null) {
+                equipaDao.insert(dto.toEntity())
+                Log.d(TAG, "syncEquipaById: equipa $equipaId guardada (${dto.nome})")
+            } else {
+                Log.w(TAG, "syncEquipaById: equipa $equipaId não encontrada no Supabase")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "syncEquipaById $equipaId falhou: ${e.message}", e)
+        }
     }
 
     /** Aceita uma inscrição (Pendente → Confirmada). */
@@ -605,9 +629,6 @@ class EquipaRepository @Inject constructor(
     /** Flow dos jogadores inscritos com nome e email, a partir do cache local. */
     fun getJogadoresInscricao(inscricaoId: String): Flow<List<JogadorInscricaoComNome>> =
         jogadorInscricaoDao.getComNome(inscricaoId)
-
-    /** Devolve a entidade da equipa pelo ID, ou null se não está em cache. */
-    suspend fun getEquipaById(equipaId: String): EquipaEntity? = equipaDao.getById(equipaId)
 
     // ── Helper ────────────────────────────────────────────────────────────────
 

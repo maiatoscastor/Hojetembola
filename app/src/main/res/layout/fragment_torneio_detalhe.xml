@@ -107,14 +107,16 @@
             android:paddingBottom="100dp">
 
             <!-- ── Card: Informações Gerais ──────────────────────────────── -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_md"
                 app:cardBackgroundColor="@color/bg_surface"
                 app:cardCornerRadius="@dimen/card_radius"
-                app:cardElevation="0dp">
+                app:cardElevation="0dp"
+                app:strokeColor="@color/bg_border"
+                app:strokeWidth="1.5dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -239,16 +241,18 @@
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- ── Card: Datas ───────────────────────────────────────────── -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_md"
                 app:cardBackgroundColor="@color/bg_surface"
                 app:cardCornerRadius="@dimen/card_radius"
-                app:cardElevation="0dp">
+                app:cardElevation="0dp"
+                app:strokeColor="@color/bg_border"
+                app:strokeWidth="1.5dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -375,16 +379,18 @@
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- ── Card: Localização ─────────────────────────────────────── -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_md"
                 app:cardBackgroundColor="@color/bg_surface"
                 app:cardCornerRadius="@dimen/card_radius"
-                app:cardElevation="0dp">
+                app:cardElevation="0dp"
+                app:strokeColor="@color/bg_border"
+                app:strokeWidth="1.5dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -431,16 +437,18 @@
                         android:text="@string/ver_no_google_maps"
                         android:visibility="gone" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- ── Card: Regras ──────────────────────────────────────────── -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_md"
                 app:cardBackgroundColor="@color/bg_surface"
                 app:cardCornerRadius="@dimen/card_radius"
-                app:cardElevation="0dp">
+                app:cardElevation="0dp"
+                app:strokeColor="@color/bg_border"
+                app:strokeWidth="1.5dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -568,10 +576,10 @@
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- ── Card: Código de acesso (só para organiz. de torneio privado) -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardCodigo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -579,7 +587,9 @@
                 android:visibility="gone"
                 app:cardBackgroundColor="@color/bg_surface"
                 app:cardCornerRadius="@dimen/card_radius"
-                app:cardElevation="0dp">
+                app:cardElevation="0dp"
+                app:strokeColor="@color/bg_border"
+                app:strokeWidth="1.5dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -615,10 +625,10 @@
                         android:textSize="@dimen/text_label"
                         android:layout_marginTop="2dp" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- ── Card: Regulamento ─────────────────────────────────────── -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardRegulamento"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -626,7 +636,9 @@
                 android:visibility="gone"
                 app:cardBackgroundColor="@color/bg_surface"
                 app:cardCornerRadius="@dimen/card_radius"
-                app:cardElevation="0dp">
+                app:cardElevation="0dp"
+                app:strokeColor="@color/bg_border"
+                app:strokeWidth="1.5dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -653,7 +665,7 @@
                         android:textSize="@dimen/text_body"
                         android:lineSpacingMultiplier="1.4" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

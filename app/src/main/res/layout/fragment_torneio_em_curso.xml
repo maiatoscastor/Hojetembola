@@ -159,15 +159,17 @@
                 android:paddingBottom="24dp">
 
                 <!-- Card: Informação Geral -->
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginEnd="12dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginStart="@dimen/screen_padding"
+                    android:layout_marginEnd="@dimen/screen_padding"
+                    android:layout_marginTop="@dimen/spacing_md"
                     app:cardBackgroundColor="@color/bg_surface"
-                    app:cardCornerRadius="10dp"
-                    app:cardElevation="0dp">
+                    app:cardCornerRadius="@dimen/card_radius"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/bg_border"
+                    app:strokeWidth="1.5dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -293,18 +295,20 @@
                         </LinearLayout>
 
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Card: Datas -->
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginStart="@dimen/screen_padding"
+                    android:layout_marginEnd="@dimen/screen_padding"
                     android:layout_marginTop="6dp"
                     app:cardBackgroundColor="@color/bg_surface"
-                    app:cardCornerRadius="10dp"
-                    app:cardElevation="0dp">
+                    app:cardCornerRadius="@dimen/card_radius"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/bg_border"
+                    app:strokeWidth="1.5dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -403,18 +407,20 @@
                         </LinearLayout>
 
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Card: Regras -->
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginStart="@dimen/screen_padding"
+                    android:layout_marginEnd="@dimen/screen_padding"
                     android:layout_marginTop="6dp"
                     app:cardBackgroundColor="@color/bg_surface"
-                    app:cardCornerRadius="10dp"
-                    app:cardElevation="0dp">
+                    app:cardCornerRadius="@dimen/card_radius"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/bg_border"
+                    app:strokeWidth="1.5dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -513,7 +519,7 @@
                         </LinearLayout>
 
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

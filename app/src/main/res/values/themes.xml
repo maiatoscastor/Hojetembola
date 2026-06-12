@@ -75,6 +75,34 @@
         <item name="strokeColor">@color/bg_border</item>
         <item name="android:textColor">@color/text_secondary</item>
         <item name="cornerRadius">@dimen/button_radius</item>
+        <item name="fontFamily">@font/poppins_semi_bold</item>
+    </style>
+
+    <!-- ── Botão cartão amarelo ──────────────────────────────────────────── -->
+    <style name="Widget.HojeTemBola.Button.Yellow" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:backgroundTint">@color/bg_surface</item>
+        <item name="strokeColor">#F5C84C</item>
+        <item name="android:textColor">#F5C84C</item>
+        <item name="cornerRadius">@dimen/button_radius</item>
+        <item name="fontFamily">@font/poppins_semi_bold</item>
+    </style>
+
+    <!-- ── Botão cartão vermelho ─────────────────────────────────────────── -->
+    <style name="Widget.HojeTemBola.Button.Red" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:backgroundTint">@color/bg_surface</item>
+        <item name="strokeColor">#F05B5B</item>
+        <item name="android:textColor">#F05B5B</item>
+        <item name="cornerRadius">@dimen/button_radius</item>
+        <item name="fontFamily">@font/poppins_semi_bold</item>
+    </style>
+
+    <!-- ── Botão de perigo (terminar jogo) ──────────────────────────────── -->
+    <style name="Widget.HojeTemBola.Button.Danger" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:backgroundTint">@color/bg_surface</item>
+        <item name="strokeColor">#CF6679</item>
+        <item name="android:textColor">#CF6679</item>
+        <item name="cornerRadius">@dimen/button_radius</item>
+        <item name="fontFamily">@font/poppins_semi_bold</item>
     </style>
 
     <!-- ── Campo de texto ────────────────────────────────────────────────── -->

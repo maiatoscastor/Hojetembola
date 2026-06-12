@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<!--  Match card — espelha o .match-card do mockup_08_detalhe_torneio.html
+      bg_surface + border 1.5dp + 12dp radius, igual ao design system.      -->
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
+    android:layout_marginStart="@dimen/screen_padding"
+    android:layout_marginEnd="@dimen/screen_padding"
+    android:layout_marginTop="6dp"
+    android:layout_marginBottom="2dp"
     app:cardBackgroundColor="@color/bg_surface"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="0dp">
+    app:cardCornerRadius="@dimen/card_radius"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/bg_border"
+    app:strokeWidth="1.5dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,15 +22,51 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- Teams row -->
+        <!-- ── Fila superior: badge estado + data/hora ───────────────────── -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="10dp">
 
-            <!-- Casa -->
+            <!-- Badge de estado (texto e cor definidos em código) -->
+            <TextView
+                android:id="@+id/tvEstado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_tag"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:fontFamily="@font/poppins_semi_bold"
+                android:textAllCaps="true"
+                android:textSize="9sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Data e hora -->
+            <TextView
+                android:id="@+id/tvDataHora"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- ── Fila central: Equipa Casa | Resultado | Equipa Visitante ──── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Equipa Casa -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -36,26 +76,25 @@
 
                 <TextView
                     android:id="@+id/tvAvatarCasa"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:gravity="center"
                     android:fontFamily="@font/poppins_bold"
                     android:textColor="#FFFFFF"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     android:layout_gravity="center_horizontal" />
 
                 <TextView
                     android:id="@+id/tvNomeCasa"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
                     android:fontFamily="@font/poppins_semi_bold"
                     android:textColor="@color/text_primary"
                     android:textSize="12sp"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    android:layout_marginTop="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -63,18 +102,18 @@
                     android:layout_gravity="center_horizontal"
                     android:fontFamily="@font/poppins_regular"
                     android:textColor="@color/text_muted"
-                    android:textSize="10sp"
+                    android:textSize="9sp"
                     android:text="CASA" />
             </LinearLayout>
 
-            <!-- Score / vs -->
+            <!-- Resultado / VS -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp">
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp">
 
                 <TextView
                     android:id="@+id/tvScore"
@@ -84,7 +123,7 @@
                     android:textColor="@color/text_primary"
                     android:textSize="22sp"
                     android:gravity="center"
-                    android:text="vs" />
+                    android:text="@string/vs" />
 
                 <TextView
                     android:id="@+id/tvMinuto"
@@ -97,7 +136,7 @@
                     android:visibility="gone" />
             </LinearLayout>
 
-            <!-- Visitante -->
+            <!-- Equipa Visitante -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -107,26 +146,25 @@
 
                 <TextView
                     android:id="@+id/tvAvatarVisitante"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:gravity="center"
                     android:fontFamily="@font/poppins_bold"
                     android:textColor="#FFFFFF"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     android:layout_gravity="center_horizontal" />
 
                 <TextView
                     android:id="@+id/tvNomeVisitante"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
                     android:fontFamily="@font/poppins_semi_bold"
                     android:textColor="@color/text_primary"
                     android:textSize="12sp"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    android:layout_marginTop="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -134,35 +172,10 @@
                     android:layout_gravity="center_horizontal"
                     android:fontFamily="@font/poppins_regular"
                     android:textColor="@color/text_muted"
-                    android:textSize="10sp"
+                    android:textSize="9sp"
                     android:text="FORA" />
             </LinearLayout>
         </LinearLayout>
-
-        <!-- Estado / date row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tvEstado"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/poppins_bold"
-                android:textSize="10sp"
-                android:textAllCaps="true" />
-
-            <TextView
-                android:id="@+id/tvDataHora"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/text_muted"
-                android:textSize="11sp" />
-        </LinearLayout>
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

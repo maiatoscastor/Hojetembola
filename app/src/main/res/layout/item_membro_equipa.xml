@@ -4,65 +4,79 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:paddingStart="@dimen/screen_padding"
-    android:paddingEnd="@dimen/screen_padding"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
+    android:orientation="vertical">
 
-    <!-- Inicial do utilizador -->
-    <TextView
-        android:id="@+id/tvAvatar"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:gravity="center"
-        android:textColor="@color/text_primary"
-        android:fontFamily="@font/poppins_bold"
-        android:textSize="14sp"
-        android:background="@color/bg_border"
-        tools:text="D" />
-
-    <!-- Nome + email -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginStart="12dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="@dimen/screen_padding"
+        android:paddingEnd="10dp"
+        android:paddingTop="13dp"
+        android:paddingBottom="13dp"
+        android:background="?attr/selectableItemBackground">
 
+        <!-- Avatar circular (cor definida em código via GradientDrawable.OVAL) -->
         <TextView
-            android:id="@+id/tvNome"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_semi_bold"
+            android:id="@+id/tvAvatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="center"
             android:textColor="@color/text_primary"
-            android:textSize="13sp"
-            android:maxLines="1"
-            android:ellipsize="end"
-            tools:text="Diogo Esteves" />
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="15sp"
+            tools:background="@color/bg_border"
+            tools:text="G" />
 
-        <TextView
-            android:id="@+id/tvEmail"
-            android:layout_width="match_parent"
+        <!-- Nome + email -->
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_regular"
-            android:textColor="@color/text_muted"
-            android:textSize="11sp"
-            android:maxLines="1"
-            android:ellipsize="end"
-            tools:text="diogo@email.com" />
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/tvNome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semi_bold"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="Gonçalo Teixeira" />
+
+            <TextView
+                android:id="@+id/tvEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="@color/text_muted"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="goncalo@email.com" />
+        </LinearLayout>
+
+        <!-- Botão remover -->
+        <ImageButton
+            android:id="@+id/btnRemover"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_close"
+            android:contentDescription="@string/remover_jogador"
+            app:tint="@color/text_muted"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
     </LinearLayout>
 
-    <!-- Remover -->
-    <ImageButton
-        android:id="@+id/btnRemover"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@android:drawable/ic_menu_close_clear_cancel"
-        android:contentDescription="@string/remover_jogador"
-        app:tint="@color/text_muted"
-        xmlns:app="http://schemas.android.com/apk/res-auto" />
+    <!-- Separador inferior (indentado para ficar alinhado com o texto) -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="68dp"
+        android:background="@color/bg_border" />
 
 </LinearLayout>

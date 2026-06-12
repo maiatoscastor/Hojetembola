@@ -4,75 +4,92 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:paddingStart="@dimen/screen_padding"
-    android:paddingEnd="@dimen/screen_padding"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
-    android:background="?attr/selectableItemBackground">
+    android:orientation="vertical">
 
-    <!-- Inicial -->
-    <TextView
-        android:id="@+id/tvAvatar"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:gravity="center"
-        android:textColor="@color/text_primary"
-        android:fontFamily="@font/poppins_bold"
-        android:textSize="14sp"
-        android:background="@color/bg_border"
-        tools:text="D" />
-
-    <!-- Nome + email + estado -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginStart="12dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="@dimen/screen_padding"
+        android:paddingEnd="10dp"
+        android:paddingTop="11dp"
+        android:paddingBottom="11dp"
+        android:background="?attr/selectableItemBackground">
 
+        <!-- Avatar circular (cor definida em código) -->
         <TextView
-            android:id="@+id/tvNome"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_semi_bold"
+            android:id="@+id/tvAvatar"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:gravity="center"
             android:textColor="@color/text_primary"
-            android:textSize="13sp"
-            tools:text="Diogo Esteves" />
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="14sp"
+            tools:background="@color/bg_border"
+            tools:text="D" />
 
-        <TextView
-            android:id="@+id/tvEmail"
-            android:layout_width="match_parent"
+        <!-- Nome + email + estado -->
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_regular"
-            android:textColor="@color/text_muted"
-            android:textSize="11sp"
-            tools:text="diogo@email.com" />
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
 
-        <!-- Visível só quando JA_MEMBRO ou JA_CONVIDADO -->
-        <TextView
-            android:id="@+id/tvEstado"
+            <TextView
+                android:id="@+id/tvNome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semi_bold"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="Diogo Esteves" />
+
+            <TextView
+                android:id="@+id/tvEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="@color/text_muted"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="diogo@email.com" />
+
+            <!-- Visível só quando JA_MEMBRO, JA_CONVIDADO ou NO_TORNEIO -->
+            <TextView
+                android:id="@+id/tvEstado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/poppins_semi_bold"
+                android:textSize="10sp"
+                android:visibility="gone"
+                tools:text="Já pertence à equipa"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <!-- Botão convidar / estado -->
+        <Button
+            android:id="@+id/btnAdicionar"
+            style="@style/Widget.HojeTemBola.Button.Primary"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:fontFamily="@font/poppins_regular"
-            android:textSize="10sp"
-            android:visibility="gone"
-            tools:text="Já pertence à equipa"
-            tools:visibility="visible" />
+            android:layout_height="34dp"
+            android:minWidth="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:textSize="11sp"
+            android:text="@string/adicionar" />
     </LinearLayout>
 
-    <!-- Convidar / estado -->
-    <Button
-        android:id="@+id/btnAdicionar"
-        style="@style/Widget.HojeTemBola.Button.Primary"
-        android:layout_width="wrap_content"
-        android:layout_height="32dp"
-        android:minWidth="0dp"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:textSize="11sp"
-        android:text="@string/adicionar" />
+    <!-- Separador inferior indentado -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="66dp"
+        android:background="@color/bg_border" />
 
 </LinearLayout>

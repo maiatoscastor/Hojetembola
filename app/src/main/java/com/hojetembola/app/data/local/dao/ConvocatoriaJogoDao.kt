@@ -10,8 +10,20 @@ interface ConvocatoriaJogoDao {
     @Query("SELECT * FROM convocatoria_jogo WHERE jogo_id = :jogoId")
     fun getByJogo(jogoId: String): Flow<List<ConvocatoriaJogoEntity>>
 
+    @Query("SELECT * FROM convocatoria_jogo WHERE jogo_id = :jogoId")
+    suspend fun getByJogoSuspend(jogoId: String): List<ConvocatoriaJogoEntity>
+
     @Query("SELECT * FROM convocatoria_jogo WHERE jogo_id = :jogoId AND equipa_id = :equipaId")
     fun getByJogoEquipa(jogoId: String, equipaId: String): Flow<List<ConvocatoriaJogoEntity>>
+
+    @Query("""
+        SELECT * FROM convocatoria_jogo
+        WHERE jogo_id = :jogoId AND equipa_id = :equipaId AND is_titular = 1
+    """)
+    suspend fun getTitularesSuspend(jogoId: String, equipaId: String): List<ConvocatoriaJogoEntity>
+
+    @Query("SELECT COUNT(*) FROM convocatoria_jogo WHERE jogo_id = :jogoId")
+    suspend fun countByJogo(jogoId: String): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(convocatoria: ConvocatoriaJogoEntity)
