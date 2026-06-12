@@ -29,6 +29,9 @@ class RegistarEventoBottomSheet : BottomSheetDialogFragment() {
     private var selectedJogadorId: String? = null
     private var selectedJogadorSaiId: String? = null
     private var selectedJogadorEntraId: String? = null
+    private var selectedAssistenciaId: String? = null
+    // Last emCampo list used, so scorer change can refresh assist dropdown
+    private var lastEmCampo: List<JogadorInscricaoComNome> = emptyList()
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -65,7 +68,7 @@ class RegistarEventoBottomSheet : BottomSheetDialogFragment() {
         selectedTipo = "golo"
         selectedEquipaId = state.jogo?.equipaCasaId
         updateFieldVisibility("golo")
-        populateJogadoresDropdown(state.casaJogadoresEmCampo.ifEmpty { state.casaJogadores })
+        updateJogadorDropdown()
         updateSubstituicaoChipState(state)
 
         // Tipo chip group
@@ -80,6 +83,7 @@ class RegistarEventoBottomSheet : BottomSheetDialogFragment() {
             if (newTipo != selectedTipo) {
                 selectedTipo = newTipo
                 updateFieldVisibility(newTipo)
+                updateJogadorDropdown()
             }
         }
 
@@ -87,13 +91,12 @@ class RegistarEventoBottomSheet : BottomSheetDialogFragment() {
         binding.chipGroupEquipa.setOnCheckedStateChangeListener { _, checkedIds ->
             val isCasa = checkedIds.contains(binding.chipEquipaCasa.id)
             selectedEquipaId = if (isCasa) state.jogo?.equipaCasaId else state.jogo?.equipaVisitanteId
+            updateJogadorDropdown()
 
             val emCampo = if (isCasa) state.casaJogadoresEmCampo.ifEmpty { state.casaJogadores }
                           else        state.visitanteJogadoresEmCampo.ifEmpty { state.visitanteJogadores }
             val noBanco = if (isCasa) state.casaJogadoresNoBanco
                           else        state.visitanteJogadoresNoBanco
-
-            populateJogadoresDropdown(emCampo)
             if (selectedTipo == "substituicao") populateSubstituicaoDropdowns(emCampo, noBanco)
         }
 
@@ -108,15 +111,23 @@ class RegistarEventoBottomSheet : BottomSheetDialogFragment() {
                     jogadorSaiId   = selectedJogadorSaiId,
                     jogadorEntraId = selectedJogadorEntraId
                 )
+                dismiss()
             } else {
+                if (selectedJogadorId == null) {
+                    com.google.android.material.snackbar.Snackbar.make(
+                        binding.root, getString(R.string.erro_selecionar_jogador), com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
+                }
                 jogoViewModel.registarEvento(
-                    tipo      = selectedTipo,
-                    minuto    = minuto,
-                    equipaId  = selectedEquipaId,
-                    jogadorId = selectedJogadorId
+                    tipo          = selectedTipo,
+                    minuto        = minuto,
+                    equipaId      = selectedEquipaId,
+                    jogadorId     = selectedJogadorId,
+                    assistenciaId = if (selectedTipo == "golo") selectedAssistenciaId else null
                 )
+                dismiss()
             }
-            dismiss()
         }
     }
 
@@ -130,6 +141,7 @@ class RegistarEventoBottomSheet : BottomSheetDialogFragment() {
     private fun updateFieldVisibility(tipo: String) {
         val isSub = tipo == "substituicao"
         binding.tilJogador.isVisible      = !isSub
+        binding.tilAssistencia.isVisible  = tipo == "golo"
         binding.tilJogadorSai.isVisible   = isSub
         binding.tilJogadorEntra.isVisible = isSub
         if (isSub) {
@@ -155,17 +167,55 @@ class RegistarEventoBottomSheet : BottomSheetDialogFragment() {
         binding.chipSubstituicao.alpha = if (canSub) 1f else 0.4f
     }
 
-    /** Players on field can receive goals / cards (golo, amarelo, vermelho). */
-    private fun populateJogadoresDropdown(emCampo: List<JogadorInscricaoComNome>) {
-        val nomes = mutableListOf(getString(R.string.anonimo)).apply {
-            addAll(emCampo.map { it.nome })
+    /**
+     * Rebuilds the jogador dropdown based on the current tipo + equipa selection.
+     * Goals: only on-field players (no anonymous).
+     * Cards: all players — bench players shown with "(fora do campo)" suffix.
+     */
+    private fun updateJogadorDropdown() {
+        val isCasa = binding.chipGroupEquipa.checkedChipId == binding.chipEquipaCasa.id
+        val state = jogoViewModel.uiState.value
+        val emCampo = if (isCasa) state.casaJogadoresEmCampo.ifEmpty { state.casaJogadores }
+                      else        state.visitanteJogadoresEmCampo.ifEmpty { state.visitanteJogadores }
+        val noBanco = if (isCasa) state.casaJogadoresNoBanco
+                      else        state.visitanteJogadoresNoBanco
+        val isCard  = selectedTipo == "amarelo" || selectedTipo == "vermelho"
+        populateJogadoresDropdown(emCampo, if (isCard) noBanco else emptyList())
+        if (selectedTipo == "golo") populateAssistenciaDropdown(emCampo)
+    }
+
+    private fun populateAssistenciaDropdown(emCampo: List<JogadorInscricaoComNome>) {
+        // Exclude the selected scorer — you can't assist your own goal
+        val assistList = emCampo.filter { it.utilizadorId != selectedJogadorId }
+        val nomes = listOf(getString(R.string.sem_assistencia)) + assistList.map { it.nome }
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nomes)
+        binding.spinnerAssistencia.setAdapter(adapter)
+        binding.spinnerAssistencia.setText(nomes.first(), false)
+        selectedAssistenciaId = null
+        binding.spinnerAssistencia.setOnItemClickListener { _, _, pos, _ ->
+            selectedAssistenciaId = if (pos == 0) null else assistList.getOrNull(pos - 1)?.utilizadorId
+        }
+    }
+
+    private fun populateJogadoresDropdown(
+        emCampo: List<JogadorInscricaoComNome>,
+        noBanco: List<JogadorInscricaoComNome>
+    ) {
+        lastEmCampo = emCampo
+        // Build a flat ordered list: field players first, bench players second
+        val allPlayers = emCampo + noBanco
+        val nomes = allPlayers.map { j ->
+            if (j in noBanco) "${j.nome} (fora do campo)" else j.nome
         }
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nomes)
         binding.spinnerJogador.setAdapter(adapter)
-        binding.spinnerJogador.setText(getString(R.string.anonimo), false)
-        selectedJogadorId = null
+        // Pre-select first player
+        binding.spinnerJogador.setText(nomes.firstOrNull() ?: "", false)
+        selectedJogadorId = allPlayers.firstOrNull()?.utilizadorId
         binding.spinnerJogador.setOnItemClickListener { _, _, pos, _ ->
-            selectedJogadorId = if (pos == 0) null else emCampo.getOrNull(pos - 1)?.utilizadorId
+            selectedJogadorId = allPlayers.getOrNull(pos)?.utilizadorId
+            // Scorer changed — refresh assist list to exclude them
+            if (selectedTipo == "golo") populateAssistenciaDropdown(lastEmCampo)
         }
     }
 

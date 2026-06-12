@@ -1,8 +1,13 @@
 package com.hojetembola.app.ui.torneios
 
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -284,6 +289,7 @@ class TorneioEmCursoFragment : Fragment() {
                         val row = LinearLayout(ctx).apply {
                             orientation = LinearLayout.HORIZONTAL
                             setPadding(0, 4, 0, 4)
+                            gravity = android.view.Gravity.CENTER_VERTICAL
                         }
                         val tvNome = TextView(ctx).apply {
                             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -302,6 +308,22 @@ class TorneioEmCursoFragment : Fragment() {
                         }
                         row.addView(tvNome)
                         row.addView(tvGolos)
+                        if (j.assistenciasTorneio > 0) {
+                            val tvAssist = TextView(ctx).apply {
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                ).also { it.marginStart = 8 }
+                                val raw = "(A ${j.assistenciasTorneio})"
+                                val span = SpannableString(raw)
+                                span.setSpan(ForegroundColorSpan(Color.parseColor("#F44336")), 1, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                span.setSpan(StyleSpan(Typeface.BOLD), 1, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                text = span
+                                setTextColor(Color.parseColor("#8A9BB8"))
+                                textSize = 12f
+                            }
+                            row.addView(tvAssist)
+                        }
                         b.layoutJogadores.addView(row)
                     }
 

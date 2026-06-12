@@ -33,7 +33,7 @@ import com.hojetembola.app.data.local.entity.*
         VotoMvpEntity::class,
         NotificacaoEntity::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -84,6 +84,13 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_9_10 = object : Migration(9, 10) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // No-op — esquema já está correcto desde a v9.
+            }
+        }
+
+        /** v10 → v11: adiciona assistencia_id à evento_jogo (assistências em golos). */
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE evento_jogo ADD COLUMN assistencia_id TEXT")
             }
         }
     }

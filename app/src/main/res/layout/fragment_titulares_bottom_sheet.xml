@@ -44,20 +44,36 @@
             android:text="@string/titulares_hint" />
 
         <!-- ── Casa team ──────────────────────────────────────────────────── -->
-        <TextView
-            android:id="@+id/tvEquipaCasaHeader"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/bg_primary"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:paddingTop="10dp"
-            android:paddingBottom="6dp"
-            android:background="@color/bg_primary"
-            android:fontFamily="@font/poppins_bold"
-            android:textColor="@color/text_muted"
-            android:textSize="11sp"
-            android:textAllCaps="true"
-            android:letterSpacing="0.06" />
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:id="@+id/tvEquipaCasaHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/text_muted"
+                android:textSize="11sp"
+                android:textAllCaps="true"
+                android:letterSpacing="0.06" />
+
+            <TextView
+                android:id="@+id/tvContadorCasa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="11sp"
+                android:textColor="@color/orange"
+                android:visibility="gone" />
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvCasaJogadores"
@@ -67,20 +83,36 @@
             android:background="@color/bg_surface" />
 
         <!-- ── Visitante team ─────────────────────────────────────────────── -->
-        <TextView
-            android:id="@+id/tvEquipaVisitanteHeader"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/bg_primary"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:paddingTop="10dp"
-            android:paddingBottom="6dp"
-            android:background="@color/bg_primary"
-            android:fontFamily="@font/poppins_bold"
-            android:textColor="@color/text_muted"
-            android:textSize="11sp"
-            android:textAllCaps="true"
-            android:letterSpacing="0.06" />
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:id="@+id/tvEquipaVisitanteHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/text_muted"
+                android:textSize="11sp"
+                android:textAllCaps="true"
+                android:letterSpacing="0.06" />
+
+            <TextView
+                android:id="@+id/tvContadorVisitante"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="11sp"
+                android:textColor="@color/orange"
+                android:visibility="gone" />
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvVisitanteJogadores"

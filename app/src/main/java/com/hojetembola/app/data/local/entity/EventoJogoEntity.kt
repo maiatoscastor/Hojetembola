@@ -35,6 +35,10 @@ data class EventoJogoEntity(
     @ColumnInfo(name = "jogador_entra_id")
     val jogadorEntraId: String? = null,
 
+    /** ID do jogador que deu assistência (apenas golos) */
+    @ColumnInfo(name = "assistencia_id")
+    val assistenciaId: String? = null,
+
     @ColumnInfo(name = "is_synced")
     val isSynced: Boolean = true
 )

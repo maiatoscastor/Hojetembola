@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import com.hojetembola.app.R
 import com.hojetembola.app.data.local.dao.JogadorInscricaoComNome
 import com.hojetembola.app.databinding.FragmentTitularesBottomSheetBinding
@@ -72,9 +74,21 @@ class TitularesBottomSheet : BottomSheetDialogFragment() {
             else state.visitanteTitularIds
         )
 
+        val required = state.numJogadoresPorEquipa
+
+        fun updateCounters() {
+            if (required > 0) {
+                binding.tvContadorCasa.text =
+                    getString(R.string.titulares_contador, casaSelectedIds.size, required)
+                binding.tvContadorVisitante.text =
+                    getString(R.string.titulares_contador, visitanteSelectedIds.size, required)
+            }
+        }
+
         // Setup RecyclerViews
-        val casaAdapter      = TitularJogadorAdapter(casaSelectedIds)
-        val visitanteAdapter = TitularJogadorAdapter(visitanteSelectedIds)
+        val suspensosIds = state.suspensosIds
+        val casaAdapter = TitularJogadorAdapter(casaSelectedIds, suspensosIds) { updateCounters() }
+        val visitanteAdapter = TitularJogadorAdapter(visitanteSelectedIds, suspensosIds) { updateCounters() }
 
         binding.rvCasaJogadores.layoutManager      = LinearLayoutManager(requireContext())
         binding.rvCasaJogadores.adapter             = casaAdapter
@@ -84,16 +98,45 @@ class TitularesBottomSheet : BottomSheetDialogFragment() {
         casaAdapter.submitList(state.casaJogadores)
         visitanteAdapter.submitList(state.visitanteJogadores)
 
-        // Save
+        binding.tvContadorCasa.isVisible      = required > 0
+        binding.tvContadorVisitante.isVisible = required > 0
+        updateCounters()
+
+        val startAfterSave = arguments?.getBoolean(ARG_START_AFTER_SAVE, false) ?: false
+        if (startAfterSave) {
+            binding.btnGuardarTitulares.text = getString(R.string.guardar_e_iniciar_jogo)
+        }
+
         binding.btnGuardarTitulares.setOnClickListener {
             val casaEquipaId      = state.jogo?.equipaCasaId      ?: return@setOnClickListener
             val visitanteEquipaId = state.jogo?.equipaVisitanteId ?: return@setOnClickListener
-            jogoViewModel.definirTitulares(
-                casaEquipaId         = casaEquipaId,
-                casaTitularIds       = casaSelectedIds.toList(),
-                visitanteEquipaId    = visitanteEquipaId,
-                visitanteTitularIds  = visitanteSelectedIds.toList()
-            )
+
+            if (required > 0) {
+                if (casaSelectedIds.size != required || visitanteSelectedIds.size != required) {
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.titulares_erro_count, required),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
+                }
+            }
+
+            if (startAfterSave) {
+                jogoViewModel.definirTitularesEIniciar(
+                    casaEquipaId        = casaEquipaId,
+                    casaTitularIds      = casaSelectedIds.toList(),
+                    visitanteEquipaId   = visitanteEquipaId,
+                    visitanteTitularIds = visitanteSelectedIds.toList()
+                )
+            } else {
+                jogoViewModel.definirTitulares(
+                    casaEquipaId        = casaEquipaId,
+                    casaTitularIds      = casaSelectedIds.toList(),
+                    visitanteEquipaId   = visitanteEquipaId,
+                    visitanteTitularIds = visitanteSelectedIds.toList()
+                )
+            }
             dismiss()
         }
     }
@@ -105,7 +148,11 @@ class TitularesBottomSheet : BottomSheetDialogFragment() {
 
     companion object {
         const val TAG = "TitularesBottomSheet"
-        fun newInstance() = TitularesBottomSheet()
+        private const val ARG_START_AFTER_SAVE = "start_after_save"
+
+        fun newInstance(startAfterSave: Boolean = false) = TitularesBottomSheet().apply {
+            arguments = Bundle().also { it.putBoolean(ARG_START_AFTER_SAVE, startAfterSave) }
+        }
     }
 }
 
@@ -117,7 +164,9 @@ class TitularesBottomSheet : BottomSheetDialogFragment() {
  * reads and writes it directly so the Fragment always has the current state.
  */
 class TitularJogadorAdapter(
-    private val selectedIds: MutableSet<String>
+    private val selectedIds: MutableSet<String>,
+    private val suspensosIds: Set<String> = emptySet(),
+    private val onToggle: () -> Unit = {}
 ) : ListAdapter<JogadorInscricaoComNome, TitularJogadorAdapter.Holder>(JogadorDiff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -128,24 +177,41 @@ class TitularJogadorAdapter(
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(getItem(position), selectedIds)
+        holder.bind(getItem(position), selectedIds, suspensosIds, onToggle)
     }
 
     class Holder(private val binding: ItemJogadorTitularBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(jogador: JogadorInscricaoComNome, selectedIds: MutableSet<String>) {
-            binding.tvNomeJogador.text       = jogador.nome
-            // Set state without triggering listener
-            binding.checkboxTitular.setOnCheckedChangeListener(null)
-            binding.checkboxTitular.isChecked = jogador.utilizadorId in selectedIds
-            binding.checkboxTitular.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) selectedIds.add(jogador.utilizadorId)
-                else           selectedIds.remove(jogador.utilizadorId)
-            }
-            // Row tap also toggles the checkbox
-            binding.root.setOnClickListener {
-                binding.checkboxTitular.toggle()
+        fun bind(
+            jogador: JogadorInscricaoComNome,
+            selectedIds: MutableSet<String>,
+            suspensosIds: Set<String>,
+            onToggle: () -> Unit
+        ) {
+            val suspenso = jogador.utilizadorId in suspensosIds
+            if (suspenso) {
+                binding.tvNomeJogador.text  = "${jogador.nome} 🚫 (suspenso)"
+                binding.tvNomeJogador.alpha = 0.45f
+                binding.checkboxTitular.setOnCheckedChangeListener(null)
+                binding.checkboxTitular.isChecked = false
+                binding.checkboxTitular.isEnabled = false
+                binding.checkboxTitular.alpha = 0.3f
+                selectedIds.remove(jogador.utilizadorId)
+                binding.root.setOnClickListener(null)
+            } else {
+                binding.tvNomeJogador.text  = jogador.nome
+                binding.tvNomeJogador.alpha = 1f
+                binding.checkboxTitular.isEnabled = true
+                binding.checkboxTitular.alpha = 1f
+                binding.checkboxTitular.setOnCheckedChangeListener(null)
+                binding.checkboxTitular.isChecked = jogador.utilizadorId in selectedIds
+                binding.checkboxTitular.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) selectedIds.add(jogador.utilizadorId)
+                    else           selectedIds.remove(jogador.utilizadorId)
+                    onToggle()
+                }
+                binding.root.setOnClickListener { binding.checkboxTitular.toggle() }
             }
         }
     }

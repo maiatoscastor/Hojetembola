@@ -162,6 +162,29 @@
                 android:fontFamily="@font/poppins_regular" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Assistência (golo only, optional) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilAssistencia"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:boxBackgroundColor="@color/bg_surface"
+            app:boxStrokeColor="@color/bg_border"
+            app:boxStrokeWidth="1.5dp"
+            app:hintTextColor="@color/text_secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/assistencia_hint"
+            android:visibility="gone"
+            android:layout_marginBottom="12dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/spinnerAssistencia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textColor="@color/text_primary"
+                android:fontFamily="@font/poppins_regular" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Quem sai (substituição only) -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilJogadorSai"

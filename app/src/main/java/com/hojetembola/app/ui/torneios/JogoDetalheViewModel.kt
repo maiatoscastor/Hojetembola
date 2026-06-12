@@ -7,8 +7,10 @@ import com.hojetembola.app.data.local.dao.EventoComNome
 import com.hojetembola.app.data.local.dao.InscricaoEquipaDao
 import com.hojetembola.app.data.local.dao.JogadorInscricaoComNome
 import com.hojetembola.app.data.local.dao.JogadorInscricaoDao
+import com.hojetembola.app.data.local.entity.ClassificacaoEntity
 import com.hojetembola.app.data.local.entity.ConvocatoriaJogoEntity
 import com.hojetembola.app.data.local.entity.JogoEntity
+import com.hojetembola.app.data.local.entity.minJogadoresPorEquipa
 import com.hojetembola.app.data.repository.ConvocatoriaEntrada
 import com.hojetembola.app.data.repository.JogoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,6 +44,17 @@ data class JogoDetalheUiState(
     val visitanteTitularIds: Set<String> = emptySet(),
     /** True once the organizer has saved a starting lineup. */
     val titularesDefinidos: Boolean = false,
+    /** Exact number of starters required per team based on tournament modality. */
+    val numJogadoresPorEquipa: Int = 0,
+    /** Players expelled (red card) — removed from both campo and banco. */
+    val casaExpulsoIds: Set<String> = emptySet(),
+    val visitanteExpulsoIds: Set<String> = emptySet(),
+    /** Player IDs with an active suspension — cannot be selected as starters. */
+    val suspensosIds: Set<String> = emptySet(),
+    /** Tournament standings — shown in the ranking section on the game detail screen. */
+    val classificacao: List<ClassificacaoEntity> = emptyList(),
+    /** Map of equipaId → equipa nome for the ranking table. */
+    val equipaNomesMap: Map<String, String> = emptyMap(),
     val erro: String? = null
 )
 
@@ -88,6 +101,10 @@ class JogoDetalheViewModel @Inject constructor(
             val jogoInit = jogoRepository.getJogoById(jogoId)
             val casaJogadores      = loadJogadores(jogoInit?.equipaCasaId)
             val visitanteJogadores = loadJogadores(jogoInit?.equipaVisitanteId)
+            val numJogadoresPorEquipa = jogoRepository.getTorneioById(torneioId)?.minJogadoresPorEquipa() ?: 0
+            jogoRepository.syncSuspensoes(torneioId)
+            val suspensosIds = jogoRepository.getSuspensosIds(torneioId)
+            val equipaNomesMap = jogoRepository.getEquipaNomesMap(torneioId)
 
             // Resume live timer if the app was restarted mid-game
             if (jogoInit?.estado == "ao_vivo") startTimer(jogoInit.minutoAtual ?: 0)
@@ -95,8 +112,9 @@ class JogoDetalheViewModel @Inject constructor(
             combine(
                 jogoRepository.getJogosComEquipas(torneioId),
                 jogoRepository.getEventosComNome(jogoId),
-                jogoRepository.getConvocatoriaFlow(jogoId)
-            ) { jogos, eventos, convocatorias ->
+                jogoRepository.getConvocatoriaFlow(jogoId),
+                jogoRepository.getClassificacao(torneioId)
+            ) { jogos, eventos, convocatorias, classificacao ->
                 val jogoData   = jogos.find { it.jogoId == jogoId }
                 val jogoEntity = jogoRepository.getJogoById(jogoId)
 
@@ -108,11 +126,23 @@ class JogoDetalheViewModel @Inject constructor(
                     .map { it.utilizadorId }.toSet()
                 val titularesDefinidos = convocatorias.isNotEmpty()
 
-                // Derive current on-field players from titulares + substitutions
-                val casaCampo  = computeEmCampo(casaJogadores,      casaTitularIds,      eventos, jogoEntity?.equipaCasaId)
-                val visitCampo = computeEmCampo(visitanteJogadores,  visitanteTitularIds, eventos, jogoEntity?.equipaVisitanteId)
-                val casaBanco  = casaJogadores.filter  { j -> casaCampo.none  { it.utilizadorId == j.utilizadorId } }
-                val visitBanco = visitanteJogadores.filter { j -> visitCampo.none { it.utilizadorId == j.utilizadorId } }
+                // Derive current on-field players from titulares + substitutions + expulsions
+                val casaExpulsoIds = eventos
+                    .filter { it.tipo == "vermelho" && it.equipaId == jogoEntity?.equipaCasaId }
+                    .mapNotNull { it.jogadorId }.toSet()
+                val visitExpulsoIds = eventos
+                    .filter { it.tipo == "vermelho" && it.equipaId == jogoEntity?.equipaVisitanteId }
+                    .mapNotNull { it.jogadorId }.toSet()
+
+                val casaCampo  = computeEmCampo(casaJogadores,     casaTitularIds,     eventos, jogoEntity?.equipaCasaId)
+                val visitCampo = computeEmCampo(visitanteJogadores, visitanteTitularIds, eventos, jogoEntity?.equipaVisitanteId)
+                // Expelled players are out of the game — not in campo (already handled) and not in banco
+                val casaBanco  = casaJogadores.filter  { j ->
+                    casaCampo.none  { it.utilizadorId == j.utilizadorId } && j.utilizadorId !in casaExpulsoIds
+                }
+                val visitBanco = visitanteJogadores.filter { j ->
+                    visitCampo.none { it.utilizadorId == j.utilizadorId } && j.utilizadorId !in visitExpulsoIds
+                }
 
                 _uiState.value = JogoDetalheUiState(
                     loading                   = false,
@@ -132,7 +162,13 @@ class JogoDetalheViewModel @Inject constructor(
                     visitanteJogadoresNoBanco = visitBanco,
                     casaTitularIds            = casaTitularIds,
                     visitanteTitularIds       = visitanteTitularIds,
-                    titularesDefinidos        = titularesDefinidos
+                    titularesDefinidos        = titularesDefinidos,
+                    numJogadoresPorEquipa     = numJogadoresPorEquipa,
+                    casaExpulsoIds            = casaExpulsoIds,
+                    visitanteExpulsoIds       = visitExpulsoIds,
+                    suspensosIds              = suspensosIds,
+                    classificacao             = classificacao,
+                    equipaNomesMap            = equipaNomesMap
                 )
             }.collect {}
         }
@@ -168,6 +204,10 @@ class JogoDetalheViewModel @Inject constructor(
                 sub.jogadorSaiId?.let   { campoIds.remove(it) }
                 sub.jogadorEntraId?.let { campoIds.add(it) }
             }
+        // Remove expelled players (red card — direct or auto from double yellow)
+        eventos
+            .filter { it.tipo == "vermelho" && it.equipaId == equipaId }
+            .forEach { red -> red.jogadorId?.let { campoIds.remove(it) } }
         return todos.filter { it.utilizadorId in campoIds }
     }
 
@@ -227,20 +267,49 @@ class JogoDetalheViewModel @Inject constructor(
         visitanteEquipaId: String,
         visitanteTitularIds: List<String>
     ) {
-        val state = _uiState.value
         viewModelScope.launch {
             _acao.value = JogoDetalheAcao.Loading
-            val entradas = buildList {
-                state.casaJogadores.forEach { j ->
-                    add(ConvocatoriaEntrada(j.utilizadorId, casaEquipaId, j.utilizadorId in casaTitularIds))
-                }
-                state.visitanteJogadores.forEach { j ->
-                    add(ConvocatoriaEntrada(j.utilizadorId, visitanteEquipaId, j.utilizadorId in visitanteTitularIds))
-                }
-            }
-            jogoRepository.definirTitulares(jogoId, entradas)
+            jogoRepository.definirTitulares(jogoId, buildEntradas(casaEquipaId, casaTitularIds, visitanteEquipaId, visitanteTitularIds))
                 .onSuccess { _acao.value = JogoDetalheAcao.Sucesso("Titulares definidos!") }
                 .onFailure { _acao.value = JogoDetalheAcao.Erro(it.message ?: "Erro") }
+        }
+    }
+
+    fun definirTitularesEIniciar(
+        casaEquipaId: String,
+        casaTitularIds: List<String>,
+        visitanteEquipaId: String,
+        visitanteTitularIds: List<String>
+    ) {
+        viewModelScope.launch {
+            _acao.value = JogoDetalheAcao.Loading
+            jogoRepository.definirTitulares(jogoId, buildEntradas(casaEquipaId, casaTitularIds, visitanteEquipaId, visitanteTitularIds))
+                .onSuccess {
+                    jogoRepository.iniciarJogo(jogoId)
+                        .onSuccess {
+                            startTimer(0)
+                            _acao.value = JogoDetalheAcao.Sucesso("Jogo iniciado!")
+                        }
+                        .onFailure { _acao.value = JogoDetalheAcao.Erro(it.message ?: "Erro ao iniciar jogo") }
+                }
+                .onFailure { _acao.value = JogoDetalheAcao.Erro(it.message ?: "Erro ao definir titulares") }
+        }
+    }
+
+    private fun buildEntradas(
+        casaEquipaId: String,
+        casaTitularIds: List<String>,
+        visitanteEquipaId: String,
+        visitanteTitularIds: List<String>
+    ): List<ConvocatoriaEntrada> {
+        val state = _uiState.value
+        return buildList {
+            state.casaJogadores.forEach { j ->
+                add(ConvocatoriaEntrada(j.utilizadorId, casaEquipaId, j.utilizadorId in casaTitularIds))
+            }
+            state.visitanteJogadores.forEach { j ->
+                add(ConvocatoriaEntrada(j.utilizadorId, visitanteEquipaId, j.utilizadorId in visitanteTitularIds))
+            }
         }
     }
 
@@ -250,11 +319,12 @@ class JogoDetalheViewModel @Inject constructor(
         equipaId: String?,
         jogadorId: String? = null,
         jogadorSaiId: String? = null,
-        jogadorEntraId: String? = null
+        jogadorEntraId: String? = null,
+        assistenciaId: String? = null
     ) {
         viewModelScope.launch {
             _acao.value = JogoDetalheAcao.Loading
-            jogoRepository.registarEvento(jogoId, tipo, minuto, equipaId, jogadorId, jogadorSaiId, jogadorEntraId)
+            jogoRepository.registarEvento(jogoId, tipo, minuto, equipaId, jogadorId, jogadorSaiId, jogadorEntraId, assistenciaId)
                 .onSuccess { _acao.value = JogoDetalheAcao.Sucesso("Evento registado!") }
                 .onFailure { _acao.value = JogoDetalheAcao.Erro(it.message ?: "Erro") }
         }

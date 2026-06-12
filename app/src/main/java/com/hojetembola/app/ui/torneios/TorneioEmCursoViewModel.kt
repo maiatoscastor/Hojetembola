@@ -20,7 +20,8 @@ import javax.inject.Inject
 
 data class JogadorComGolos(
     val nome: String,
-    val golosTorneio: Int
+    val golosTorneio: Int,
+    val assistenciasTorneio: Int = 0
 )
 
 data class TorneioEmCursoUiState(
@@ -58,6 +59,7 @@ class TorneioEmCursoViewModel @Inject constructor(
         viewModelScope.launch {
             jogoRepository.syncJogosETorneio(torneioId)
             equipaRepository.syncInscricoesComEquipas(torneioId)
+            jogoRepository.syncClassificacao(torneioId)
             jogoRepository.recalcularClassificacao(torneioId)
 
             val currentUserId = userRepository.getCurrentUser().getOrNull()?.id
@@ -99,7 +101,8 @@ class TorneioEmCursoViewModel @Inject constructor(
                     val jogadoresComGolos = jogadoresInscricao.mapNotNull { ji ->
                         val utilizador = utilizadorDao.getById(ji.utilizadorId) ?: return@mapNotNull null
                         val golos = eventoJogoDao.countGolosByJogadorTorneio(ji.utilizadorId, torneioId)
-                        JogadorComGolos(nome = utilizador.nome, golosTorneio = golos)
+                        val assists = eventoJogoDao.countAssistenciasByJogadorTorneio(ji.utilizadorId, torneioId)
+                        JogadorComGolos(nome = utilizador.nome, golosTorneio = golos, assistenciasTorneio = assists)
                     }.sortedByDescending { it.golosTorneio }
                     jogadoresPorEquipa[insc.equipaId] = jogadoresComGolos
                 }

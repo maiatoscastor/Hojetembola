@@ -13,7 +13,8 @@ data class EventoJogoDto(
     @SerialName("equipa_id") val equipaId: Int? = null,
     @SerialName("jogador_id") val jogadorId: String? = null,
     @SerialName("jogador_sai_id") val jogadorSaiId: String? = null,
-    @SerialName("jogador_entra_id") val jogadorEntraId: String? = null
+    @SerialName("jogador_entra_id") val jogadorEntraId: String? = null,
+    @SerialName("assistencia_id") val assistenciaId: String? = null
 ) {
     fun toEntity() = EventoJogoEntity(
         id = id.toString(),
@@ -31,6 +32,7 @@ data class EventoJogoDto(
         jogadorId = jogadorId,
         jogadorSaiId = jogadorSaiId,
         jogadorEntraId = jogadorEntraId,
+        assistenciaId = assistenciaId,
         isSynced = true
     )
 }
@@ -44,4 +46,6 @@ data class EventoJogoInsertDto(
     @SerialName("jogador_id") val jogadorId: String? = null,
     @SerialName("jogador_sai_id") val jogadorSaiId: String? = null,
     @SerialName("jogador_entra_id") val jogadorEntraId: String? = null
+    // assistencia_id is set via a separate UPDATE after insert — allows graceful
+    // degradation if the column hasn't been added to Supabase yet
 )

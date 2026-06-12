@@ -1,7 +1,13 @@
 package com.hojetembola.app.ui.torneios
 
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +26,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.hojetembola.app.R
 import com.hojetembola.app.data.local.dao.EventoComNome
+import com.hojetembola.app.data.local.entity.ClassificacaoEntity
 import com.hojetembola.app.databinding.FragmentJogoDetalheBinding
+import com.hojetembola.app.databinding.ItemClassificacaoJogoBinding
 import com.hojetembola.app.databinding.ItemEventoTimelineBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -49,6 +57,21 @@ class JogoDetalheFragment : Fragment() {
         binding.rvEventos.layoutManager = LinearLayoutManager(requireContext())
         binding.rvEventos.adapter = eventosAdapter
 
+        // Default: Fluxo tab selected — check() fires BEFORE listener is added,
+        // so set visibility explicitly here instead of relying on the listener.
+        binding.tabGroupSecoes.check(R.id.btnTabFluxo)
+        updateTabColors(R.id.btnTabFluxo)
+        binding.sectionFormacao.isVisible = false
+        binding.sectionRanking.isVisible  = false
+        binding.sectionFluxo.isVisible    = true
+        binding.tabGroupSecoes.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            binding.sectionFormacao.isVisible = checkedId == R.id.btnTabFormacao
+            binding.sectionRanking.isVisible  = checkedId == R.id.btnTabRanking
+            binding.sectionFluxo.isVisible    = checkedId == R.id.btnTabFluxo
+            updateTabColors(checkedId)
+        }
+
         setupButtonListeners()
         observeState()
         observeTimer()
@@ -69,7 +92,13 @@ class JogoDetalheFragment : Fragment() {
         }
 
         binding.btnIniciarJogo.setOnClickListener {
-            viewModel.iniciarJogo()
+            if (!viewModel.uiState.value.titularesDefinidos) {
+                // Force lineup selection before starting — opens the sheet in "start after save" mode
+                TitularesBottomSheet.newInstance(startAfterSave = true)
+                    .show(childFragmentManager, TitularesBottomSheet.TAG)
+            } else {
+                viewModel.iniciarJogo()
+            }
         }
 
         binding.btnRegistarEvento.setOnClickListener {
@@ -124,9 +153,23 @@ class JogoDetalheFragment : Fragment() {
                             binding.layoutBotoesOrganizador.isVisible = false
                         }
 
-                        // Timeline card — always visible once loaded
-                        binding.tvFluxoLabel.isVisible = true
-                        binding.cardTimeline.isVisible = true
+                        // Formation section — update pitch + empty state (visibility controlled by tabs)
+                        if (state.titularesDefinidos) {
+                            binding.pitchView.setJogadores(
+                                casa = state.casaJogadoresEmCampo.map { it.nome },
+                                visitante = state.visitanteJogadoresEmCampo.map { it.nome }
+                            )
+                            binding.pitchView.isVisible = true
+                            binding.tvFormacaoVazia.isVisible = false
+                        } else {
+                            binding.pitchView.isVisible = false
+                            binding.tvFormacaoVazia.isVisible = true
+                        }
+
+                        // Ranking section — always update rows
+                        updateRankingRows(state.classificacao, state.equipaNomesMap)
+
+                        // Timeline section
                         binding.tvCasaHeader.text = state.casaNome
                         binding.tvVisitanteHeader.text = state.visitanteNome
 
@@ -134,7 +177,11 @@ class JogoDetalheFragment : Fragment() {
                         binding.tvSemEventos.isVisible = !hasEventos
                         binding.rvEventos.isVisible    = hasEventos
 
-                        eventosAdapter.casaEquipaId = jogo?.equipaCasaId ?: ""
+                        eventosAdapter.casaEquipaId     = jogo?.equipaCasaId ?: ""
+                        eventosAdapter.casaBancoIds     = state.casaJogadoresNoBanco.map { it.utilizadorId }.toSet()
+                        eventosAdapter.visitanteBancoIds = state.visitanteJogadoresNoBanco.map { it.utilizadorId }.toSet()
+                        eventosAdapter.casaExpulsoIds   = state.casaExpulsoIds
+                        eventosAdapter.visitanteExpulsoIds = state.visitanteExpulsoIds
                         eventosAdapter.submitList(state.eventos)
                     }
                 }
@@ -178,6 +225,43 @@ class JogoDetalheFragment : Fragment() {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
+    private fun updateTabColors(checkedId: Int) {
+        val orange = requireContext().getColor(R.color.orange)
+        val transparent = Color.TRANSPARENT
+        val white = Color.WHITE
+        val unselectedText = Color.parseColor("#8A9BB8")
+        val borderColor = Color.parseColor("#1E3260")
+        listOf(R.id.btnTabFluxo, R.id.btnTabFormacao, R.id.btnTabRanking).forEach { id ->
+            val btn = binding.tabGroupSecoes.findViewById<com.google.android.material.button.MaterialButton>(id)
+            val isSelected = id == checkedId
+            val bgColor = if (isSelected) orange else transparent
+            val strokeCol = if (isSelected) orange else borderColor
+            btn.backgroundTintList = ColorStateList(arrayOf(intArrayOf()), intArrayOf(bgColor))
+            btn.strokeColor = ColorStateList(arrayOf(intArrayOf()), intArrayOf(strokeCol))
+            btn.setTextColor(if (isSelected) white else unselectedText)
+        }
+    }
+
+    private fun updateRankingRows(
+        classificacao: List<ClassificacaoEntity>,
+        equipaNomesMap: Map<String, String>
+    ) {
+        val container = binding.layoutRankingRows
+        container.removeAllViews()
+        classificacao.forEach { c ->
+            val rowBinding = ItemClassificacaoJogoBinding.inflate(
+                layoutInflater, container, false
+            )
+            rowBinding.tvPosicao.text = c.posicao.toString()
+            rowBinding.tvEquipaNome.text = equipaNomesMap[c.equipaId] ?: c.equipaId
+            rowBinding.tvPJ.text = c.jogos.toString()
+            val dg = c.golosMarcados - c.golosSofridos
+            rowBinding.tvDG.text = if (dg > 0) "+$dg" else dg.toString()
+            rowBinding.tvPontos.text = c.pontos.toString()
+            container.addView(rowBinding.root)
+        }
+    }
+
     private fun applyEstadoBadge(estado: String) {
         val (label, color) = when (estado) {
             "ao_vivo"   -> Pair(getString(R.string.ao_vivo), "#F57C00")
@@ -193,8 +277,11 @@ class JogoDetalheFragment : Fragment() {
 
 class EventoTimelineAdapter : ListAdapter<EventoComNome, EventoTimelineAdapter.Holder>(EventosDiff) {
 
-    /** Set to equipaCasaId so each event is routed to the correct column. */
     var casaEquipaId: String = ""
+    var casaBancoIds: Set<String> = emptySet()
+    var visitanteBancoIds: Set<String> = emptySet()
+    var casaExpulsoIds: Set<String> = emptySet()
+    var visitanteExpulsoIds: Set<String> = emptySet()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val binding = ItemEventoTimelineBinding.inflate(
@@ -204,15 +291,23 @@ class EventoTimelineAdapter : ListAdapter<EventoComNome, EventoTimelineAdapter.H
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(getItem(position), casaEquipaId)
+        val isCasaEvent = getItem(position).equipaId == casaEquipaId
+        val bancoIds    = if (isCasaEvent) casaBancoIds else visitanteBancoIds
+        val expulsoIds  = if (isCasaEvent) casaExpulsoIds else visitanteExpulsoIds
+        holder.bind(getItem(position), casaEquipaId, bancoIds, expulsoIds)
     }
 
     class Holder(private val binding: ItemEventoTimelineBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(evento: EventoComNome, casaEquipaId: String) {
+        fun bind(
+            evento: EventoComNome,
+            casaEquipaId: String,
+            bancoIds: Set<String>,
+            expulsoIds: Set<String>
+        ) {
             val isCasa = evento.equipaId == casaEquipaId
-            binding.layoutEventoCasa.isVisible = isCasa
+            binding.layoutEventoCasa.isVisible      = isCasa
             binding.layoutEventoVisitante.isVisible = !isCasa
 
             val minutoText = "${evento.minuto}'"
@@ -223,31 +318,69 @@ class EventoTimelineAdapter : ListAdapter<EventoComNome, EventoTimelineAdapter.H
                 "substituicao" -> "🔄"
                 else           -> "•"
             }
-            val descricao = buildDescricao(evento)
+            val accentColor = when (evento.tipo) {
+                "golo"         -> Color.parseColor("#4CAF50")
+                "amarelo"      -> Color.parseColor("#FFC107")
+                "vermelho"     -> Color.parseColor("#F44336")
+                "substituicao" -> Color.parseColor("#42A5F5")
+                else           -> Color.parseColor("#F07B3F")
+            }
+            val descricao = buildDescricao(evento, bancoIds, expulsoIds)
+
+            val assistNome = if (evento.tipo == "golo") evento.assistenciaNome else null
+            val assistSpan = assistNome?.let { buildAssistSpan("(A $it)") }
 
             if (isCasa) {
                 binding.tvMinutoCasa.text    = minutoText
                 binding.tvIconCasa.text      = icon
                 binding.tvDescricaoCasa.text = descricao
+                binding.viewAccentCasa.setBackgroundColor(accentColor)
+                binding.tvAssistenciaCasa.isVisible = assistSpan != null
+                if (assistSpan != null) binding.tvAssistenciaCasa.text = assistSpan
             } else {
                 binding.tvMinutoVisitante.text    = minutoText
                 binding.tvIconVisitante.text      = icon
                 binding.tvDescricaoVisitante.text = descricao
+                binding.viewAccentVisitante.setBackgroundColor(accentColor)
+                binding.tvAssistenciaVisitante.isVisible = assistSpan != null
+                if (assistSpan != null) binding.tvAssistenciaVisitante.text = assistSpan
             }
         }
 
-        private fun buildDescricao(evento: EventoComNome): String = when (evento.tipo) {
-            "golo"    -> evento.jogadorNome
-                ?: binding.root.context.getString(R.string.golo_anonimo)
-            "amarelo", "vermelho" -> evento.jogadorNome
-                ?: binding.root.context.getString(R.string.cartao_anonimo)
-            "substituicao" -> {
-                val sai   = evento.jogadorSaiNome   ?: ""
-                val entra = evento.jogadorEntraNome ?: ""
-                if (sai.isNotBlank() && entra.isNotBlank()) "$sai → $entra"
-                else binding.root.context.getString(R.string.substituicao)
+        private fun buildDescricao(
+            evento: EventoComNome,
+            bancoIds: Set<String>,
+            expulsoIds: Set<String>
+        ): String {
+            val jogadorId = evento.jogadorId
+            val emBanco   = jogadorId != null && jogadorId in bancoIds
+            val expulso   = jogadorId != null && jogadorId in expulsoIds
+            return when (evento.tipo) {
+                "golo" -> evento.jogadorNome ?: binding.root.context.getString(R.string.golo_anonimo)
+                "amarelo" -> {
+                    val nome = evento.jogadorNome ?: binding.root.context.getString(R.string.cartao_anonimo)
+                    if (emBanco) "$nome (fora do campo)" else nome
+                }
+                "vermelho" -> {
+                    val nome = evento.jogadorNome ?: binding.root.context.getString(R.string.cartao_anonimo)
+                    if (expulso || !emBanco) "$nome (expulso)" else "$nome (fora do campo — expulso)"
+                }
+                "substituicao" -> {
+                    val sai   = evento.jogadorSaiNome   ?: ""
+                    val entra = evento.jogadorEntraNome ?: ""
+                    if (sai.isNotBlank() && entra.isNotBlank()) "$sai → $entra"
+                    else binding.root.context.getString(R.string.substituicao)
+                }
+                else -> evento.tipo
             }
-            else -> evento.tipo
+        }
+
+        // text is expected to be "(A name)" — makes the A at index 1 bold red
+        private fun buildAssistSpan(text: String): SpannableString {
+            val span = SpannableString(text)
+            span.setSpan(ForegroundColorSpan(Color.parseColor("#F44336")), 1, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            span.setSpan(StyleSpan(Typeface.BOLD), 1, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            return span
         }
     }
 

@@ -10,12 +10,15 @@ data class EventoComNome(
     val tipo: String,
     val minuto: Int,
     @ColumnInfo(name = "equipa_id") val equipaId: String?,
+    @ColumnInfo(name = "jogador_id") val jogadorId: String?,
     @ColumnInfo(name = "jogador_nome") val jogadorNome: String?,
     @ColumnInfo(name = "jogador_sai_nome") val jogadorSaiNome: String?,
     @ColumnInfo(name = "jogador_entra_nome") val jogadorEntraNome: String?,
     /** IDs needed to track who is on the field after substitutions. */
     @ColumnInfo(name = "jogador_sai_id") val jogadorSaiId: String?,
-    @ColumnInfo(name = "jogador_entra_id") val jogadorEntraId: String?
+    @ColumnInfo(name = "jogador_entra_id") val jogadorEntraId: String?,
+    /** Assist player name — only filled for golos with an assist registered. */
+    @ColumnInfo(name = "assistencia_nome") val assistenciaNome: String?
 )
 
 @Dao
@@ -35,6 +38,15 @@ interface EventoJogoDao {
         AND j.torneio_id = :torneioId
     """)
     suspend fun countGolosByJogadorTorneio(jogadorId: String, torneioId: String): Int
+
+    /** Total de assistências de um jogador num torneio */
+    @Query("""
+        SELECT COUNT(*) FROM evento_jogo ej
+        INNER JOIN jogo j ON j.id = ej.jogo_id
+        WHERE ej.assistencia_id = :jogadorId AND ej.tipo = 'golo'
+        AND j.torneio_id = :torneioId
+    """)
+    suspend fun countAssistenciasByJogadorTorneio(jogadorId: String, torneioId: String): Int
 
     /** Amarelos acumulados num torneio para detetar suspensões (RN04) */
     @Query("""
@@ -64,17 +76,24 @@ interface EventoJogoDao {
     @Query("UPDATE evento_jogo SET is_synced = 1 WHERE id = :id")
     suspend fun markAsSynced(id: String)
 
+    /** Amarelos de um jogador num jogo específico (para detetar 2º amarelo = vermelho). */
+    @Query("SELECT COUNT(*) FROM evento_jogo WHERE jogador_id = :jogadorId AND jogo_id = :jogoId AND tipo = 'amarelo'")
+    suspend fun countAmarelosByJogadorJogo(jogadorId: String, jogoId: String): Int
+
     @Query("""
         SELECT e.id AS evento_id, e.jogo_id, e.tipo, e.minuto, e.equipa_id,
+               e.jogador_id,
                u1.nome AS jogador_nome,
                u2.nome AS jogador_sai_nome,
                u3.nome AS jogador_entra_nome,
                e.jogador_sai_id,
-               e.jogador_entra_id
+               e.jogador_entra_id,
+               u4.nome AS assistencia_nome
         FROM evento_jogo e
         LEFT JOIN utilizador u1 ON u1.id = e.jogador_id
         LEFT JOIN utilizador u2 ON u2.id = e.jogador_sai_id
         LEFT JOIN utilizador u3 ON u3.id = e.jogador_entra_id
+        LEFT JOIN utilizador u4 ON u4.id = e.assistencia_id
         WHERE e.jogo_id = :jogoId
         ORDER BY e.minuto ASC
     """)

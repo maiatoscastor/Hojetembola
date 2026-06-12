@@ -204,6 +204,8 @@
     <string name="anonimo">Anónimo</string>
     <string name="golo_anonimo">Golo</string>
     <string name="cartao_anonimo">Cartão</string>
+    <string name="erro_selecionar_jogador">Seleciona um jogador</string>
+    <string name="duplo_amarelo_expulsao">2º amarelo — expulso!</string>
     <string name="jogador_sai">Jogador que sai</string>
     <string name="jogador_entra">Jogador que entra</string>
     <string name="confirmar">Confirmar</string>
@@ -439,5 +441,19 @@
     <string name="sem_eventos">Ainda não há eventos</string>
     <string name="definir_titulares">Definir Titulares</string>
     <string name="guardar_titulares">Guardar Titulares</string>
+    <string name="guardar_e_iniciar_jogo">Guardar e Iniciar Jogo</string>
+    <string name="titulares_contador">%1$d / %2$d</string>
+    <string name="titulares_erro_count">Seleciona exactamente %1$d titular por equipa</string>
     <string name="titulares_hint">Seleciona os jogadores que iniciam o jogo</string>
+    <string name="assistencia_hint">Assistência (opcional)</string>
+    <string name="sem_assistencia">Sem assistência</string>
+    <string name="formacao_label">Formação</string>
+    <string name="tab_ranking">Ranking</string>
+    <string name="tab_fluxo">Fluxo</string>
+    <string name="formacao_sem_titulares">Defina os titulares para ver a formação</string>
+    <string name="classificacao_torneio_label">Classificação do torneio</string>
+    <string name="col_pos">#</string>
+    <string name="col_pj">PJ</string>
+    <string name="col_pts">Pts</string>
+    <string name="col_dg">DG</string>
 </resources>

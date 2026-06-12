@@ -41,8 +41,7 @@ object AppModule {
             AppDatabase::class.java,
             AppDatabase.DATABASE_NAME
         )
-            .addMigrations(AppDatabase.MIGRATION_8_9, AppDatabase.MIGRATION_9_10)
-            .fallbackToDestructiveMigration()
+            .addMigrations(AppDatabase.MIGRATION_8_9, AppDatabase.MIGRATION_9_10, AppDatabase.MIGRATION_10_11)
             .build()
 
     // ── DAOs ──────────────────────────────────────────────────────────────────
@@ -159,12 +158,13 @@ object AppModule {
         classificacaoDao: ClassificacaoDao,
         equipaDao: EquipaDao,
         convocatoriaJogoDao: ConvocatoriaJogoDao,
-        jogadorInscricaoDao: JogadorInscricaoDao
+        jogadorInscricaoDao: JogadorInscricaoDao,
+        suspensaoDao: SuspensaoDao
     ): com.hojetembola.app.data.repository.JogoRepository =
         com.hojetembola.app.data.repository.JogoRepository(
             client, jogoDao, jornadaDao, torneioDao, inscricaoEquipaDao,
             eventoJogoDao, classificacaoDao, equipaDao,
-            convocatoriaJogoDao, jogadorInscricaoDao
+            convocatoriaJogoDao, jogadorInscricaoDao, suspensaoDao
         )
 
     // ── Utils ─────────────────────────────────────────────────────────────────

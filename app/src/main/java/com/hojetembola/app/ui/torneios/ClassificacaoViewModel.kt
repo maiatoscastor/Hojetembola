@@ -46,6 +46,7 @@ class ClassificacaoViewModel @Inject constructor(
     private fun load() {
         viewModelScope.launch {
             jogoRepository.syncJogosETorneio(torneioId)
+            jogoRepository.syncClassificacao(torneioId)
             jogoRepository.recalcularClassificacao(torneioId)
             jogoRepository.getClassificacao(torneioId).collect { list ->
                 _loading.value = false

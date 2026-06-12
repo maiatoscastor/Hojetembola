@@ -6,10 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:minHeight="52dp"
-    android:layout_marginBottom="4dp">
+    android:minHeight="56dp"
+    android:layout_marginBottom="6dp">
 
-    <!-- ── Casa side (weight=1) ──────────────────────────────────────────── -->
+    <!-- ── Casa side ──────────────────────────────────────────────────────── -->
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -19,55 +19,81 @@
             android:id="@+id/layoutEventoCasa"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:background="@drawable/bg_event_item"
             android:layout_marginEnd="6dp"
-            android:paddingStart="10dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
             android:visibility="gone">
 
-            <TextView
-                android:id="@+id/tvMinutoCasa"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
-                android:textColor="@color/orange"
-                android:textSize="10sp"
-                tools:text="47'" />
+            <!-- Colored left accent -->
+            <View
+                android:id="@+id/viewAccentCasa"
+                android:layout_width="4dp"
+                android:layout_height="match_parent"
+                android:background="@color/orange" />
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="2dp">
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingStart="10dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp">
 
-                <TextView
-                    android:id="@+id/tvIconCasa"
-                    android:layout_width="20dp"
+                <!-- Minute + icon row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="13sp"
-                    android:gravity="start"
-                    tools:text="⚽" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
+                    <TextView
+                        android:id="@+id/tvIconCasa"
+                        android:layout_width="22dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:gravity="start"
+                        tools:text="⚽" />
+
+                    <TextView
+                        android:id="@+id/tvMinutoCasa"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/orange"
+                        android:textSize="10sp"
+                        tools:text="47'" />
+                </LinearLayout>
+
+                <!-- Player / description -->
                 <TextView
                     android:id="@+id/tvDescricaoCasa"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_marginTop="2dp"
                     android:fontFamily="@font/poppins_regular"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
                     android:maxLines="2"
                     android:ellipsize="end"
                     tools:text="João M." />
+
+                <!-- Assist row — shown only for golo events with an assist -->
+                <TextView
+                    android:id="@+id/tvAssistenciaCasa"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textSize="11sp"
+                    android:visibility="gone"
+                    tools:text="A João M." />
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 
-    <!-- ── Centre separator (continuous vertical bar) ───────────────────── -->
+    <!-- ── Centre separator ──────────────────────────────────────────────── -->
     <FrameLayout
         android:layout_width="24dp"
         android:layout_height="match_parent">
@@ -79,7 +105,7 @@
             android:background="#1E3260" />
     </FrameLayout>
 
-    <!-- ── Visitante side (weight=1) ─────────────────────────────────────── -->
+    <!-- ── Visitante side ────────────────────────────────────────────────── -->
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -89,50 +115,76 @@
             android:id="@+id/layoutEventoVisitante"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:background="@drawable/bg_event_item"
             android:layout_marginStart="6dp"
-            android:paddingStart="10dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
             android:visibility="gone">
 
-            <TextView
-                android:id="@+id/tvMinutoVisitante"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
-                android:textColor="@color/orange"
-                android:textSize="10sp"
-                tools:text="32'" />
+            <!-- Colored left accent -->
+            <View
+                android:id="@+id/viewAccentVisitante"
+                android:layout_width="4dp"
+                android:layout_height="match_parent"
+                android:background="@color/orange" />
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="2dp">
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingStart="10dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp">
 
-                <TextView
-                    android:id="@+id/tvIconVisitante"
-                    android:layout_width="20dp"
+                <!-- Minute + icon row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="13sp"
-                    android:gravity="start"
-                    tools:text="🟨" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
+                    <TextView
+                        android:id="@+id/tvIconVisitante"
+                        android:layout_width="22dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:gravity="start"
+                        tools:text="🟨" />
+
+                    <TextView
+                        android:id="@+id/tvMinutoVisitante"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/orange"
+                        android:textSize="10sp"
+                        tools:text="32'" />
+                </LinearLayout>
+
+                <!-- Player / description -->
                 <TextView
                     android:id="@+id/tvDescricaoVisitante"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_marginTop="2dp"
                     android:fontFamily="@font/poppins_regular"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
                     android:maxLines="2"
                     android:ellipsize="end"
                     tools:text="Pedro S." />
+
+                <!-- Assist row — shown only for golo events with an assist -->
+                <TextView
+                    android:id="@+id/tvAssistenciaVisitante"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textSize="11sp"
+                    android:visibility="gone"
+                    tools:text="A Pedro S." />
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
