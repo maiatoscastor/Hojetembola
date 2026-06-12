@@ -114,6 +114,7 @@ object AppModule {
     fun provideEquipaRepository(
         client: io.github.jan.supabase.SupabaseClient,
         equipaDao: EquipaDao,
+        conviteDao: ConviteDao,
         inscricaoEquipaDao: InscricaoEquipaDao,
         membroEquipaDao: MembroEquipaDao,
         utilizadorDao: UtilizadorDao,
@@ -121,7 +122,7 @@ object AppModule {
         jogadorInscricaoDao: JogadorInscricaoDao
     ): com.hojetembola.app.data.repository.EquipaRepository =
         com.hojetembola.app.data.repository.EquipaRepository(
-            client, equipaDao, inscricaoEquipaDao, membroEquipaDao, utilizadorDao, torneioDao, jogadorInscricaoDao
+            client, equipaDao, conviteDao, inscricaoEquipaDao, membroEquipaDao, utilizadorDao, torneioDao, jogadorInscricaoDao
         )
 
     @Provides

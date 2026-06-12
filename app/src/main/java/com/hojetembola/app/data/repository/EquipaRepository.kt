@@ -1,6 +1,7 @@
 package com.hojetembola.app.data.repository
 
 import android.util.Log
+import com.hojetembola.app.data.local.dao.ConviteDao
 import com.hojetembola.app.data.local.dao.EquipaDao
 import com.hojetembola.app.data.local.dao.InscricaoEquipaDao
 import com.hojetembola.app.data.local.dao.JogadorInscricaoDao
@@ -35,6 +36,7 @@ private const val TAG = "HTB-EquipaRepo"
 class EquipaRepository @Inject constructor(
     private val client: SupabaseClient,
     private val equipaDao: EquipaDao,
+    private val conviteDao: ConviteDao,
     private val inscricaoEquipaDao: InscricaoEquipaDao,
     private val membroEquipaDao: MembroEquipaDao,
     private val utilizadorDao: UtilizadorDao,
@@ -243,6 +245,56 @@ class EquipaRepository @Inject constructor(
         } catch (e: Exception) {
             Log.w(TAG, "updateEquipa falhou: ${e.message}")
             Result.failure(Exception("Não foi possível atualizar a equipa."))
+        }
+    }
+
+    // ── Apagar equipa ────────────────────────────────────────────────────────
+
+    /**
+     * Apaga uma equipa apenas se não tiver inscrições ativas em nenhum torneio.
+     * Inscrições com estado "Rejeitada" ou "Desistente" não bloqueiam a eliminação.
+     * Limpa Supabase (convite → membro_equipa → equipa) e Room.
+     */
+    suspend fun apagarEquipa(equipaId: String): Result<Unit> {
+        val equipaIdInt = equipaId.toIntOrNull()
+            ?: return Result.failure(Exception("ID da equipa inválido."))
+        return try {
+            // Verificar inscrições ativas diretamente no Supabase (fonte de verdade)
+            val inscricoesAtivas = client.from("inscricao_equipa")
+                .select { filter {
+                    eq("equipa_id", equipaIdInt)
+                    isIn("estado", listOf("Pendente", "Aceite", "Confirmada"))
+                } }
+                .decodeList<InscricaoEquipaDto>()
+
+            if (inscricoesAtivas.isNotEmpty()) {
+                return Result.failure(
+                    Exception("A equipa está inscrita num torneio ativo e não pode ser apagada.")
+                )
+            }
+
+            // Apagar convites desta equipa
+            client.from("convite")
+                .delete { filter { eq("equipa_id", equipaIdInt) } }
+
+            // Apagar membros desta equipa
+            client.from("membro_equipa")
+                .delete { filter { eq("equipa_id", equipaIdInt) } }
+
+            // Apagar a equipa
+            client.from("equipa")
+                .delete { filter { eq("id", equipaIdInt) } }
+
+            // Limpar Room
+            conviteDao.deleteByEquipa(equipaId)
+            membroEquipaDao.deleteByEquipa(equipaId)
+            val entity = equipaDao.getById(equipaId)
+            if (entity != null) equipaDao.delete(entity)
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.w(TAG, "apagarEquipa falhou: ${e.message}")
+            Result.failure(Exception(buildErrorMessage(e)))
         }
     }
 

@@ -40,6 +40,13 @@ sealed class EditarEquipaState {
     data class Error(val message: String) : EditarEquipaState()
 }
 
+sealed class ApagarEquipaState {
+    object Idle : ApagarEquipaState()
+    object Loading : ApagarEquipaState()
+    object Success : ApagarEquipaState()
+    data class Error(val message: String) : ApagarEquipaState()
+}
+
 sealed class GerirEquipaAcao {
     object Idle : GerirEquipaAcao()
     object Loading : GerirEquipaAcao()
@@ -88,6 +95,9 @@ class GerirEquipaViewModel @Inject constructor(
 
     private val _editarState = MutableStateFlow<EditarEquipaState>(EditarEquipaState.Idle)
     val editarState: StateFlow<EditarEquipaState> = _editarState.asStateFlow()
+
+    private val _apagarState = MutableStateFlow<ApagarEquipaState>(ApagarEquipaState.Idle)
+    val apagarState: StateFlow<ApagarEquipaState> = _apagarState.asStateFlow()
 
     private var membrosJob: Job? = null
     private var capitaoId: String = ""
@@ -260,4 +270,19 @@ class GerirEquipaViewModel @Inject constructor(
     }
 
     fun resetEditarState() { _editarState.value = EditarEquipaState.Idle }
+
+    fun apagarEquipa() {
+        if (!_isCapitao.value) {
+            _apagarState.value = ApagarEquipaState.Error("Só o capitão pode apagar a equipa.")
+            return
+        }
+        viewModelScope.launch {
+            _apagarState.value = ApagarEquipaState.Loading
+            equipaRepository.apagarEquipa(equipaId)
+                .onSuccess { _apagarState.value = ApagarEquipaState.Success }
+                .onFailure { e -> _apagarState.value = ApagarEquipaState.Error(e.message ?: "Erro ao apagar equipa.") }
+        }
+    }
+
+    fun resetApagarState() { _apagarState.value = ApagarEquipaState.Idle }
 }

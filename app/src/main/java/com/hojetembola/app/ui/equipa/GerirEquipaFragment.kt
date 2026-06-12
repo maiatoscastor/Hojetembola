@@ -1,5 +1,6 @@
 package com.hojetembola.app.ui.equipa
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,7 +21,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.hojetembola.app.R
 import com.hojetembola.app.data.local.entity.ConviteEntity
 import com.hojetembola.app.data.local.entity.MembroComNome
@@ -67,6 +72,10 @@ class GerirEquipaFragment : Fragment() {
         binding.btnEditarEquipa.setOnClickListener {
             BottomSheetEditarEquipaFragment.newInstance()
                 .show(childFragmentManager, "editar_equipa")
+        }
+
+        binding.btnApagarEquipa.setOnClickListener {
+            showConfirmacaoApagarEquipa()
         }
 
         // Mostrar limites se há torneio associado
@@ -185,6 +194,7 @@ class GerirEquipaFragment : Fragment() {
                 launch {
                     viewModel.isCapitao.collect { isCapitao ->
                         binding.btnEditarEquipa.isVisible = isCapitao
+                        binding.btnApagarEquipa.isVisible = isCapitao
                         // Só o capitão pode convidar — esconder secção de pesquisa para jogadores
                         binding.tilPesquisa.isVisible = isCapitao
                         if (!isCapitao) {
@@ -195,6 +205,33 @@ class GerirEquipaFragment : Fragment() {
                         convitesAdapter.isCapitao = isCapitao
                         membrosAdapter.notifyDataSetChanged()
                         convitesAdapter.notifyDataSetChanged()
+                    }
+                }
+
+                launch {
+                    viewModel.apagarState.collect { state ->
+                        when (state) {
+                            is ApagarEquipaState.Loading -> {
+                                binding.progressBar.isVisible = true
+                            }
+                            is ApagarEquipaState.Success -> {
+                                viewModel.resetApagarState()
+                                Snackbar.make(
+                                    requireActivity().findViewById(android.R.id.content),
+                                    getString(R.string.equipa_apagada),
+                                    Snackbar.LENGTH_SHORT
+                                ).show()
+                                findNavController().popBackStack()
+                            }
+                            is ApagarEquipaState.Error -> {
+                                binding.progressBar.isVisible = false
+                                viewModel.resetApagarState()
+                                Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
+                            }
+                            is ApagarEquipaState.Idle -> {
+                                binding.progressBar.isVisible = false
+                            }
+                        }
                     }
                 }
 
@@ -230,6 +267,62 @@ class GerirEquipaFragment : Fragment() {
                     }
                 }
             }
+        }
+    }
+
+    // ── Confirmar apagar equipa ───────────────────────────────────────────────
+
+    private fun showConfirmacaoApagarEquipa() {
+        val nomeEquipa = viewModel.equipaInfo.value?.nome ?: viewModel.equipaNome
+        val ctx = requireContext()
+        val density = resources.displayMetrics.density
+        val padH = (20 * density).toInt()
+        val padV = (8 * density).toInt()
+
+        val inputLayout = TextInputLayout(ctx, null, com.google.android.material.R.attr.textInputOutlinedStyle).apply {
+            hint = nomeEquipa
+            setHintTextColor(ColorStateList.valueOf(resources.getColor(R.color.text_secondary, null)))
+            boxStrokeColor = resources.getColor(R.color.color_live, null)
+        }
+        val input = TextInputEditText(inputLayout.context).apply {
+            setTextColor(resources.getColor(R.color.text_primary, null))
+        }
+        inputLayout.addView(input)
+        val container = FrameLayout(ctx).apply {
+            setPadding(padH, padV, padH, 0)
+            addView(inputLayout)
+        }
+
+        val dialog = MaterialAlertDialogBuilder(ctx, R.style.Theme_HojeTemBola_Dialog)
+            .setTitle(getString(R.string.confirmar_apagar_titulo))
+            .setMessage(getString(R.string.confirmar_apagar_msg, nomeEquipa))
+            .setView(container)
+            .setPositiveButton(getString(R.string.apagar_equipa), null)
+            .setNegativeButton(getString(R.string.cancelar)) { d, _ -> d.dismiss() }
+            .create()
+
+        dialog.show()
+
+        dialog.window?.setBackgroundDrawable(GradientDrawable().apply {
+            setColor(resources.getColor(R.color.bg_surface, null))
+            cornerRadius = 28f * density
+        })
+
+        val btnConfirmar = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
+        btnConfirmar.setTextColor(resources.getColor(R.color.color_live, null))
+        btnConfirmar.isEnabled = false
+
+        input.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: Editable?) {
+                btnConfirmar.isEnabled = s?.toString()?.trim().equals(nomeEquipa, ignoreCase = true)
+            }
+        })
+
+        btnConfirmar.setOnClickListener {
+            dialog.dismiss()
+            viewModel.apagarEquipa()
         }
     }
 

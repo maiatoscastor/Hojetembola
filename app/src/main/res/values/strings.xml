@@ -375,6 +375,10 @@
     <string name="erro_passwords_nao_coincidem">As passwords não coincidem</string>
     <string name="editar_equipa">Editar equipa</string>
     <string name="equipa_atualizada">Equipa atualizada com sucesso</string>
+    <string name="apagar_equipa">Apagar equipa</string>
+    <string name="equipa_apagada">Equipa apagada com sucesso</string>
+    <string name="confirmar_apagar_titulo">Apagar equipa?</string>
+    <string name="confirmar_apagar_msg">Esta ação é irreversível. Para confirmar, escreve \"%s\" abaixo.</string>
     <string name="cor_equipa">Cor da equipa</string>
     <string name="confirmar_troca_titulo">Confirmar alteração</string>
     <string name="confirmar_troca_msg">Para confirmar, escreve \"%s\" abaixo.</string>

@@ -259,6 +259,10 @@
     <string name="erro_passwords_nao_coincidem">Passwords do not match</string>
     <string name="editar_equipa">Edit team</string>
     <string name="equipa_atualizada">Team updated successfully</string>
+    <string name="apagar_equipa">Delete team</string>
+    <string name="equipa_apagada">Team deleted successfully</string>
+    <string name="confirmar_apagar_titulo">Delete team?</string>
+    <string name="confirmar_apagar_msg">This action is irreversible. To confirm, type \"%s\" below.</string>
     <string name="iniciais_equipa">Initials (max 3)</string>
     <string name="cor_equipa">Team colour</string>
     <string name="confirmar_troca_titulo">Confirm change</string>
