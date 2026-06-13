@@ -42,6 +42,9 @@ class RankingsFragment : Fragment() {
     private var isLandscape = false
     private var suppressDropdown = false
 
+    // torneio selector state
+    private var torneioIds: List<String> = emptyList()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -58,7 +61,9 @@ class RankingsFragment : Fragment() {
         setupAdapters()
         setupTabs()
         setupDropdowns()
+        setupTorneioDropdown()
         observeState()
+        observeTorneios()
     }
 
     override fun onDestroyView() {
@@ -138,6 +143,29 @@ class RankingsFragment : Fragment() {
         refreshDropdowns(RankingScope.TORNEIO)
     }
 
+    private fun setupTorneioDropdown() {
+        binding.actvTorneioSelect.setOnItemClickListener { _, _, position, _ ->
+            torneioIds.getOrNull(position)?.let { viewModel.setTorneio(it) }
+        }
+    }
+
+    private fun observeTorneios() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.torneios.collect { list ->
+                    torneioIds = list.map { it.id }
+                    val nomes = list.map { it.nome }
+                    binding.actvTorneioSelect.setAdapter(
+                        ArrayAdapter(requireContext(), R.layout.item_dropdown, nomes)
+                    )
+                    if (nomes.isNotEmpty()) {
+                        binding.actvTorneioSelect.setText(nomes.first(), false)
+                    }
+                }
+            }
+        }
+    }
+
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -177,10 +205,12 @@ class RankingsFragment : Fragment() {
         }
 
         data.torneioInfo?.let { info ->
-            binding.tvTorneioNome.text = info.nome
+            binding.rowTorneioInfo.isVisible = true
             binding.tvTorneioMeta.text = info.descricao
-            binding.tvTorneioEstado.text = getString(R.string.estado_a_decorrer)
             binding.tvTorneioEstado.isVisible = info.isLive
+            if (info.isLive) binding.tvTorneioEstado.text = getString(R.string.estado_a_decorrer)
+        } ?: run {
+            binding.rowTorneioInfo.isVisible = false
         }
 
         when (data.scope) {

@@ -2,12 +2,14 @@ package com.hojetembola.app.ui.home
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -67,15 +69,9 @@ class HomeFragment : Fragment() {
         binding.btnVerTorneios.setOnClickListener {
             findNavController().navigate(R.id.torneiosFragment)
         }
-        binding.btnIrParaJogoVivo.setOnClickListener {
-            Toast.makeText(requireContext(), getString(R.string.em_breve), Toast.LENGTH_SHORT).show()
-        }
-        binding.cardJogoVivo.setOnClickListener {
-            Toast.makeText(requireContext(), getString(R.string.em_breve), Toast.LENGTH_SHORT).show()
-        }
-        binding.cardProximoJogo.setOnClickListener {
-            Toast.makeText(requireContext(), getString(R.string.em_breve), Toast.LENGTH_SHORT).show()
-        }
+        binding.btnIrParaJogoVivo.setOnClickListener { navigateToJogoVivo() }
+        binding.cardJogoVivo.setOnClickListener { navigateToJogoVivo() }
+        binding.cardProximoJogo.setOnClickListener { navigateToProximoJogo() }
     }
 
     // ── Observadores ──────────────────────────────────────────────────────────
@@ -163,15 +159,7 @@ class HomeFragment : Fragment() {
         }
 
         // Meus torneios
-        binding.containerMeusTorneios.removeAllViews()
-        if (state.meusTorneios.isEmpty()) {
-            binding.tvSemTorneiosJogador.visible()
-        } else {
-            binding.tvSemTorneiosJogador.gone()
-            state.meusTorneios.forEach { torneio ->
-                inflateTorneioCard(binding.containerMeusTorneios, torneio)
-            }
-        }
+        renderTorneioList(binding.containerMeusTorneios, binding.tvSemTorneiosJogador, state.meusTorneios)
     }
 
     private fun showOrganizador(state: HomeUiState.OrganizadorState) {
@@ -205,15 +193,7 @@ class HomeFragment : Fragment() {
         }
 
         // Torneios geridos
-        binding.containerTorneiosOrg.removeAllViews()
-        if (state.torneiosGeridos.isEmpty()) {
-            binding.tvSemTorneiosOrg.visible()
-        } else {
-            binding.tvSemTorneiosOrg.gone()
-            state.torneiosGeridos.forEach { torneio ->
-                inflateTorneioCard(binding.containerTorneiosOrg, torneio)
-            }
-        }
+        renderTorneioList(binding.containerTorneiosOrg, binding.tvSemTorneiosOrg, state.torneiosGeridos)
 
         // Próximos jogos (card do organizador com jogo ao vivo se houver)
         if (state.jogoAoVivo != null) {
@@ -234,6 +214,34 @@ class HomeFragment : Fragment() {
 
     // ── Helpers de UI ─────────────────────────────────────────────────────────
 
+    private fun renderTorneioList(container: LinearLayout, emptyView: TextView, torneios: List<TorneioEntity>) {
+        container.removeAllViews()
+        if (torneios.isEmpty()) {
+            emptyView.visible()
+            return
+        }
+        emptyView.gone()
+        val max = 3
+        torneios.take(max).forEach { inflateTorneioCard(container, it) }
+        if (torneios.size > max) {
+            val tv = TextView(requireContext()).apply {
+                text = getString(R.string.ver_todos_torneios, torneios.size)
+                setTextColor(Color.parseColor("#F57C00"))
+                textSize = 12f
+                typeface = Typeface.create(resources.getFont(R.font.poppins_semi_bold), Typeface.NORMAL)
+                val pad = resources.getDimensionPixelSize(R.dimen.spacing_xs)
+                setPadding(0, pad, 0, pad)
+                isClickable = true
+                isFocusable = true
+                setBackgroundResource(android.R.attr.selectableItemBackground.let { attr ->
+                    requireContext().obtainStyledAttributes(intArrayOf(attr)).use { it.getResourceId(0, 0) }
+                })
+                setOnClickListener { findNavController().navigate(R.id.torneiosFragment) }
+            }
+            container.addView(tv)
+        }
+    }
+
     private fun inflateTorneioCard(container: ViewGroup, torneio: TorneioEntity) {
         val ctx = requireContext()
         val b = ItemTorneioMeuBinding.inflate(layoutInflater, container, false)
@@ -242,9 +250,42 @@ class HomeFragment : Fragment() {
         b.tvLocalizacao.text = torneio.localizacaoNome
         applyBadge(b.tvEstado, torneio.estado, ctx)
         b.root.setOnClickListener {
-            Toast.makeText(ctx, getString(R.string.em_breve), Toast.LENGTH_SHORT).show()
+            findNavController().navigate(
+                R.id.action_homeFragment_to_torneioEmCursoFragment,
+                bundleOf("torneioId" to torneio.id)
+            )
         }
         container.addView(b.root)
+    }
+
+    private fun navigateToJogoVivo() {
+        val state = viewModel.uiState.value
+        val jogo = when (state) {
+            is HomeUiState.JogadorState     -> state.jogoAoVivo
+            is HomeUiState.OrganizadorState -> state.jogoAoVivo
+            else                            -> null
+        } ?: return
+        findNavController().navigate(
+            R.id.action_homeFragment_to_jogoDetalheFragment,
+            bundleOf(
+                "jogoId"        to jogo.jogoId,
+                "torneioId"     to jogo.torneioId,
+                "isOrganizador" to (viewModel.uiState.value is HomeUiState.OrganizadorState)
+            )
+        )
+    }
+
+    private fun navigateToProximoJogo() {
+        val state = viewModel.uiState.value as? HomeUiState.JogadorState ?: return
+        val jogo = state.proximoJogo ?: return
+        findNavController().navigate(
+            R.id.action_homeFragment_to_jogoDetalheFragment,
+            bundleOf(
+                "jogoId"        to jogo.jogoId,
+                "torneioId"     to jogo.torneioId,
+                "isOrganizador" to false
+            )
+        )
     }
 
     private fun addAlertaItem(texto: String) {
@@ -272,9 +313,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun applyBadge(tv: TextView, estado: String, ctx: Context) {
-        val (label, bgRes, hexColor) = when (estado) {
-            "a_decorrer"          -> Triple(ctx.getString(R.string.estado_a_decorrer),         R.drawable.bg_badge_live, "#F57C00")
-            "inscricoes_abertas"  -> Triple(ctx.getString(R.string.estado_inscricoes_abertas), R.drawable.bg_badge_open, "#4CAF50")
+        val (label, bgRes, hexColor) = when (estado.lowercase().replace("_", "")) {
+            "adecorrer"           -> Triple(ctx.getString(R.string.estado_a_decorrer),         R.drawable.bg_badge_live, "#F57C00")
+            "inscricoesabertas"   -> Triple(ctx.getString(R.string.estado_inscricoes_abertas), R.drawable.bg_badge_open, "#4CAF50")
             "terminado"           -> Triple(ctx.getString(R.string.estado_terminado),          R.drawable.bg_badge_done, "#8A9BB8")
             else                  -> Triple(ctx.getString(R.string.estado_criado),             R.drawable.bg_badge_done, "#8A9BB8")
         }

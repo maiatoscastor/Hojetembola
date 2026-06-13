@@ -188,90 +188,92 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/Widget.HojeTemBola.Card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="10dp">
-
-                        <TextView
-                            android:id="@+id/tvTorneioNome"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/poppins_bold"
-                            android:textColor="@color/text_primary"
-                            android:textSize="12sp"
-                            tools:text="Torneio Verão 2025" />
-
-                        <TextView
-                            android:id="@+id/tvTorneioEstado"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="8dp"
-                            android:background="@drawable/bg_badge_live"
-                            android:fontFamily="@font/poppins_semi_bold"
-                            android:paddingStart="8dp"
-                            android:paddingTop="3dp"
-                            android:paddingEnd="8dp"
-                            android:paddingBottom="3dp"
-                            android:textColor="@color/white"
-                            android:textSize="10sp"
-                            tools:text="A decorrer" />
-
-                        <TextView
-                            android:id="@+id/tvTorneioMeta"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_regular"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="10sp"
-                            tools:text="Liga · Fut7 · 8 equipas" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <LinearLayout
+                <!-- Seletor de torneio -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilTorneioSelect"
+                    style="@style/Widget.HojeTemBola.ExposedDropdown"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_sm"
-                    android:orientation="horizontal">
+                    android:hint="@string/torneio_selecionado">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilMetricTorneio"
-                        style="@style/Widget.HojeTemBola.ExposedDropdown"
+                    <AutoCompleteTextView
+                        android:id="@+id/actvTorneioSelect"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Info compacta do torneio -->
+                <LinearLayout
+                    android:id="@+id/rowTorneioInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvTorneioMeta"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
 
-                        <AutoCompleteTextView
-                            android:id="@+id/actvMetricTorneio"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilPeriodTorneio"
-                        style="@style/Widget.HojeTemBola.ExposedDropdown"
-                        android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/tvTorneioEstado"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_weight="1">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/actvPeriodTorneio"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_badge_live"
+                        android:fontFamily="@font/poppins_semi_bold"
+                        android:paddingStart="8dp"
+                        android:paddingTop="3dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="3dp"
+                        android:textColor="@color/white"
+                        android:textSize="10sp"
+                        android:visibility="gone" />
                 </LinearLayout>
+
+                <!-- Hidden stub para manter binding válido -->
+                <TextView
+                    android:id="@+id/tvTorneioNome"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
+
+                <!-- Métrica (full-width) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilMetricTorneio"
+                    style="@style/Widget.HojeTemBola.ExposedDropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/actvMetricTorneio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Period dropdown oculto (compatibilidade de binding) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilPeriodTorneio"
+                    style="@style/Widget.HojeTemBola.ExposedDropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/actvPeriodTorneio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <include
                     android:id="@+id/podiumTorneio"

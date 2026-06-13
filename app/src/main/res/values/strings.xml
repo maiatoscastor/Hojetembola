@@ -63,6 +63,7 @@
     <string name="jogos_hoje">Jogos hoje</string>
     <string name="criar_torneio">Criar torneio</string>
     <string name="ver_todos">Ver todos</string>
+    <string name="ver_todos_torneios">Ver todos (%d) →</string>
 
     <!-- ── Dashboard — textos adicionais ────────────────────────────────── -->
     <string name="painel_organizador">Painel de Organizador</string>
@@ -471,4 +472,9 @@
     <string name="round_oitavos">Oitavos</string>
     <string name="round_numero">Ronda %d</string>
     <string name="a_definir">A Definir</string>
+
+    <!-- ── Idioma ────────────────────────────────────────────────────────────── -->
+    <string name="idioma">Idioma</string>
+    <string name="idioma_portugues">Português</string>
+    <string name="idioma_ingles">English</string>
 </resources>

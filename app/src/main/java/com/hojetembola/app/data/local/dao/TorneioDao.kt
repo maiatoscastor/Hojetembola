@@ -51,6 +51,34 @@ interface TorneioDao {
     """)
     fun getMeusTorneios(utilizadorId: String): Flow<List<TorneioEntity>>
 
+    /** Torneios onde o utilizador participa como jogador (capitão ou membro), excluindo os que organiza. */
+    @Query("""
+        SELECT DISTINCT t.* FROM torneio t
+        INNER JOIN inscricao_equipa ie ON ie.torneio_id = t.id
+        INNER JOIN equipa e ON e.id = ie.equipa_id
+        WHERE t.organizador_id != :utilizadorId
+          AND (
+            e.capitao_id = :utilizadorId
+            OR EXISTS (SELECT 1 FROM membro_equipa m WHERE m.equipa_id = e.id AND m.utilizador_id = :utilizadorId)
+          )
+        ORDER BY t.data_inicio DESC
+    """)
+    fun getTorneiosComoJogador(utilizadorId: String): Flow<List<TorneioEntity>>
+
+    /** Torneios terminados em que a equipa do utilizador ficou em 1.º lugar. */
+    @Query("""
+        SELECT DISTINCT t.* FROM torneio t
+        INNER JOIN classificacao c ON c.torneio_id = t.id AND c.posicao = 1
+        INNER JOIN equipa e ON e.id = c.equipa_id
+        WHERE LOWER(t.estado) = 'terminado'
+          AND (
+            e.capitao_id = :utilizadorId
+            OR EXISTS (SELECT 1 FROM membro_equipa m WHERE m.equipa_id = e.id AND m.utilizador_id = :utilizadorId)
+          )
+        ORDER BY t.data_inicio DESC
+    """)
+    fun getTorneiosVencidosByJogador(utilizadorId: String): Flow<List<TorneioEntity>>
+
     /** Torneios pendentes de sincronização (modo offline) */
     @Query("SELECT * FROM torneio WHERE sincronizado = 0")
     suspend fun getPendentesSync(): List<TorneioEntity>

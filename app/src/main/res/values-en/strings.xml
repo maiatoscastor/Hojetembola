@@ -63,6 +63,7 @@
     <string name="jogos_hoje">Matches today</string>
     <string name="criar_torneio">Create tournament</string>
     <string name="ver_todos">See all</string>
+    <string name="ver_todos_torneios">See all (%d) →</string>
 
     <!-- ── Dashboard — extra strings ────────────────────────────────────── -->
     <string name="painel_organizador">Organizer Panel</string>
@@ -316,4 +317,164 @@
     <string name="cd_foto_perfil">Profile photo of %s</string>
     <string name="cd_botao_incrementar">Increase</string>
     <string name="cd_botao_decrementar">Decrease</string>
+    <string name="casa">Home</string>
+    <string name="registar_evento">Register event</string>
+    <string name="tipo_de_evento">Event type</string>
+    <string name="minuto_hint">Minute</string>
+    <string name="jogador_hint">Player</string>
+    <string name="fluxo_do_jogo">Match flow</string>
+    <string name="sem_eventos">No events yet</string>
+    <string name="definir_titulares">Set Starting XI</string>
+    <string name="guardar_titulares">Save Starting XI</string>
+    <string name="guardar_e_iniciar_jogo">Save and Start Match</string>
+    <string name="titulares_contador">%1$d / %2$d</string>
+    <string name="titulares_erro_count">Select exactly %1$d starter per team</string>
+    <string name="titulares_hint">Select the players who start the match</string>
+    <string name="assistencia_hint">Assist (optional)</string>
+    <string name="sem_assistencia">No assist</string>
+    <string name="formacao_label">Formation</string>
+    <string name="tab_ranking">Ranking</string>
+    <string name="tab_fluxo">Flow</string>
+    <string name="formacao_sem_titulares">Set the starters to see the formation</string>
+    <string name="classificacao_torneio_label">Tournament standings</string>
+    <string name="col_pos">#</string>
+    <string name="col_pj">MP</string>
+    <string name="col_pts">Pts</string>
+    <string name="col_dg">GD</string>
+
+    <!-- ── Match events ─────────────────────────────────────────────────────── -->
+    <string name="qual_jogador">Which player?</string>
+    <string name="qual_equipa">Which team?</string>
+    <string name="quem_sai">Who comes off?</string>
+    <string name="quem_entra">Who comes on?</string>
+    <string name="anonimo">Anonymous</string>
+    <string name="golo_anonimo">Goal</string>
+    <string name="cartao_anonimo">Card</string>
+    <string name="erro_selecionar_jogador">Select a player</string>
+    <string name="duplo_amarelo_expulsao">2nd yellow — sent off!</string>
+
+    <!-- ── Private tournament entry ─────────────────────────────────────────── -->
+    <string name="entrar_com_codigo_titulo">Private tournament?</string>
+    <string name="entrar_com_codigo_desc_curta">Enter with access code</string>
+    <string name="entrar_com_codigo">Enter with code</string>
+    <string name="entrar_torneio_privado">Private tournament</string>
+    <string name="entrar_codigo_desc">Enter the 4-digit code provided by the organizer.</string>
+    <string name="codigo_acesso_hint">0000</string>
+
+    <!-- ── Create Tournament extras ─────────────────────────────────────────── -->
+    <string name="jogadores_por_equipa_min">Players per team (min. %d)</string>
+    <string name="tempo_extra_label">Minutes per extra time half</string>
+    <string name="codigo_acesso_label">Access code</string>
+    <string name="codigo_acesso_hint_text">Minimum 4 characters</string>
+    <string name="codigo_gerado_automaticamente">Unique code generated automatically</string>
+    <string name="codigo_a_gerar">Generating…</string>
+    <string name="localizacao_maps_hint">Google Maps link (optional)</string>
+
+    <!-- ── Tournament detail ─────────────────────────────────────────────────── -->
+    <string name="detalhe_torneio">Tournament</string>
+    <string name="secao_info_geral">General information</string>
+    <string name="secao_datas">Dates</string>
+    <string name="secao_regras">Rules</string>
+    <string name="extras">Extras</string>
+    <string name="nenhum">—</string>
+    <string name="ver_no_google_maps">View on Google Maps →</string>
+    <string name="minutos_formato">%d min</string>
+    <string name="codigo_partilhar_desc">Share this code with the teams you want to invite</string>
+    <string name="torneio_em_curso">Tournament</string>
+
+    <!-- ── MVP voting ────────────────────────────────────────────────────────── -->
+    <string name="votacao_mvp">MVP Voting</string>
+    <string name="tab_mvp_jogadores">Players</string>
+    <string name="tab_mvp_publico">Fans</string>
+    <string name="tab_mvp_organizador">Org.</string>
+    <string name="mvp_org_info">Waiting for the organizer\'s vote…</string>
+    <string name="mvp_org_escolheu">Organizer chose: %s</string>
+
+    <!-- ── Profile — statistics ─────────────────────────────────────────────── -->
+    <string name="secao_estatisticas">Statistics</string>
+    <string name="stat_jogos">Matches</string>
+    <string name="stat_mvps">MVPs</string>
+    <string name="stat_assistencias">Assists</string>
+    <string name="stat_cartoes_amarelos">Yellow cards</string>
+    <string name="stat_minutos_jogados">Minutes played</string>
+    <string name="stat_melhor_periodo">Best period</string>
+
+    <!-- ── Profile — period filters ─────────────────────────────────────────── -->
+    <string name="periodo_esta_semana">This week</string>
+    <string name="periodo_este_mes">This month</string>
+    <string name="periodo_epoca_atual">Current season</string>
+    <string name="periodo_desde_sempre">All time</string>
+    <string name="escopo_geral">Overall</string>
+
+    <!-- ── Team roles ────────────────────────────────────────────────────────── -->
+    <string name="role_capitao">Captain</string>
+    <string name="role_jogador">Player</string>
+
+    <!-- ── Invitations ───────────────────────────────────────────────────────── -->
+    <string name="convidar">Invite</string>
+    <string name="ja_convidado">Invite already sent</string>
+    <string name="ja_membro">Already a member</string>
+    <string name="erro_poucos_jogadores">At least %1$d players required. You have %2$d (missing %3$d).</string>
+    <string name="erro_poucos_confirmados">%1$d confirmed players required. You have %2$d confirmed (missing %3$d). Pending invites don\'t count.</string>
+    <string name="erro_muitos_jogadores">Maximum is %1$d players. You have %2$d.</string>
+    <string name="erro_jogadores_insuficientes_generico">Number of players is not within the allowed limits.</string>
+    <string name="convite_enviado">Invite sent!</string>
+    <string name="convite_aceite">Invite accepted! You are now a team member.</string>
+    <string name="convite_recusado">Invite declined.</string>
+    <string name="convite_revogado">Invite revoked.</string>
+    <string name="convites_pendentes">Pending invites</string>
+    <string name="revogar_convite">Revoke invite</string>
+    <string name="convite_pendente_label">Pending invite…</string>
+    <string name="convite_equipa_titulo">Team invite</string>
+    <string name="convite_equipa_mensagem">You have been invited to join the team \"%1$s\"</string>
+    <string name="jogadores_pendentes_formato">%1$d confirmed · %2$d pending</string>
+
+    <!-- ── Team creation ─────────────────────────────────────────────────────── -->
+    <string name="criar_equipa">Create team</string>
+    <string name="nova_equipa">New team</string>
+    <string name="nome_equipa">Team name</string>
+    <string name="cidade_hint">City (optional)</string>
+    <string name="cor_da_equipa">Team colour</string>
+    <string name="equipa_criada">Team created successfully!</string>
+    <string name="criar_nova_equipa">+ Create new team</string>
+    <string name="sem_equipas_para_inscrever">You don\'t have any teams as captain yet.\nCreate your first team!</string>
+    <string name="selecionar_equipa">Register team</string>
+    <string name="ja_inscrita">Already registered ✓</string>
+    <string name="equipa_inscrita">%s registered in the tournament!</string>
+    <string name="a_inscrever">Registering…</string>
+
+    <!-- ── Manage players ───────────────────────────────────────────────────── -->
+    <string name="gerir_jogadores">Manage players</string>
+    <string name="pesquisar_jogador_hint">Search player by name…</string>
+    <string name="jogadores_equipa">Team players</string>
+    <string name="limites_jogadores_formato">min %1$d · max %2$d</string>
+    <string name="remover_jogador">Remove player</string>
+    <string name="adicionar">Add</string>
+
+    <!-- ── Select players ───────────────────────────────────────────────────── -->
+    <string name="selecionar_jogadores_titulo">Select players</string>
+    <string name="selecionar_jogadores_desc">Select between %1$d and %2$d players to participate.</string>
+    <string name="confirmar_selecao">Confirm selection</string>
+    <string name="jogadores_selecionados_formato">%1$d / %2$d selected</string>
+    <string name="poucos_membros_aviso">The team needs at least %1$d players (has %2$d). Add players before registering.</string>
+    <string name="muitos_membros_aviso">The team has %1$d players, but the maximum is %2$d. Select which ones participate.</string>
+
+    <!-- ── Profile empty states ─────────────────────────────────────────────── -->
+    <string name="sem_equipas_perfil">You are not part of any team yet</string>
+    <string name="sem_conquistas_perfil">No achievements yet</string>
+    <string name="em_breve">Coming soon…</string>
+    <string name="sem_meus_torneios">You are not participating in any tournament yet.</string>
+    <string name="sem_torneios_publicos">No public tournaments at the moment.</string>
+
+    <!-- ── Tabs ─────────────────────────────────────────────────────────────── -->
+    <string name="tab_torneios">Tournaments</string>
+    <string name="tab_os_meus">Mine</string>
+
+    <!-- ── Errors ─────────────────────────────────────────────────────────────── -->
+    <string name="erro_abrir_mapa">Could not open the map.</string>
+
+    <!-- ── Language settings ─────────────────────────────────────────────────── -->
+    <string name="idioma">Language</string>
+    <string name="idioma_portugues">Português</string>
+    <string name="idioma_ingles">English</string>
 </resources>

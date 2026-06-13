@@ -10,6 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
@@ -56,6 +58,21 @@ class BottomSheetDefinicoesFragment : BottomSheetDialogFragment() {
         binding.switchNotificacoes.setOnCheckedChangeListener { _, checked ->
             prefs.edit().putBoolean("notif_enabled", checked).apply()
         }
+
+        // Seletor de idioma
+        val currentLocales = AppCompatDelegate.getApplicationLocales()
+        val currentTag = currentLocales.toLanguageTags()
+        val isEnglish = currentTag.startsWith("en")
+        binding.toggleIdioma.check(
+            if (isEnglish) R.id.btnIdiomaIngles else R.id.btnIdiomaPortugues
+        )
+        var suppressLocale = true
+        binding.toggleIdioma.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked || suppressLocale) return@addOnButtonCheckedListener
+            val tag = if (checkedId == R.id.btnIdiomaIngles) "en" else "pt-PT"
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+        }
+        suppressLocale = false
 
         // Inicializa toggle com perfil atual
         val perfilAtual = (viewModel.uiState.value as? PerfilUiState.Success)

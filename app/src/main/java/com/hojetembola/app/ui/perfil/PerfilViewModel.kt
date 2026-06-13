@@ -3,8 +3,11 @@ package com.hojetembola.app.ui.perfil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hojetembola.app.data.local.entity.EquipaEntity
+import com.hojetembola.app.data.local.entity.TorneioEntity
 import com.hojetembola.app.data.local.entity.UtilizadorEntity
 import com.hojetembola.app.data.repository.EquipaRepository
+import com.hojetembola.app.data.repository.HomeRepository
+import com.hojetembola.app.data.repository.PerfilStats
 import com.hojetembola.app.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -46,7 +49,8 @@ sealed class PerfilUiState {
 @HiltViewModel
 class PerfilViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val equipaRepository: EquipaRepository
+    private val equipaRepository: EquipaRepository,
+    private val homeRepository: HomeRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PerfilUiState>(PerfilUiState.Loading)
@@ -54,6 +58,12 @@ class PerfilViewModel @Inject constructor(
 
     private val _equipas = MutableStateFlow<List<EquipaEntity>>(emptyList())
     val equipas: StateFlow<List<EquipaEntity>> = _equipas.asStateFlow()
+
+    private val _stats = MutableStateFlow(PerfilStats())
+    val stats: StateFlow<PerfilStats> = _stats.asStateFlow()
+
+    private val _conquistas = MutableStateFlow<List<TorneioEntity>>(emptyList())
+    val conquistas: StateFlow<List<TorneioEntity>> = _conquistas.asStateFlow()
 
     private val _saveState = MutableStateFlow<PerfilSaveState>(PerfilSaveState.Idle)
     val saveState: StateFlow<PerfilSaveState> = _saveState.asStateFlow()
@@ -75,6 +85,10 @@ class PerfilViewModel @Inject constructor(
             userRepository.getCurrentUser()
                 .onSuccess { user ->
                     _uiState.value = PerfilUiState.Success(user)
+                    _stats.value = homeRepository.getPerfilStats(user.id)
+                    launch {
+                        homeRepository.getTorneiosVencidos(user.id).collect { _conquistas.value = it }
+                    }
                     // Sincroniza equipas como capitão e como membro (convites aceites)
                     equipaRepository.syncEquipas(user.id)
                     equipaRepository.syncMinhasEquipasComoMembro(user.id)

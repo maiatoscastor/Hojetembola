@@ -21,6 +21,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import com.hojetembola.app.R
 import com.hojetembola.app.data.local.entity.EquipaEntity
+import com.hojetembola.app.data.local.entity.TorneioEntity
 import com.hojetembola.app.data.local.entity.UtilizadorEntity
 import com.hojetembola.app.databinding.FragmentPerfilBinding
 import com.hojetembola.app.ui.auth.SplashActivity
@@ -129,6 +130,18 @@ class PerfilFragment : Fragment() {
                     viewModel.equipas.collect { equipas -> renderEquipas(equipas) }
                 }
                 launch {
+                    viewModel.conquistas.collect { list -> renderConquistas(list) }
+                }
+                launch {
+                    viewModel.stats.collect { s ->
+                        binding.tvKpiGolos.text        = s.golos.toString()
+                        binding.tvKpiJogos.text        = s.jogos.toString()
+                        binding.tvKpiMvps.text         = s.mvps.toString()
+                        binding.tvAssistencias.text    = s.assistencias.toString()
+                        binding.tvCartoesAmarelos.text = s.amarelos.toString()
+                    }
+                }
+                launch {
                     viewModel.signOutEvent.collect { navigateToAuth() }
                 }
                 launch {
@@ -169,17 +182,7 @@ class PerfilFragment : Fragment() {
         binding.tvPerfilSub.text     = perfilLabel(u.perfil)
         binding.tvTagPerfil.text     = perfilLabel(u.perfil)
 
-        // Estatísticas a 0 — dados reais virão quando os jogos forem implementados
-        binding.tvKpiGolos.text       = "0"
-        binding.tvKpiGolosMeta.text   = "—"
-        binding.tvKpiJogos.text       = "0"
-        binding.tvKpiJogosMeta.text   = "—"
-        binding.tvKpiMvps.text        = "0"
-        binding.tvKpiMvpsMeta.text    = "—"
-        binding.tvAssistencias.text   = "0"
-        binding.tvCartoesAmarelos.text = "0"
-        binding.tvMinutosJogados.text = "0"
-        binding.tvMelhorPeriodo.text  = "—"
+        // Stats are updated reactively via viewModel.stats observer
 
         // Teams rendered separately via renderEquipas() observer
     }
@@ -291,6 +294,48 @@ class PerfilFragment : Fragment() {
             row.addView(textos)
             row.addView(chevron)
             binding.containerEquipas.addView(row)
+        }
+    }
+
+    private fun renderConquistas(torneios: List<TorneioEntity>) {
+        if (torneios.isEmpty()) {
+            binding.tvSemConquistas.isVisible = true
+            binding.containerConquistas.isVisible = false
+            return
+        }
+        binding.tvSemConquistas.isVisible = false
+        binding.containerConquistas.isVisible = true
+        binding.containerConquistas.removeAllViews()
+        val density = resources.displayMetrics.density
+        torneios.forEach { torneio ->
+            val row = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { bottomMargin = (10 * density).toInt() }
+            }
+            val trophy = android.widget.ImageView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    (20 * density).toInt(), (20 * density).toInt()
+                ).apply { marginEnd = (10 * density).toInt() }
+                setImageResource(R.drawable.ic_trophy)
+                imageTintList = android.content.res.ColorStateList.valueOf(
+                    android.graphics.Color.parseColor("#F57C00")
+                )
+            }
+            val tvNome = TextView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                text = torneio.nome
+                setTextColor(resources.getColor(R.color.text_primary, null))
+                textSize = 13f
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+            }
+            row.addView(trophy)
+            row.addView(tvNome)
+            binding.containerConquistas.addView(row)
         }
     }
 

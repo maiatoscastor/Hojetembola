@@ -1,5 +1,14 @@
 package com.hojetembola.app.data.repository
 
+import android.graphics.Color
+import com.hojetembola.app.data.local.dao.CartaoRow
+import com.hojetembola.app.data.local.dao.ClassificacaoDao
+import com.hojetembola.app.data.local.dao.ConvocatoriaJogoDao
+import com.hojetembola.app.data.local.dao.EventoJogoDao
+import com.hojetembola.app.data.local.dao.RankingRow
+import com.hojetembola.app.data.local.dao.TorneioDao
+import com.hojetembola.app.data.local.dao.VotoMvpDao
+import com.hojetembola.app.data.local.entity.TorneioEntity
 import com.hojetembola.app.ui.rankings.ClassificacaoRow
 import com.hojetembola.app.ui.rankings.RankingEntry
 import com.hojetembola.app.ui.rankings.RankingMetric
@@ -7,155 +16,171 @@ import com.hojetembola.app.ui.rankings.RankingPeriod
 import com.hojetembola.app.ui.rankings.RankingScope
 import com.hojetembola.app.ui.rankings.RankingsContent
 import com.hojetembola.app.ui.rankings.TorneioRankingInfo
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Fornece dados de rankings.
- * Dados de exemplo consistentes com o design system — substituir por queries Room/Supabase.
- */
 @Singleton
-class RankingsRepository @Inject constructor() {
+class RankingsRepository @Inject constructor(
+    private val eventoJogoDao: EventoJogoDao,
+    private val votoMvpDao: VotoMvpDao,
+    private val convocatoriaJogoDao: ConvocatoriaJogoDao,
+    private val classificacaoDao: ClassificacaoDao,
+    private val torneioDao: TorneioDao,
+    private val userRepository: UserRepository
+) {
 
-    private val torneioAtivo = TorneioRankingInfo(
-        nome = "Torneio Verão 2025",
-        estadoLabel = "a_decorrer",
-        isLive = true,
-        descricao = "Liga · Fut7 · 8 equipas"
-    )
+    fun getMeusTorneios(): Flow<List<TorneioEntity>> = flow {
+        val userId = userRepository.getCurrentUser().getOrNull()?.id
+        if (userId == null) { emit(emptyList()); return@flow }
+        emitAll(torneioDao.getMeusTorneios(userId))
+    }
 
-    fun getRankings(
+    suspend fun getRankings(
         scope: RankingScope,
         metric: RankingMetric,
-        period: RankingPeriod
-    ): RankingsContent {
-        val showClassificacao = metric == RankingMetric.CLASSIFICACAO
-        val entries = when {
-            showClassificacao -> emptyList()
-            scope == RankingScope.GERAL -> geralEntries(metric)
-            else -> torneioEntries(metric)
+        torneioId: String? = null
+    ): RankingsContent = try {
+        when (scope) {
+            RankingScope.GERAL   -> buildGeral(metric)
+            RankingScope.TORNEIO -> buildTorneio(metric, torneioId)
+        }
+    } catch (_: Exception) {
+        emptyContent(scope, metric, RankingPeriod.EPOCA_TODA)
+    }
+
+    // ── Geral ─────────────────────────────────────────────────────────────────
+
+    private suspend fun buildGeral(metric: RankingMetric): RankingsContent {
+        val showPodium = metric !in setOf(RankingMetric.CARTOES, RankingMetric.CLASSIFICACAO, RankingMetric.AMARELOS, RankingMetric.VERMELHOS)
+
+        val entries = when (metric) {
+            RankingMetric.GOLOS        -> eventoJogoDao.getRankingGolos().toEntries()
+            RankingMetric.ASSISTENCIAS -> eventoJogoDao.getRankingAssistencias().toEntries()
+            RankingMetric.MVPS         -> votoMvpDao.getRankingMvps().toEntries()
+            RankingMetric.JOGOS        -> convocatoriaJogoDao.getRankingJogos().toEntries()
+            RankingMetric.AMARELOS     -> eventoJogoDao.getRankingAmarelos().toEntries()
+            RankingMetric.VERMELHOS    -> eventoJogoDao.getRankingVermelhos().toEntries()
+            else                       -> emptyList()
         }
 
-        val showPodium = metric !in setOf(RankingMetric.CARTOES, RankingMetric.CLASSIFICACAO)
-
         return RankingsContent(
-            scope = scope,
+            scope = RankingScope.GERAL,
             metric = metric,
-            period = period,
-            torneioInfo = if (scope == RankingScope.TORNEIO) torneioAtivo else null,
+            period = RankingPeriod.EPOCA_TODA,
+            torneioInfo = null,
             podium = if (showPodium) entries.take(3) else emptyList(),
             entries = if (showPodium) entries.drop(3) else entries,
-            classificacao = if (showClassificacao) classificacaoEquipas() else emptyList(),
-            showPodium = showPodium,
+            classificacao = emptyList(),
+            showPodium = showPodium && entries.isNotEmpty(),
+            showClassificacao = false
+        )
+    }
+
+    // ── Torneio ───────────────────────────────────────────────────────────────
+
+    private suspend fun buildTorneio(metric: RankingMetric, torneioId: String?): RankingsContent {
+        val torneio = torneioId?.let { torneioDao.getById(it) }
+
+        val showClassificacao = metric == RankingMetric.CLASSIFICACAO
+        val showPodium = !showClassificacao && metric != RankingMetric.CARTOES
+
+        val entries: List<RankingEntry>
+        val classificacao: List<ClassificacaoRow>
+
+        if (torneio == null) {
+            entries = emptyList()
+            classificacao = emptyList()
+        } else {
+            val tid = torneio.id
+            entries = when (metric) {
+                RankingMetric.GOLOS        -> eventoJogoDao.getRankingGolosByTorneio(tid).toEntries()
+                RankingMetric.ASSISTENCIAS -> eventoJogoDao.getRankingAssistenciasByTorneio(tid).toEntries()
+                RankingMetric.MVPS         -> votoMvpDao.getRankingMvpsByTorneio(tid).toEntries()
+                RankingMetric.JOGOS        -> convocatoriaJogoDao.getRankingJogosByTorneio(tid).toEntries()
+                RankingMetric.CARTOES      -> eventoJogoDao.getRankingCartoesByTorneio(tid).toCartaoEntries()
+                else                       -> emptyList()
+            }
+            classificacao = if (showClassificacao) {
+                classificacaoDao.getClassificacaoComNome(tid).map { row ->
+                    ClassificacaoRow(
+                        posicao       = row.posicao,
+                        equipa        = row.equipaNome,
+                        jogos         = row.jogos,
+                        vitorias      = row.vitorias,
+                        empates       = row.empates,
+                        derrotas      = row.derrotas,
+                        golosMarcados = row.golosMarcados,
+                        golosSofridos = row.golosSofridos,
+                        pontos        = row.pontos
+                    )
+                }
+            } else emptyList()
+        }
+
+        val torneioInfo = torneio?.let {
+            TorneioRankingInfo(
+                nome       = it.nome,
+                estadoLabel = it.estado,
+                isLive     = it.estado.lowercase().replace("_", "") == "adecorrer",
+                descricao  = "${it.formato} · ${it.modalidade}"
+            )
+        }
+
+        return RankingsContent(
+            scope = RankingScope.TORNEIO,
+            metric = metric,
+            period = RankingPeriod.TORNEIO_COMPLETO,
+            torneioInfo = torneioInfo,
+            podium = if (showPodium) entries.take(3) else emptyList(),
+            entries = if (showPodium) entries.drop(3) else entries,
+            classificacao = classificacao,
+            showPodium = showPodium && entries.isNotEmpty(),
             showClassificacao = showClassificacao
         )
     }
 
-    private fun geralEntries(metric: RankingMetric): List<RankingEntry> = when (metric) {
-        RankingMetric.GOLOS -> listOf(
-            entry(1, "Gonçalo", "FC Malcata", "GT", 0xFFEF9F27.toInt(), 12),
-            entry(2, "João", "Turbo FC", "JM", 0xFF378ADD.toInt(), 9),
-            entry(3, "Rui", "Os Putos", "RF", 0xFFD85A30.toInt(), 7),
-            entry(4, "Pedro S.", "Os Putos", "PS", 0xFF2ECC71.toInt(), 6, 1),
-            entry(5, "Nuno T.", "Turbo FC", "NT", 0xFF3498DB.toInt(), 5, -2),
-            entry(6, "Miguel L.", "FC Malcata", "ML", 0xFFE84C3D.toInt(), 4, 0)
-        )
-        RankingMetric.JOGOS -> listOf(
-            entry(1, "Gonçalo", "FC Malcata", "GT", 0xFFEF9F27.toInt(), 14),
-            entry(2, "João", "Turbo FC", "JM", 0xFF378ADD.toInt(), 14),
-            entry(3, "Rui", "Os Putos", "RF", 0xFFD85A30.toInt(), 13),
-            entry(4, "Pedro S.", "Os Putos", "PS", 0xFF2ECC71.toInt(), 12, 1),
-            entry(5, "Nuno T.", "Turbo FC", "NT", 0xFF3498DB.toInt(), 11, 0)
-        )
-        RankingMetric.ASSISTENCIAS -> listOf(
-            entry(1, "Gonçalo", "FC Malcata", "GT", 0xFFEF9F27.toInt(), 8),
-            entry(2, "Pedro", "Os Putos", "PS", 0xFF378ADD.toInt(), 6),
-            entry(3, "João", "Turbo FC", "JM", 0xFFD85A30.toInt(), 5),
-            entry(4, "Rui F.", "FC Malcata", "RF", 0xFFE84C3D.toInt(), 4, 0)
-        )
-        RankingMetric.MINUTOS -> listOf(
-            entry(1, "Gonçalo", "FC Malcata", "GT", 0xFFEF9F27.toInt(), 860),
-            entry(2, "João", "Turbo FC", "JM", 0xFF378ADD.toInt(), 820),
-            entry(3, "Rui", "Os Putos", "RF", 0xFFD85A30.toInt(), 790),
-            entry(4, "Nuno T.", "Turbo FC", "NT", 0xFF3498DB.toInt(), 760, 0)
-        )
-        RankingMetric.AMARELOS -> listOf(
-            entry(1, "Pedro", "Os Putos", "PS", 0xFFEF9F27.toInt(), 4),
-            entry(2, "Miguel", "FC Malcata", "ML", 0xFF378ADD.toInt(), 3),
-            entry(3, "Rui", "Turbo FC", "RF", 0xFFD85A30.toInt(), 2),
-            entry(4, "Nuno T.", "Turbo FC", "NT", 0xFF3498DB.toInt(), 2, 0)
-        )
-        RankingMetric.VERMELHOS -> listOf(
-            entry(1, "Pedro", "Os Putos", "PS", 0xFFEF9F27.toInt(), 1),
-            entry(2, "Miguel", "FC Malcata", "ML", 0xFF378ADD.toInt(), 1),
-            entry(3, "Gonçalo", "FC Malcata", "GT", 0xFFD85A30.toInt(), 0),
-            entry(4, "Rui F.", "Turbo FC", "RF", 0xFF3498DB.toInt(), 0, 0)
-        )
-        RankingMetric.MVPS -> listOf(
-            entry(1, "Gonçalo", "FC Malcata", "GT", 0xFFEF9F27.toInt(), 5),
-            entry(2, "João", "Turbo FC", "JM", 0xFF378ADD.toInt(), 3),
-            entry(3, "Rui", "Os Putos", "RF", 0xFFD85A30.toInt(), 2),
-            entry(4, "Pedro S.", "Os Putos", "PS", 0xFF2ECC71.toInt(), 2, 0)
-        )
-        else -> geralEntries(RankingMetric.GOLOS)
-    }
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private fun torneioEntries(metric: RankingMetric): List<RankingEntry> = when (metric) {
-        RankingMetric.GOLOS -> listOf(
-            entry(1, "Gonçalo", "FC Malcata", "GT", 0xFFEF9F27.toInt(), 4),
-            entry(2, "João M.", "Turbo FC", "JM", 0xFF378ADD.toInt(), 3),
-            entry(3, "Pedro S.", "Os Putos", "PS", 0xFFD85A30.toInt(), 2),
-            entry(4, "Rui F.", "FC Malcata", "RF", 0xFFE84C3D.toInt(), 2, 0)
-        )
-        RankingMetric.ASSISTENCIAS -> listOf(
-            entry(1, "Gonçalo", "FC Malcata", "GT", 0xFFEF9F27.toInt(), 3),
-            entry(2, "Pedro S.", "Os Putos", "PS", 0xFF378ADD.toInt(), 2),
-            entry(3, "João M.", "Turbo FC", "JM", 0xFFD85A30.toInt(), 1)
-        )
-        RankingMetric.MVPS -> listOf(
-            entry(1, "Gonçalo", "FC Malcata", "GT", 0xFFEF9F27.toInt(), 2),
-            entry(2, "João M.", "Turbo FC", "JM", 0xFF378ADD.toInt(), 1),
-            entry(3, "Pedro S.", "Os Putos", "PS", 0xFFD85A30.toInt(), 1)
-        )
-        RankingMetric.CARTOES -> listOf(
-            cartoesEntry(1, "Pedro S.", "Os Putos", 4, 1),
-            cartoesEntry(2, "Miguel L.", "FC Malcata", 3, 0),
-            cartoesEntry(3, "Rui F.", "Turbo FC", 2, 0)
-        )
-        else -> torneioEntries(RankingMetric.GOLOS)
-    }
 
-    private fun classificacaoEquipas(): List<ClassificacaoRow> = listOf(
-        ClassificacaoRow(1, "FC Malcata", 4, 3, 1, 0, 10, 4, 10),
-        ClassificacaoRow(2, "Os Putos", 4, 2, 2, 0, 8, 5, 8),
-        ClassificacaoRow(3, "Turbo FC", 4, 2, 1, 1, 7, 6, 7),
-        ClassificacaoRow(4, "Super Raia", 4, 1, 1, 2, 6, 8, 4)
-    )
+    private fun List<RankingRow>.toEntries(): List<RankingEntry> =
+        mapIndexed { i, row ->
+            RankingEntry(
+                posicao     = i + 1,
+                nome        = row.nome,
+                equipa      = row.equipaNome,
+                iniciais    = initials(row.nome),
+                avatarColor = parseColor(row.equipaCor),
+                valor       = row.total
+            )
+        }
 
-    private fun entry(
-        posicao: Int,
-        nome: String,
-        equipa: String,
-        iniciais: String,
-        avatarColor: Int,
-        valor: Int,
-        variacao: Int? = null
-    ) = RankingEntry(posicao, nome, equipa, iniciais, avatarColor, valor, variacao)
+    private fun List<CartaoRow>.toCartaoEntries(): List<RankingEntry> =
+        mapIndexed { i, row ->
+            RankingEntry(
+                posicao     = i + 1,
+                nome        = row.nome,
+                equipa      = row.equipaNome,
+                iniciais    = initials(row.nome),
+                avatarColor = parseColor(row.equipaCor),
+                valor       = row.amarelos + row.vermelhos,
+                amarelos    = row.amarelos,
+                vermelhos   = row.vermelhos
+            )
+        }
 
-    private fun cartoesEntry(
-        posicao: Int,
-        nome: String,
-        equipa: String,
-        amarelos: Int,
-        vermelhos: Int
-    ) = RankingEntry(
-        posicao = posicao,
-        nome = nome,
-        equipa = equipa,
-        iniciais = nome.split(" ").mapNotNull { it.firstOrNull()?.uppercase() }.take(2).joinToString(""),
-        avatarColor = 0xFF8A9BB8.toInt(),
-        valor = amarelos + vermelhos,
-        amarelos = amarelos,
-        vermelhos = vermelhos
-    )
+    private fun initials(nome: String) =
+        nome.split(" ").mapNotNull { it.firstOrNull()?.uppercase() }.take(2).joinToString("")
+
+    private fun parseColor(hex: String): Int =
+        try { Color.parseColor(hex) } catch (_: Exception) { 0xFF3D5A80.toInt() }
+
+    private fun emptyContent(scope: RankingScope, metric: RankingMetric, period: RankingPeriod) =
+        RankingsContent(
+            scope = scope, metric = metric, period = period,
+            torneioInfo = null, podium = emptyList(), entries = emptyList(),
+            classificacao = emptyList(), showPodium = false, showClassificacao = false
+        )
 }

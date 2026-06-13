@@ -43,6 +43,20 @@ interface JogoDao {
     fun getProximosAgendados(): Flow<List<JogoEntity>>
 
     @Query("""
+        SELECT DISTINCT j.* FROM jogo j
+        INNER JOIN inscricao_equipa ie ON (j.equipa_casa_id = ie.equipa_id OR j.equipa_visitante_id = ie.equipa_id)
+        INNER JOIN equipa e ON e.id = ie.equipa_id
+        WHERE j.estado = 'agendado'
+          AND (
+            e.capitao_id = :userId
+            OR EXISTS (SELECT 1 FROM membro_equipa m WHERE m.equipa_id = e.id AND m.utilizador_id = :userId)
+          )
+        ORDER BY j.data_hora ASC
+        LIMIT 5
+    """)
+    fun getProximosAgendadosByJogador(userId: String): Flow<List<JogoEntity>>
+
+    @Query("""
         SELECT * FROM jogo
         WHERE (equipa_casa_id = :equipaId OR equipa_visitante_id = :equipaId)
         ORDER BY data_hora DESC

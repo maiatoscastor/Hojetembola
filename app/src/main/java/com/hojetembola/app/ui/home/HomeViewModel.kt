@@ -17,6 +17,7 @@ import javax.inject.Inject
 
 data class JogoInfo(
     val jogoId: String,
+    val torneioId: String,
     val equipaCasaNome: String,
     val equipaVisitanteNome: String,
     val golosCasa: Int,
@@ -106,6 +107,7 @@ class HomeViewModel @Inject constructor(
                     val jogoVivo = jogosVivo.firstOrNull()?.let { j ->
                         JogoInfo(
                             jogoId = j.id,
+                            torneioId = j.torneioId,
                             equipaCasaNome = homeRepository.getEquipaNome(j.equipaCasaId),
                             equipaVisitanteNome = homeRepository.getEquipaNome(j.equipaVisitanteId),
                             golosCasa = j.golosCasa ?: 0,
@@ -118,22 +120,23 @@ class HomeViewModel @Inject constructor(
                     }
                     HomeUiState.OrganizadorState(
                         utilizador = user,
-                        torneiosAtivos = torneios.count { it.estado == "a_decorrer" || it.estado == "inscricoes_abertas" },
-                        torneiosComInscricoes = torneios.count { it.estado == "inscricoes_abertas" },
-                        torneiosGeridos = torneios.take(2),
+                        torneiosAtivos = torneios.count { it.estado.lowercase().replace("_","") in setOf("adecorrer", "inscricoesabertas") },
+                        torneiosComInscricoes = torneios.count { it.estado.lowercase().replace("_","") == "inscricoesabertas" },
+                        torneiosGeridos = torneios,
                         jogoAoVivo = jogoVivo
                     )
                 }.collect { _uiState.value = it }
             } else {
                 val totalGolos = homeRepository.getTotalGolos(user.id)
                 combine(
-                    homeRepository.getMeusTorneios(user.id),
+                    homeRepository.getTorneiosComoJogador(user.id),
                     homeRepository.getJogosAoVivo(),
-                    homeRepository.getProximosJogos()
+                    homeRepository.getProximosJogosByJogador(user.id)
                 ) { torneios, jogosVivo, proximosJogos ->
                     val jogoVivo = jogosVivo.firstOrNull()?.let { j ->
                         JogoInfo(
                             jogoId = j.id,
+                            torneioId = j.torneioId,
                             equipaCasaNome = homeRepository.getEquipaNome(j.equipaCasaId),
                             equipaVisitanteNome = homeRepository.getEquipaNome(j.equipaVisitanteId),
                             golosCasa = j.golosCasa ?: 0,
@@ -147,6 +150,7 @@ class HomeViewModel @Inject constructor(
                     val proximoJogo = proximosJogos.firstOrNull()?.let { j ->
                         JogoInfo(
                             jogoId = j.id,
+                            torneioId = j.torneioId,
                             equipaCasaNome = homeRepository.getEquipaNome(j.equipaCasaId),
                             equipaVisitanteNome = homeRepository.getEquipaNome(j.equipaVisitanteId),
                             golosCasa = j.golosCasa ?: 0,
@@ -160,11 +164,11 @@ class HomeViewModel @Inject constructor(
                     HomeUiState.JogadorState(
                         utilizador = user,
                         totalTorneios = torneios.size,
-                        torneiosAtivos = torneios.count { it.estado == "a_decorrer" },
+                        torneiosAtivos = torneios.count { it.estado.lowercase().replace("_","") == "adecorrer" },
                         totalGolos = totalGolos,
                         jogoAoVivo = jogoVivo,
                         proximoJogo = proximoJogo,
-                        meusTorneios = torneios.take(2)
+                        meusTorneios = torneios
                     )
                 }.collect { _uiState.value = it }
             }

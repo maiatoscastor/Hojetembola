@@ -61,6 +61,12 @@ interface EventoJogoDao {
     @Query("SELECT COUNT(*) FROM evento_jogo WHERE jogador_id = :jogadorId AND tipo = 'golo'")
     suspend fun countTotalGolosByJogador(jogadorId: String): Int
 
+    @Query("SELECT COUNT(*) FROM evento_jogo WHERE assistencia_id = :jogadorId AND tipo = 'golo'")
+    suspend fun countTotalAssistenciasByJogador(jogadorId: String): Int
+
+    @Query("SELECT COUNT(*) FROM evento_jogo WHERE jogador_id = :jogadorId AND tipo = 'amarelo'")
+    suspend fun countTotalAmarelosByJogador(jogadorId: String): Int
+
     @Query("SELECT * FROM evento_jogo WHERE is_synced = 0")
     suspend fun getPendentesSync(): List<EventoJogoEntity>
 
@@ -109,4 +115,95 @@ interface EventoJogoDao {
 
     @Query("DELETE FROM evento_jogo WHERE jogo_id = :jogoId")
     suspend fun deleteByJogo(jogoId: String)
+
+    // ── Ranking queries ───────────────────────────────────────────────────────
+
+    @Query("""
+        SELECT ej.jogador_id, COALESCE(u.nome, '?') AS nome,
+               COALESCE(e.nome,'—') AS equipa_nome, COALESCE(e.iniciais,'?') AS equipa_iniciais,
+               COALESCE(e.cor_avatar,'#3D5A80') AS equipa_cor, COUNT(*) AS total
+        FROM evento_jogo ej
+        LEFT JOIN utilizador u ON u.id = ej.jogador_id
+        LEFT JOIN equipa e ON e.id = ej.equipa_id
+        WHERE ej.tipo = 'golo' AND ej.jogador_id IS NOT NULL
+        GROUP BY ej.jogador_id ORDER BY total DESC
+    """)
+    suspend fun getRankingGolos(): List<RankingRow>
+
+    @Query("""
+        SELECT ej.jogador_id, COALESCE(u.nome, '?') AS nome,
+               COALESCE(e.nome,'—') AS equipa_nome, COALESCE(e.iniciais,'?') AS equipa_iniciais,
+               COALESCE(e.cor_avatar,'#3D5A80') AS equipa_cor, COUNT(*) AS total
+        FROM evento_jogo ej
+        INNER JOIN jogo j ON j.id = ej.jogo_id AND j.torneio_id = :torneioId
+        LEFT JOIN utilizador u ON u.id = ej.jogador_id
+        LEFT JOIN equipa e ON e.id = ej.equipa_id
+        WHERE ej.tipo = 'golo' AND ej.jogador_id IS NOT NULL
+        GROUP BY ej.jogador_id ORDER BY total DESC
+    """)
+    suspend fun getRankingGolosByTorneio(torneioId: String): List<RankingRow>
+
+    @Query("""
+        SELECT ej.assistencia_id AS jogador_id, COALESCE(u.nome, '?') AS nome,
+               COALESCE(e.nome,'—') AS equipa_nome, COALESCE(e.iniciais,'?') AS equipa_iniciais,
+               COALESCE(e.cor_avatar,'#3D5A80') AS equipa_cor, COUNT(*) AS total
+        FROM evento_jogo ej
+        LEFT JOIN utilizador u ON u.id = ej.assistencia_id
+        LEFT JOIN equipa e ON e.id = ej.equipa_id
+        WHERE ej.tipo = 'golo' AND ej.assistencia_id IS NOT NULL
+        GROUP BY ej.assistencia_id ORDER BY total DESC
+    """)
+    suspend fun getRankingAssistencias(): List<RankingRow>
+
+    @Query("""
+        SELECT ej.assistencia_id AS jogador_id, COALESCE(u.nome, '?') AS nome,
+               COALESCE(e.nome,'—') AS equipa_nome, COALESCE(e.iniciais,'?') AS equipa_iniciais,
+               COALESCE(e.cor_avatar,'#3D5A80') AS equipa_cor, COUNT(*) AS total
+        FROM evento_jogo ej
+        INNER JOIN jogo j ON j.id = ej.jogo_id AND j.torneio_id = :torneioId
+        LEFT JOIN utilizador u ON u.id = ej.assistencia_id
+        LEFT JOIN equipa e ON e.id = ej.equipa_id
+        WHERE ej.tipo = 'golo' AND ej.assistencia_id IS NOT NULL
+        GROUP BY ej.assistencia_id ORDER BY total DESC
+    """)
+    suspend fun getRankingAssistenciasByTorneio(torneioId: String): List<RankingRow>
+
+    @Query("""
+        SELECT ej.jogador_id, COALESCE(u.nome, '?') AS nome,
+               COALESCE(e.nome,'—') AS equipa_nome, COALESCE(e.iniciais,'?') AS equipa_iniciais,
+               COALESCE(e.cor_avatar,'#3D5A80') AS equipa_cor, COUNT(*) AS total
+        FROM evento_jogo ej
+        LEFT JOIN utilizador u ON u.id = ej.jogador_id
+        LEFT JOIN equipa e ON e.id = ej.equipa_id
+        WHERE ej.tipo = 'amarelo' AND ej.jogador_id IS NOT NULL
+        GROUP BY ej.jogador_id ORDER BY total DESC
+    """)
+    suspend fun getRankingAmarelos(): List<RankingRow>
+
+    @Query("""
+        SELECT ej.jogador_id, COALESCE(u.nome, '?') AS nome,
+               COALESCE(e.nome,'—') AS equipa_nome, COALESCE(e.iniciais,'?') AS equipa_iniciais,
+               COALESCE(e.cor_avatar,'#3D5A80') AS equipa_cor, COUNT(*) AS total
+        FROM evento_jogo ej
+        LEFT JOIN utilizador u ON u.id = ej.jogador_id
+        LEFT JOIN equipa e ON e.id = ej.equipa_id
+        WHERE ej.tipo = 'vermelho' AND ej.jogador_id IS NOT NULL
+        GROUP BY ej.jogador_id ORDER BY total DESC
+    """)
+    suspend fun getRankingVermelhos(): List<RankingRow>
+
+    @Query("""
+        SELECT ej.jogador_id, COALESCE(u.nome, '?') AS nome,
+               COALESCE(e.nome,'—') AS equipa_nome, COALESCE(e.iniciais,'?') AS equipa_iniciais,
+               COALESCE(e.cor_avatar,'#3D5A80') AS equipa_cor,
+               SUM(CASE WHEN ej.tipo='amarelo' THEN 1 ELSE 0 END) AS amarelos,
+               SUM(CASE WHEN ej.tipo='vermelho' THEN 1 ELSE 0 END) AS vermelhos
+        FROM evento_jogo ej
+        INNER JOIN jogo j ON j.id = ej.jogo_id AND j.torneio_id = :torneioId
+        LEFT JOIN utilizador u ON u.id = ej.jogador_id
+        LEFT JOIN equipa e ON e.id = ej.equipa_id
+        WHERE ej.tipo IN ('amarelo','vermelho') AND ej.jogador_id IS NOT NULL
+        GROUP BY ej.jogador_id ORDER BY (amarelos + vermelhos) DESC
+    """)
+    suspend fun getRankingCartoesByTorneio(torneioId: String): List<CartaoRow>
 }
