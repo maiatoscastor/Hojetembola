@@ -99,28 +99,6 @@ class LoginFragment : Fragment() {
 
     private fun setupButtons() {
         binding.btnEntrar.setOnClickListener { attemptLogin() }
-
-        binding.btnEsqueciPassword.setOnClickListener {
-            val email = binding.etEmail.text?.toString()?.trim().orEmpty()
-            if (email.isEmpty()) {
-                binding.tilEmail.error = getString(R.string.erro_campos_obrigatorios)
-            } else {
-                binding.tilEmail.error = null
-                viewModel.forgotPassword(email)
-            }
-        }
-
-        binding.btnGoogle.setOnClickListener {
-            viewModel.loginWithGoogle()
-        }
-
-        // ⚡ DEV ONLY — remover antes da entrega final
-        binding.btnDevLoginOrganizador.setOnClickListener {
-            viewModel.login("diogosa@gmail.com", "diogo123")
-        }
-        binding.btnDevLoginUser.setOnClickListener {
-            viewModel.login("diogo.esteves.sa@gmail.com", "diogosa123")
-        }
     }
 
     // ── Validação e envio ─────────────────────────────────────────────────────
@@ -193,7 +171,6 @@ class LoginFragment : Fragment() {
 
     private fun setLoadingState(loading: Boolean) {
         binding.btnEntrar.isEnabled = !loading
-        binding.btnGoogle.isEnabled = !loading
     }
 
     private fun goToMain() {

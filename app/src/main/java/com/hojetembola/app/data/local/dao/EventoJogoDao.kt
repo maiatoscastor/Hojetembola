@@ -79,6 +79,9 @@ interface EventoJogoDao {
     @Delete
     suspend fun delete(evento: EventoJogoEntity)
 
+    @Query("DELETE FROM evento_jogo WHERE id = :id")
+    suspend fun deleteById(id: String)
+
     @Query("UPDATE evento_jogo SET is_synced = 1 WHERE id = :id")
     suspend fun markAsSynced(id: String)
 

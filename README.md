@@ -1,93 +1,103 @@
 # HojeTemBola
 
-App mobile para **gestao de eventos desportivos**, focada em torneios de futebol (Fut5, Fut7, Fut11 e formato personalizado).
+Aplicação Android para **gestão de eventos desportivos**, focada em torneios de futebol (Fut5, Fut7, Fut11 e formato personalizado).
 
-O objetivo da app e simples: organizar torneios de ponta a ponta, acompanhar jogos em direto, manter rankings atualizados e permitir votacao MVP de forma clara para todos os participantes.
+O objetivo é simples: organizar torneios de ponta a ponta, acompanhar jogos em direto, manter rankings atualizados e permitir votação MVP de forma clara para todos os participantes.
 
-## O que a app resolve
+---
 
-- Centraliza criacao e gestao de torneios num unico sistema.
-- Facilita a inscricao de equipas e o controlo de plantel por torneio.
-- Permite registo de eventos de jogo em tempo real (golos, cartoes, substituicoes).
-- Mostra classificacoes, estatisticas e evolucao de desempenho.
-- Ativa participacao da comunidade com votacao MVP e notificacoes automaticas.
+## Funcionalidades principais
+
+- Criação e gestão de torneios nos formatos **liga**, **eliminatórias** e **grupos + eliminatórias**
+- Inscrição de equipas com controlo de plantel por torneio
+- Registo de eventos de jogo em tempo real (golos, cartões, substituições)
+- Classificações automáticas, rankings e estatísticas individuais e coletivas
+- Sistema de suspensões automáticas por acumulação de cartões
+- Votação MVP por jogo
+- **Modo offline** — regista eventos sem internet, sincroniza automaticamente ao restaurar ligação
+- Interface disponível em **Português** e **Inglês**, com suporte a portrait e landscape
+
+---
 
 ## Perfis de utilizador
 
-- **Administrador**: gere contas e supervisao global da plataforma.
-- **Organizador**: cria torneios, define regras e gere jogos/resultados.
-- **Capitao**: cria/gera equipa, convida jogadores e inscreve em torneios.
-- **Jogador**: acompanha jogos, estatisticas e participa na votacao MVP.
-- **Espectador**: segue torneios publicos e participa na votacao quando permitido.
+| Perfil | Permissões principais |
+|---|---|
+| **Organizador** | Cria torneios, define regras, gere jogos e resultados |
+| **Capitão** | Cria e gere equipa, convida jogadores, inscreve em torneios |
+| **Jogador** | Acompanha jogos, estatísticas e participa na votação MVP |
 
-## Como o sistema funciona
+---
 
-### 1) Entrada e autenticacao
-- Onboarding inicial para apresentar as funcionalidades principais.
-- Login por email/password e opcao Google.
-- Registo com escolha de perfil para adaptar permissoes e experiencia.
+## Como funciona
 
-### 2) Gestao de equipas
-- Um capitao cria equipa com identidade visual (nome/escudo/cor).
-- Convites de jogadores sao enviados por link com validade limitada.
-- Equipa pode participar em varios torneios, com selecao de jogadores por prova quando necessario.
+### 1. Autenticação
+- Onboarding inicial com apresentação das funcionalidades
+- Registo e login por email/password
+- Perfil adaptado às permissões de cada utilizador
 
-### 3) Criacao e configuracao de torneios
-- Organizador define nome, formato, modalidade, datas, local e limites de participantes.
-- Regras de desempate e disciplina (ex.: limite de amarelos para suspensao) sao configuraveis.
-- Torneio pode ser publico ou privado, com controlo de acesso por convite.
+### 2. Gestão de equipas
+- Capitão cria equipa com nome, iniciais e cor
+- Jogadores são convidados por email
+- Equipa pode participar em vários torneios simultaneamente
 
-### 4) Ciclo de vida do torneio
-- Estados de funcionamento: criado, inscricoes abertas, inscricoes fechadas, a decorrer e terminado.
-- O sistema fecha inscricoes quando vagas esgotam e progride o estado conforme os jogos avancam.
-- Resultado final alimenta historico das equipas e destaque de desempenho.
+### 3. Torneios
+- Organizador define nome, formato, modalidade, datas, local e limites de participantes
+- Regras de desempate e limite de amarelos para suspensão configuráveis por torneio
+- Torneio pode ser público ou privado (acesso por código de 4 dígitos)
+- Estados: criado → inscrições abertas → inscrições fechadas → a decorrer → terminado
 
-### 5) Jogos ao vivo
-- Ecran live com marcador, minuto, local e timeline de eventos.
-- Organizador regista eventos em tempo real:
-  - golos;
-  - cartoes amarelos/vermelhos;
-  - substituicoes.
-- O sistema atualiza placar e impacto competitivo quase em tempo real.
+### 4. Jogos ao vivo
+- Ecrã live com marcador, minuto, local e timeline de eventos
+- Registo de golos, cartões amarelos/vermelhos e substituições
+- Vista de titulares com campo visual interativo
+- Placar e classificação atualizados automaticamente
 
-### 6) Disciplina e automatismos
-- Acumulacao de amarelos e vermelho direto podem gerar suspensao automatica.
-- Notificacoes disciplinares sao enviadas aos utilizadores impactados.
-- Regras respeitam configuracao definida pelo organizador para cada torneio.
+### 5. Disciplina e automatismos
+- Acumulação de amarelos gera suspensão automática para o jogo seguinte
+- Vermelho direto resulta em suspensão imediata
+- Regras configuradas pelo organizador no momento da criação do torneio
 
-### 7) Rankings e estatisticas
-- Rankings por golos e jogos disputados.
-- Classificacao por equipa com pontos, vitorias, empates e derrotas.
-- Filtros por periodo (jornada, mes, epoca) para leitura rapida da evolucao.
+### 6. Rankings e estatísticas
+- Rankings globais de golos, assistências, cartões e MVP
+- Classificação por equipa com pontos, vitórias, empates, derrotas e diferença de golos
+- Histórico de resultados por torneio e por equipa
 
-### 8) Votacao MVP
-- Voto por jogo, com possibilidade de alteracao enquanto a votacao estiver aberta.
-- Participacao por segmentos (jogadores, publico e organizador).
-- Resultados apresentados em percentagem para maior clareza.
-- MVP final revelado no fecho da votacao.
+### 7. Modo offline
+- Eventos registados sem internet são guardados localmente
+- SyncWorker sincroniza automaticamente com o Supabase ao restaurar a ligação
+- Sincronização imediata assim que a rede é detetada
 
-### 9) Notificacoes automaticas
-- Convites, alteracoes de calendario, resultados, suspensoes e atualizacoes relevantes.
-- Objetivo: manter todos os perfis sincronizados sem depender de consulta manual constante.
+---
 
-## Experiencia da app
+## Stack tecnológico
 
-- Interface pensada para mobile, com navegacao por tabs e acoes rapidas.
-- Priorizacao de dados chave: estado de torneio, proximo jogo, resultados e alertas.
-- Suporte a modo portrait e ecras especificos em landscape para leitura mais confortavel de live/rankings.
+| Camada | Tecnologia |
+|---|---|
+| Linguagem | Kotlin |
+| Base de dados local | Room (SQLite) |
+| Backend / BD remota | Supabase (PostgreSQL + Auth + RLS) |
+| Injeção de dependências | Hilt (Dagger) |
+| Sincronização offline | WorkManager |
+| Notificações push | Firebase Cloud Messaging (FCM) |
+| Navegação | Navigation Component |
+| UI | Material Design 3 |
 
-## Fluxo principal (resumo)
+---
 
-1. Utilizador cria conta e entra na app.
-2. Capitao cria equipa e convida jogadores.
-3. Organizador cria torneio e abre inscricoes.
-4. Equipas inscrevem-se e calendario e definido.
-5. Jogos decorrem com registo live de eventos.
-6. Sistema atualiza classificacoes, rankings e notificacoes.
-7. Comunidade vota MVP e o torneio fecha com historico consolidado.
+## Fluxo principal
 
-## Visao do produto
+1. Utilizador cria conta e entra na app
+2. Capitão cria equipa e convida jogadores
+3. Organizador cria torneio e abre inscrições
+4. Equipas inscrevem-se e o calendário é definido
+5. Jogos decorrem com registo live de eventos
+6. Sistema atualiza classificações e rankings automaticamente
+7. Comunidade vota MVP e o torneio fecha com histórico consolidado
 
-A HojeTemBola combina **organizacao**, **acompanhamento em direto** e **engagement da comunidade** numa unica experiencia.  
-Foi desenhada para reduzir trabalho manual dos organizadores e, ao mesmo tempo, dar mais transparencia e envolvimento a equipas, jogadores e adeptos.
+---
 
+## Requisitos
+
+- Android 8.0 (API 26) ou superior
+- Ligação à internet para sincronização (funciona offline com sincronização posterior)

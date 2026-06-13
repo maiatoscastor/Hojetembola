@@ -7,88 +7,158 @@ import androidx.work.*
 import com.hojetembola.app.data.local.dao.EventoJogoDao
 import com.hojetembola.app.data.local.dao.JogoDao
 import com.hojetembola.app.data.local.dao.TorneioDao
+import com.hojetembola.app.data.remote.dto.EventoJogoDto
+import com.hojetembola.app.data.remote.dto.EventoJogoInsertDto
+import com.hojetembola.app.data.remote.dto.TorneioDto
+import com.hojetembola.app.data.remote.dto.toInsertDto
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
 import java.util.concurrent.TimeUnit
 
-/**
- * Worker responsável pela sincronização offline → Supabase.
- *
- * Quando o organizador regista eventos sem internet (RF25), os registos
- * ficam com [isSynced] = false no Room. Este worker deteta-os e envia
- * para o Supabase assim que houver conetividade.
- *
- * Agendado com [Constraints] que exige rede ativa, por isso só corre
- * quando o dispositivo está online.
- */
 @HiltWorker
 class SyncWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val torneioDao: TorneioDao,
     private val jogoDao: JogoDao,
-    private val eventoJogoDao: EventoJogoDao
+    private val eventoJogoDao: EventoJogoDao,
+    private val client: SupabaseClient
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         return try {
             Log.d(TAG, "Sincronização iniciada")
-
-            syncTorneios()
-            syncJogos()
             syncEventos()
-
+            syncJogos()
+            syncTorneios()
             Log.d(TAG, "Sincronização concluída com sucesso")
             Result.success()
-
         } catch (e: Exception) {
             Log.e(TAG, "Erro na sincronização: ${e.message}", e)
-            // Retry automático (máx 3 tentativas definidas no agendamento)
             if (runAttemptCount < MAX_RETRIES) Result.retry() else Result.failure()
         }
     }
 
-    // ── Sync individual ───────────────────────────────────────────────────────
-
-    private suspend fun syncTorneios() {
-        val pendentes = torneioDao.getPendentesSync()
-        if (pendentes.isEmpty()) return
-        Log.d(TAG, "Sync torneios: ${pendentes.size} pendentes")
-
-        // TODO Passo 2: chamar TorneioRepository.upsertRemote(pendentes)
-        // Por agora, marcamos como sincronizados (stub)
-        pendentes.forEach { torneioDao.markAsSynced(it.id) }
-    }
-
-    private suspend fun syncJogos() {
-        val pendentes = jogoDao.getPendentesSync()
-        if (pendentes.isEmpty()) return
-        Log.d(TAG, "Sync jogos: ${pendentes.size} pendentes")
-
-        // TODO Passo 2: chamar JogoRepository.upsertRemote(pendentes)
-        pendentes.forEach { jogoDao.markAsSynced(it.id) }
-    }
+    // ── Eventos ───────────────────────────────────────────────────────────────
 
     private suspend fun syncEventos() {
         val pendentes = eventoJogoDao.getPendentesSync()
         if (pendentes.isEmpty()) return
         Log.d(TAG, "Sync eventos: ${pendentes.size} pendentes")
 
-        // TODO Passo 2: chamar EventoJogoRepository.upsertRemote(pendentes)
-        pendentes.forEach { eventoJogoDao.markAsSynced(it.id) }
+        for (evento in pendentes) {
+            // Só conseguimos sincronizar se o jogoId já é um inteiro do Supabase
+            val jogoIdInt = evento.jogoId.toIntOrNull() ?: continue
+
+            try {
+                val tipoDb = evento.tipo.replaceFirstChar { it.uppercase() }
+                val dto = EventoJogoInsertDto(
+                    jogoId         = jogoIdInt,
+                    tipo           = tipoDb,
+                    minuto         = evento.minuto,
+                    equipaId       = evento.equipaId?.toIntOrNull(),
+                    jogadorId      = evento.jogadorId,
+                    jogadorSaiId   = evento.jogadorSaiId,
+                    jogadorEntraId = evento.jogadorEntraId
+                )
+                val created = client.from("evento_jogo")
+                    .insert(dto) { select() }
+                    .decodeSingle<EventoJogoDto>()
+
+                // Substituir UUID local pelo ID real do Supabase
+                eventoJogoDao.deleteById(evento.id)
+                eventoJogoDao.insert(created.toEntity().copy(assistenciaId = evento.assistenciaId))
+
+                // Assistência (best-effort)
+                if (evento.assistenciaId != null) {
+                    try {
+                        client.from("evento_jogo")
+                            .update({ set("assistencia_id", evento.assistenciaId) }) {
+                                filter { eq("id", created.id) }
+                            }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "assistencia_id sync falhou: ${e.message}")
+                    }
+                }
+
+                Log.d(TAG, "Evento ${evento.id} → ${created.id} sincronizado")
+            } catch (e: Exception) {
+                Log.w(TAG, "Evento ${evento.id} falhou, tentará depois: ${e.message}")
+            }
+        }
+    }
+
+    // ── Jogos ─────────────────────────────────────────────────────────────────
+
+    private suspend fun syncJogos() {
+        val pendentes = jogoDao.getPendentesSync()
+        if (pendentes.isEmpty()) return
+        Log.d(TAG, "Sync jogos: ${pendentes.size} pendentes")
+
+        for (jogo in pendentes) {
+            val jogoIdInt = jogo.id.toIntOrNull() ?: continue
+
+            try {
+                // Empurrar o estado e resultado atuais para o Supabase
+                val estadoDb = when (jogo.estado) {
+                    "ao_vivo"  -> "EmCurso"
+                    "terminado"-> "Terminado"
+                    else       -> jogo.estado.replaceFirstChar { it.uppercase() }
+                }
+                client.from("jogo").update({
+                    set("estado", estadoDb)
+                    if (jogo.golosCasa != null)      set("golos_casa", jogo.golosCasa)
+                    if (jogo.golosVisitante != null)  set("golos_fora", jogo.golosVisitante)
+                    if (jogo.minutoAtual != null)     set("minuto_atual", jogo.minutoAtual)
+                }) { filter { eq("id", jogoIdInt) } }
+
+                jogoDao.markAsSynced(jogo.id)
+                Log.d(TAG, "Jogo ${jogo.id} sincronizado (estado=${estadoDb})")
+            } catch (e: Exception) {
+                Log.w(TAG, "Jogo ${jogo.id} falhou, tentará depois: ${e.message}")
+            }
+        }
+    }
+
+    // ── Torneios ──────────────────────────────────────────────────────────────
+
+    private suspend fun syncTorneios() {
+        val pendentes = torneioDao.getPendentesSync()
+        if (pendentes.isEmpty()) return
+        Log.d(TAG, "Sync torneios: ${pendentes.size} pendentes")
+
+        for (torneio in pendentes) {
+            // Torneios com ID inteiro já foram criados no Supabase; apenas marcamos como synced
+            if (torneio.id.toIntOrNull() != null) {
+                torneioDao.markAsSynced(torneio.id)
+                continue
+            }
+
+            // Torneio com UUID — foi criado offline, tentar inserir agora
+            try {
+                val created = client.from("torneio")
+                    .insert(torneio.toInsertDto()) { select() }
+                    .decodeSingle<TorneioDto>()
+
+                val realEntity = created.toEntity()
+                torneioDao.deleteById(torneio.id)
+                torneioDao.insert(realEntity)
+                Log.d(TAG, "Torneio ${torneio.id} → ${realEntity.id} sincronizado")
+            } catch (e: Exception) {
+                Log.w(TAG, "Torneio ${torneio.id} falhou, tentará depois: ${e.message}")
+            }
+        }
     }
 
     // ── Companion ─────────────────────────────────────────────────────────────
 
     companion object {
-        private const val TAG = "SyncWorker"
+        private const val TAG = "HTB-SyncWorker"
         private const val MAX_RETRIES = 3
         const val WORK_NAME = "HojeTemBola_Sync"
 
-        /**
-         * Agenda o worker para correr periodicamente (15 min mínimo do WorkManager),
-         * apenas com rede disponível — chamado em [com.hojetembola.app.HojeTemBolaApp].
-         */
         fun schedule(context: Context) {
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -113,7 +183,6 @@ class SyncWorker @AssistedInject constructor(
             )
         }
 
-        /** Força uma sincronização imediata (ex: ao voltar a ter rede). */
         fun triggerImmediate(context: Context) {
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)

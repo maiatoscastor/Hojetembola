@@ -126,4 +126,7 @@ interface TorneioDao {
 
     @Query("UPDATE torneio SET sincronizado = 1 WHERE id = :id")
     suspend fun markAsSynced(id: String)
+
+    @Query("DELETE FROM torneio WHERE id = :id")
+    suspend fun deleteById(id: String)
 }

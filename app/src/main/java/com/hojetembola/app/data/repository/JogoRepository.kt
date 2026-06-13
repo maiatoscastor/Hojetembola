@@ -93,14 +93,13 @@ class JogoRepository @Inject constructor(
         return try {
             // Offline-first: atualiza Room primeiro para o UI reagir imediatamente
             jogoDao.updateEstadoMinuto(jogoId, "ao_vivo", 0)
-            // Supabase best-effort — falha se o enum ainda não tiver 'EmCurso'
-            // (correr no Supabase SQL Editor: ALTER TYPE estado_jogo ADD VALUE IF NOT EXISTS 'EmCurso';)
             try {
                 client.from("jogo").update({ set("estado", "EmCurso"); set("minuto_atual", 0) }) {
                     filter { eq("id", idInt) }
                 }
             } catch (e: Exception) {
-                Log.w(TAG, "iniciarJogo Supabase sync falhou (enum?): ${e.message}")
+                Log.w(TAG, "iniciarJogo Supabase sync falhou, marcando para re-sync: ${e.message}")
+                jogoDao.markAsUnsynced(jogoId)
             }
             Result.success(Unit)
         } catch (e: Exception) {
@@ -123,7 +122,8 @@ class JogoRepository @Inject constructor(
                     set("minuto_atual", null as Int?)
                 }) { filter { eq("id", idInt) } }
             } catch (e: Exception) {
-                Log.w(TAG, "terminarJogo Supabase sync falhou: ${e.message}")
+                Log.w(TAG, "terminarJogo Supabase sync falhou, marcando para re-sync: ${e.message}")
+                jogoDao.markAsUnsynced(jogoId)
             }
             // Mark active suspensions from previous games as cumprida — player sat out this game
             if (jogo != null) {
@@ -203,58 +203,88 @@ class JogoRepository @Inject constructor(
         assistenciaId: String? = null
     ): Result<Unit> {
         return try {
-            val tipoDb = when (tipo) {
-                "golo"         -> "Golo"
-                "amarelo"      -> "Amarelo"
-                "vermelho"     -> "Vermelho"
-                "substituicao" -> "Substituicao"
-                else           -> tipo.replaceFirstChar { it.uppercase() }
+            val tipoLower = when (tipo) {
+                "Golo", "golo"               -> "golo"
+                "Amarelo", "amarelo"         -> "amarelo"
+                "Vermelho", "vermelho"       -> "vermelho"
+                "Substituicao","substituicao"-> "substituicao"
+                else                         -> tipo.lowercase()
             }
-            val dto = EventoJogoInsertDto(
-                jogoId = jogoId.toInt(),
-                tipo = tipoDb,
-                minuto = minuto,
-                equipaId = equipaId?.toIntOrNull(),
-                jogadorId = jogadorId,
-                jogadorSaiId = jogadorSaiId,
-                jogadorEntraId = jogadorEntraId
+            val tipoDb = tipoLower.replaceFirstChar { it.uppercase() }
+
+            // 1. Guardar em Room imediatamente com UUID (isSynced=false)
+            //    Isto garante que o evento não se perde mesmo sem internet.
+            val localId = UUID.randomUUID().toString()
+            eventoJogoDao.insert(
+                EventoJogoEntity(
+                    id = localId, jogoId = jogoId, tipo = tipoLower,
+                    minuto = minuto, equipaId = equipaId, jogadorId = jogadorId,
+                    jogadorSaiId = jogadorSaiId, jogadorEntraId = jogadorEntraId,
+                    assistenciaId = assistenciaId, isSynced = false
+                )
             )
-            val created = client.from("evento_jogo")
-                .insert(dto) { select() }
-                .decodeSingle<EventoJogoDto>()
-            // Store in Room — always include assistenciaId even if Supabase column missing
-            eventoJogoDao.insert(created.toEntity().copy(assistenciaId = assistenciaId))
-            // Best-effort Supabase assist update — requires: ALTER TABLE evento_jogo ADD COLUMN IF NOT EXISTS assistencia_id TEXT;
-            if (assistenciaId != null) {
-                try {
-                    client.from("evento_jogo").update({ set("assistencia_id", assistenciaId) }) {
-                        filter { eq("id", created.id) }
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "assistencia_id update falhou (correr SQL migration): ${e.message}")
+
+            // 2. Lógica local imediata (score, amarelos, suspensões)
+            //    Tudo lê do Room, por isso funciona offline.
+            if (tipoLower == "golo") {
+                val jogo = jogoDao.getById(jogoId)
+                if (jogo != null) {
+                    val casaNova  = if (equipaId == jogo.equipaCasaId)        (jogo.golosCasa     ?: 0) + 1 else (jogo.golosCasa     ?: 0)
+                    val visitNova = if (equipaId == jogo.equipaVisitanteId)   (jogo.golosVisitante ?: 0) + 1 else (jogo.golosVisitante ?: 0)
+                    jogoDao.updateResultado(jogoId, casaNova, visitNova)
                 }
+            }
+            if (tipoLower == "amarelo" && jogadorId != null) {
+                processAmarelo(jogoId, minuto, equipaId, jogadorId)
+            }
+            if (tipoLower == "vermelho" && jogadorId != null) {
+                registarSuspensao(jogadorId, jogoId, "vermelho")
             }
 
-            when (tipo) {
-                "golo" -> {
-                    val jogo = jogoDao.getById(jogoId)
-                    if (jogo != null) {
-                        val casaNova = if (equipaId == jogo.equipaCasaId) (jogo.golosCasa ?: 0) + 1 else (jogo.golosCasa ?: 0)
-                        val visitNova = if (equipaId == jogo.equipaVisitanteId) (jogo.golosVisitante ?: 0) + 1 else (jogo.golosVisitante ?: 0)
-                        jogoDao.updateResultado(jogoId, casaNova, visitNova)
-                        jogoId.toIntOrNull()?.let { id ->
-                            client.from("jogo").update({
-                                set("golos_casa", casaNova)
-                                set("golos_fora", visitNova)
-                            }) { filter { eq("id", id) } }
+            // 3. Tentar sincronizar com Supabase (best-effort)
+            val jogoIdInt = jogoId.toIntOrNull()
+            if (jogoIdInt != null) {
+                try {
+                    val dto = EventoJogoInsertDto(
+                        jogoId = jogoIdInt, tipo = tipoDb, minuto = minuto,
+                        equipaId = equipaId?.toIntOrNull(), jogadorId = jogadorId,
+                        jogadorSaiId = jogadorSaiId, jogadorEntraId = jogadorEntraId
+                    )
+                    val created = client.from("evento_jogo").insert(dto) { select() }.decodeSingle<EventoJogoDto>()
+
+                    // Substituir UUID local pelo ID real do Supabase
+                    eventoJogoDao.deleteById(localId)
+                    eventoJogoDao.insert(created.toEntity().copy(assistenciaId = assistenciaId))
+
+                    // Score em Supabase (best-effort)
+                    if (tipoLower == "golo") {
+                        val jogo = jogoDao.getById(jogoId)
+                        if (jogo != null) {
+                            try {
+                                client.from("jogo").update({
+                                    set("golos_casa", jogo.golosCasa ?: 0)
+                                    set("golos_fora", jogo.golosVisitante ?: 0)
+                                }) { filter { eq("id", jogoIdInt) } }
+                            } catch (e: Exception) {
+                                Log.w(TAG, "score Supabase sync falhou: ${e.message}")
+                            }
                         }
                     }
-                }
-                "amarelo" -> if (jogadorId != null) {
-                    processAmarelo(jogoId, minuto, equipaId, jogadorId)
-                }
-                "vermelho" -> if (jogadorId != null) {
-                    registarSuspensao(jogadorId, jogoId, "vermelho")
+
+                    // Assistência (best-effort — coluna pode não existir ainda)
+                    if (assistenciaId != null) {
+                        try {
+                            client.from("evento_jogo").update({ set("assistencia_id", assistenciaId) }) {
+                                filter { eq("id", created.id) }
+                            }
+                        } catch (e: Exception) {
+                            Log.w(TAG, "assistencia_id update falhou: ${e.message}")
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Offline ou erro de rede — o evento está guardado em Room com isSynced=false.
+                    // O SyncWorker irá sincronizar quando houver rede.
+                    Log.w(TAG, "registarEvento offline, será sincronizado pelo SyncWorker: ${e.message}")
                 }
             }
 

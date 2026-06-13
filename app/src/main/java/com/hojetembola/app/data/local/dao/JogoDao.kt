@@ -87,6 +87,9 @@ interface JogoDao {
     @Query("UPDATE jogo SET is_synced = 1 WHERE id = :id")
     suspend fun markAsSynced(id: String)
 
+    @Query("UPDATE jogo SET is_synced = 0 WHERE id = :id")
+    suspend fun markAsUnsynced(id: String)
+
     @Query("DELETE FROM jogo WHERE torneio_id = :torneioId")
     suspend fun deleteByTorneio(torneioId: String)
 
