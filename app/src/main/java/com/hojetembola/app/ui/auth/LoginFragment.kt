@@ -22,18 +22,8 @@ import kotlinx.coroutines.launch
 /**
  * Ecrã de autenticação — ponto de entrada depois do splash.
  *
- * Tabs:
- *   [0] Entrar   — formulário de login (email + password)
- *   [1] Registar — navega para [RegistoFragment]
- *
- * Fluxo de estado:
- *   UI → [AuthViewModel] → [AuthRepository] → Supabase
- *   AuthState: Idle / Loading / Success / Error
- *
- * Requer (compilação):
- *   - [AuthViewModel]   (Ficheiro #5)
- *   - [AuthRepository]  (Ficheiro #6)
- *   - [RegistoFragment] (Ficheiro #4) — destino da tab "Registar"
+ * Tab 0: login com email/password.
+ * Tab 1: navega para [RegistoFragment].
  */
 @AndroidEntryPoint
 class LoginFragment : Fragment() {

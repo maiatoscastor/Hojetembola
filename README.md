@@ -15,7 +15,9 @@ O objetivo é simples: organizar torneios de ponta a ponta, acompanhar jogos em 
 - Sistema de suspensões automáticas por acumulação de cartões
 - Votação MVP por jogo
 - **Modo offline** — regista eventos sem internet, sincroniza automaticamente ao restaurar ligação
-- Interface disponível em **Português** e **Inglês**, com suporte a portrait e landscape
+- Interface disponível em **Português** e **Inglês**, com toggle nas definições
+- Orientação portrait em toda a app, landscape disponível na página de Rankings
+- Testes unitários e de integração incluídos
 
 ---
 

@@ -31,10 +31,6 @@ sealed class AuthState {
      */
     data class Success(val uid: String) : AuthState()
 
-    /**
-     * Email enviado com sucesso (recuperação de password).
-     * Emitido por [AuthViewModel.forgotPassword] — não causa navegação para MainActivity.
-     */
     object EmailSent : AuthState()
 
     /**
@@ -46,19 +42,7 @@ sealed class AuthState {
 
 // ── ViewModel ─────────────────────────────────────────────────────────────────
 
-/**
- * ViewModel de autenticação — único intermediário entre a UI e [AuthRepository].
- *
- * Arquitetura MVVM estrita:
- *   UI → [login] / [register] / [loginWithGoogle] / [forgotPassword]
- *   ViewModel → [AuthRepository] (suspend, em [viewModelScope])
- *   UI ← [authState] (StateFlow)
- *
- * Injetado via Hilt em [LoginFragment] e [RegistoFragment].
- *
- * Requer (compilação):
- *   - [AuthRepository]  (Ficheiro #6)
- */
+/** ViewModel de autenticação partilhado por [LoginFragment] e [RegistoFragment]. */
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repository: AuthRepository
