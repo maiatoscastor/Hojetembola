@@ -65,6 +65,9 @@ interface VotoMvpDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(voto: VotoMvpEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(votos: List<VotoMvpEntity>)
+
     @Update
     suspend fun update(voto: VotoMvpEntity)
 

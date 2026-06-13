@@ -1,5 +1,6 @@
 package com.hojetembola.app.ui.rankings
 
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -64,6 +65,16 @@ class RankingsFragment : Fragment() {
         setupTorneioDropdown()
         observeState()
         observeTorneios()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
     override fun onDestroyView() {

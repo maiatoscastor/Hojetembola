@@ -24,6 +24,7 @@
         <activity
             android:name=".ui.auth.SplashActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.HojeTemBola.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,7 +35,8 @@
         <!-- ── Main app — iniciada após autenticação bem-sucedida ────────── -->
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- ── FCM — serviço de notificações push ────────────────────────── -->
         <service

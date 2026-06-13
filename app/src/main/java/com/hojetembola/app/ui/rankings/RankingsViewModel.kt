@@ -45,6 +45,7 @@ class RankingsViewModel @Inject constructor(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RankingsUiState.Loading)
 
     init {
+        viewModelScope.launch { repository.syncDadosRanking() }
         loadTorneios()
     }
 

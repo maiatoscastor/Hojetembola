@@ -1,14 +1,23 @@
 package com.hojetembola.app.data.repository
 
 import android.graphics.Color
+import android.util.Log
 import com.hojetembola.app.data.local.dao.CartaoRow
 import com.hojetembola.app.data.local.dao.ClassificacaoDao
 import com.hojetembola.app.data.local.dao.ConvocatoriaJogoDao
+import com.hojetembola.app.data.local.dao.EquipaDao
 import com.hojetembola.app.data.local.dao.EventoJogoDao
 import com.hojetembola.app.data.local.dao.RankingRow
 import com.hojetembola.app.data.local.dao.TorneioDao
+import com.hojetembola.app.data.local.dao.UtilizadorDao
 import com.hojetembola.app.data.local.dao.VotoMvpDao
 import com.hojetembola.app.data.local.entity.TorneioEntity
+import com.hojetembola.app.data.local.entity.VotoMvpEntity
+import com.hojetembola.app.data.remote.dto.ClassificacaoDto
+import com.hojetembola.app.data.remote.dto.ConvocatoriaJogoDto
+import com.hojetembola.app.data.remote.dto.EquipaDto
+import com.hojetembola.app.data.remote.dto.EventoJogoDto
+import com.hojetembola.app.data.remote.dto.UtilizadorDto
 import com.hojetembola.app.ui.rankings.ClassificacaoRow
 import com.hojetembola.app.ui.rankings.RankingEntry
 import com.hojetembola.app.ui.rankings.RankingMetric
@@ -16,11 +25,24 @@ import com.hojetembola.app.ui.rankings.RankingPeriod
 import com.hojetembola.app.ui.rankings.RankingScope
 import com.hojetembola.app.ui.rankings.RankingsContent
 import com.hojetembola.app.ui.rankings.TorneioRankingInfo
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 import javax.inject.Singleton
+
+@Serializable
+private data class VotoMvpSyncDto(
+    val id: String,
+    @SerialName("jogo_id")      val jogoId: String,
+    @SerialName("votante_id")   val votanteId: String,
+    @SerialName("votado_id")    val votadoId: String,
+    @SerialName("tipo_votante") val tipoVotante: String
+)
 
 @Singleton
 class RankingsRepository @Inject constructor(
@@ -29,6 +51,9 @@ class RankingsRepository @Inject constructor(
     private val convocatoriaJogoDao: ConvocatoriaJogoDao,
     private val classificacaoDao: ClassificacaoDao,
     private val torneioDao: TorneioDao,
+    private val utilizadorDao: UtilizadorDao,
+    private val equipaDao: EquipaDao,
+    private val client: SupabaseClient,
     private val userRepository: UserRepository
 ) {
 
@@ -142,6 +167,46 @@ class RankingsRepository @Inject constructor(
         )
     }
 
+    // ── Sync do Supabase → Room ───────────────────────────────────────────────
+
+    suspend fun syncDadosRanking() {
+        try {
+            val utilizadores = client.from("utilizador").select().decodeList<UtilizadorDto>()
+            utilizadorDao.insertAll(utilizadores.map { it.toEntity() })
+        } catch (e: Exception) { Log.w(TAG, "sync utilizador: ${e.message}") }
+
+        try {
+            val equipas = client.from("equipa").select().decodeList<EquipaDto>()
+            equipaDao.insertAll(equipas.map { it.toEntity() })
+        } catch (e: Exception) { Log.w(TAG, "sync equipa: ${e.message}") }
+
+        try {
+            val eventos = client.from("evento_jogo").select().decodeList<EventoJogoDto>()
+            eventoJogoDao.insertAll(eventos.map { it.toEntity() })
+        } catch (e: Exception) { Log.w(TAG, "sync evento_jogo: ${e.message}") }
+
+        try {
+            val convocatorias = client.from("convocatoria_jogo").select().decodeList<ConvocatoriaJogoDto>()
+            convocatoriaJogoDao.insertAll(convocatorias.map { it.toEntity() })
+        } catch (e: Exception) { Log.w(TAG, "sync convocatoria_jogo: ${e.message}") }
+
+        try {
+            val classificacoes = client.from("classificacao").select().decodeList<ClassificacaoDto>()
+            classificacaoDao.insertAll(classificacoes.map { it.toEntity() })
+        } catch (e: Exception) { Log.w(TAG, "sync classificacao: ${e.message}") }
+
+        try {
+            val votos = client.from("voto_mvp").select().decodeList<VotoMvpSyncDto>()
+            votoMvpDao.insertAll(votos.map {
+                VotoMvpEntity(
+                    id = it.id, jogoId = it.jogoId,
+                    votanteId = it.votanteId, votadoId = it.votadoId,
+                    tipoVotante = it.tipoVotante
+                )
+            })
+        } catch (e: Exception) { Log.w(TAG, "sync voto_mvp: ${e.message}") }
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
 
@@ -183,4 +248,6 @@ class RankingsRepository @Inject constructor(
             torneioInfo = null, podium = emptyList(), entries = emptyList(),
             classificacao = emptyList(), showPodium = false, showClassificacao = false
         )
+
+    companion object { private const val TAG = "RankingsRepository" }
 }
