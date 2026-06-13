@@ -22,6 +22,9 @@ import com.google.android.material.tabs.TabLayout
 import com.hojetembola.app.R
 import com.hojetembola.app.databinding.DialogEntrarCodigoBinding
 import com.hojetembola.app.databinding.FragmentTorneiosBinding
+import com.hojetembola.app.data.local.entity.TorneioEntity
+import com.hojetembola.app.data.local.entity.minJogadoresPorEquipa
+import com.hojetembola.app.ui.equipa.InscricaoTorneioBottomSheet
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -61,7 +64,7 @@ class TorneiosFragment : Fragment() {
         torneioAdapter = TorneioAdapter(
             onMeuClick     = { torneio -> navegarParaDetalhe(torneio) },
             onPublicoClick = { torneio -> navegarParaDetalhe(torneio) },
-            onInscrever    = { Snackbar.make(binding.root, R.string.em_breve, Snackbar.LENGTH_SHORT).show() }
+            onInscrever    = { torneio -> abrirInscricao(torneio.id, torneio.minJogadoresPorEquipa(), torneio.maxJogadoresPorEquipa) }
         )
         binding.rvTorneios.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -169,7 +172,7 @@ class TorneiosFragment : Fragment() {
 
     // ── Navegação ─────────────────────────────────────────────────────────────
 
-    private fun navegarParaDetalhe(torneio: com.hojetembola.app.data.local.entity.TorneioEntity) {
+    private fun navegarParaDetalhe(torneio: TorneioEntity) {
         val emCurso = torneio.estado in listOf("ADecorrer", "a_decorrer", "Terminado", "terminado")
         if (emCurso) {
             findNavController().navigate(
@@ -189,6 +192,24 @@ class TorneiosFragment : Fragment() {
             R.id.action_torneiosFragment_to_torneioDetalheFragment,
             bundleOf("torneioId" to torneioId)
         )
+    }
+
+    private fun abrirInscricao(torneioId: String, minJogadores: Int, maxJogadores: Int) {
+        if (parentFragmentManager.findFragmentByTag(InscricaoTorneioBottomSheet.TAG) != null) return
+        val sheet = InscricaoTorneioBottomSheet.newInstance(torneioId)
+        sheet.onNavegarParaCriarEquipa = {
+            findNavController().navigate(
+                R.id.action_torneiosFragment_to_criarEquipaFragment,
+                bundleOf("torneioId" to torneioId, "minJogadores" to minJogadores, "maxJogadores" to maxJogadores)
+            )
+        }
+        sheet.onNavegarParaGerirEquipa = { equipaId, equipaNome ->
+            findNavController().navigate(
+                R.id.action_torneiosFragment_to_gerirEquipaFragment,
+                bundleOf("equipaId" to equipaId, "equipaNome" to equipaNome, "torneioId" to torneioId, "minJogadores" to minJogadores, "maxJogadores" to maxJogadores)
+            )
+        }
+        sheet.show(parentFragmentManager, InscricaoTorneioBottomSheet.TAG)
     }
 
     // ── Dialog: Entrar com código ─────────────────────────────────────────────

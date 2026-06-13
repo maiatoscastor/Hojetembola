@@ -77,6 +77,7 @@ class TorneioEmCursoViewModel @Inject constructor(
                     val equipa = equipaDao.getById(entry.equipaId) ?: return@mapNotNull null
                     ClassificacaoTorneioRow(
                         posicao = entry.posicao,
+                        equipaId = entry.equipaId,
                         equipaNome = equipa.nome,
                         equipaIniciais = equipa.iniciais,
                         equipaCor = equipa.corAvatar,

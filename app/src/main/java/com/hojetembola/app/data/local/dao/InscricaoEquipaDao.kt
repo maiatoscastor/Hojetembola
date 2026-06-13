@@ -57,8 +57,8 @@ interface InscricaoEquipaDao {
     """)
     suspend fun countInscricaoAtiva(torneioId: String, equipaId: String): Int
 
-    /** Nº total de equipas aceites num torneio. */
-    @Query("SELECT COUNT(*) FROM inscricao_equipa WHERE torneio_id = :torneioId AND estado = 'Aceite'")
+    /** Nº total de equipas confirmadas num torneio. */
+    @Query("SELECT COUNT(*) FROM inscricao_equipa WHERE torneio_id = :torneioId AND estado = 'Confirmada'")
     suspend fun countAceites(torneioId: String): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -72,6 +72,9 @@ interface InscricaoEquipaDao {
 
     @Query("UPDATE inscricao_equipa SET estado = :estado WHERE torneio_id = :torneioId AND equipa_id = :equipaId")
     suspend fun updateEstado(torneioId: String, equipaId: String, estado: String)
+
+    @Query("UPDATE inscricao_equipa SET grupo = :grupo WHERE torneio_id = :torneioId AND equipa_id = :equipaId")
+    suspend fun updateGrupo(torneioId: String, equipaId: String, grupo: String)
 
     @Query("UPDATE inscricao_equipa SET estado = :estado WHERE id = :id")
     suspend fun updateEstadoById(id: String, estado: String)

@@ -80,6 +80,14 @@ interface EventoJogoDao {
     @Query("SELECT COUNT(*) FROM evento_jogo WHERE jogador_id = :jogadorId AND jogo_id = :jogoId AND tipo = 'amarelo'")
     suspend fun countAmarelosByJogadorJogo(jogadorId: String, jogoId: String): Int
 
+    /** Golos de um jogador num jogo específico (para meta do MVP). */
+    @Query("SELECT COUNT(*) FROM evento_jogo WHERE jogador_id = :jogadorId AND jogo_id = :jogoId AND tipo = 'golo'")
+    suspend fun countGolosNoJogo(jogadorId: String, jogoId: String): Int
+
+    /** Assistências de um jogador num jogo específico (para meta do MVP). */
+    @Query("SELECT COUNT(*) FROM evento_jogo WHERE assistencia_id = :jogadorId AND jogo_id = :jogoId AND tipo = 'golo'")
+    suspend fun countAssistenciasNoJogo(jogadorId: String, jogoId: String): Int
+
     @Query("""
         SELECT e.id AS evento_id, e.jogo_id, e.tipo, e.minuto, e.equipa_id,
                e.jogador_id,

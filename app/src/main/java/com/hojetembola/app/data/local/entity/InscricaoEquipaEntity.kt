@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 /**
  * Espelha a tabela `inscricao_equipa` do Supabase.
- * Estado ENUM do Supabase: Pendente | Aceite | Recusada | Eliminada
+ * Estado real no Supabase: Pendente | Confirmada | Recusada | Eliminada
  */
 @Entity(tableName = "inscricao_equipa")
 data class InscricaoEquipaEntity(

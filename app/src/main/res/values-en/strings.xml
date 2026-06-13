@@ -300,6 +300,15 @@
     <string name="sucesso_voto_mvp">Vote recorded!</string>
     <string name="sucesso_evento_registado">Event registered!</string>
 
+    <!-- ── Bracket ─────────────────────────────────────────────────────────── -->
+    <string name="tab_bracket">Bracket</string>
+    <string name="round_final">Final</string>
+    <string name="round_meia_final">Semi-Final</string>
+    <string name="round_quartos">Quarters</string>
+    <string name="round_oitavos">Round of 16</string>
+    <string name="round_numero">Round %d</string>
+    <string name="a_definir">TBD</string>
+
     <!-- ── Accessibility ──────────────────────────────────────────────────── -->
     <string name="cd_logo_app">HojeTemBola logo</string>
     <string name="cd_botao_notificacoes">Notifications</string>

@@ -55,6 +55,8 @@ data class JogoDetalheUiState(
     val classificacao: List<ClassificacaoEntity> = emptyList(),
     /** Map of equipaId → equipa nome for the ranking table. */
     val equipaNomesMap: Map<String, String> = emptyMap(),
+    /** Whether MVP voting is enabled for this tournament. */
+    val votacaoMvpAtiva: Boolean = false,
     val erro: String? = null
 )
 
@@ -101,7 +103,9 @@ class JogoDetalheViewModel @Inject constructor(
             val jogoInit = jogoRepository.getJogoById(jogoId)
             val casaJogadores      = loadJogadores(jogoInit?.equipaCasaId)
             val visitanteJogadores = loadJogadores(jogoInit?.equipaVisitanteId)
-            val numJogadoresPorEquipa = jogoRepository.getTorneioById(torneioId)?.minJogadoresPorEquipa() ?: 0
+            val torneio = jogoRepository.getTorneioById(torneioId)
+            val numJogadoresPorEquipa = torneio?.minJogadoresPorEquipa() ?: 0
+            val mvpAtivo = torneio?.votacaoMvpAtiva ?: false
             jogoRepository.syncSuspensoes(torneioId)
             val suspensosIds = jogoRepository.getSuspensosIds(torneioId)
             val equipaNomesMap = jogoRepository.getEquipaNomesMap(torneioId)
@@ -168,7 +172,8 @@ class JogoDetalheViewModel @Inject constructor(
                     visitanteExpulsoIds       = visitExpulsoIds,
                     suspensosIds              = suspensosIds,
                     classificacao             = classificacao,
-                    equipaNomesMap            = equipaNomesMap
+                    equipaNomesMap            = equipaNomesMap,
+                    votacaoMvpAtiva           = mvpAtivo
                 )
             }.collect {}
         }

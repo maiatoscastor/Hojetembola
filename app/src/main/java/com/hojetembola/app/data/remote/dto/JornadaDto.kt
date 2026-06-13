@@ -15,6 +15,7 @@ data class JornadaDto(
     fun toEntity() = JornadaEntity(
         id        = id.toString(),
         torneioId = torneioId.toString(),
+        nome      = nome,
         numero    = nome.filter { it.isDigit() }.toIntOrNull() ?: 0,
         dataInicio = dataInicio,
         dataFim    = dataFim

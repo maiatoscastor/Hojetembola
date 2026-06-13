@@ -13,6 +13,9 @@ interface JornadaDao {
     @Query("SELECT * FROM jornada WHERE torneio_id = :torneioId ORDER BY numero ASC")
     fun getByTorneio(torneioId: String): Flow<List<JornadaEntity>>
 
+    @Query("SELECT * FROM jornada WHERE torneio_id = :torneioId ORDER BY numero ASC")
+    suspend fun getByTorneioSuspend(torneioId: String): List<JornadaEntity>
+
     @Query("SELECT COUNT(*) FROM jornada WHERE torneio_id = :torneioId")
     suspend fun countByTorneio(torneioId: String): Int
 

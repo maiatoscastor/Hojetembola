@@ -114,6 +114,13 @@ class JogoDetalheFragment : Fragment() {
                 .setNegativeButton(R.string.cancelar, null)
                 .show()
         }
+
+        binding.btnVotarMvp.setOnClickListener {
+            if (childFragmentManager.findFragmentByTag(VotarMvpBottomSheet.TAG) == null) {
+                VotarMvpBottomSheet.newInstance(viewModel.jogoId)
+                    .show(childFragmentManager, VotarMvpBottomSheet.TAG)
+            }
+        }
     }
 
     // ── State observation ─────────────────────────────────────────────────────
@@ -152,6 +159,10 @@ class JogoDetalheFragment : Fragment() {
                         } else {
                             binding.layoutBotoesOrganizador.isVisible = false
                         }
+
+                        // MVP vote button — visible when voting is active and game has started
+                        val jogoEmCursoOuTerminado = jogo?.estado in listOf("ao_vivo", "terminado")
+                        binding.btnVotarMvp.isVisible = state.votacaoMvpAtiva && jogoEmCursoOuTerminado
 
                         // Formation section — update pitch + empty state (visibility controlled by tabs)
                         if (state.titularesDefinidos) {

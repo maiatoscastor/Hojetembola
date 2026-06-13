@@ -255,6 +255,12 @@
     <string name="jogadores_label">Jogadores</string>
     <string name="publico_label">Público</string>
     <string name="organizador_label">Organizador</string>
+    <string name="votacao_mvp">Votação MVP</string>
+    <string name="tab_mvp_jogadores">Jogadores</string>
+    <string name="tab_mvp_publico">Público</string>
+    <string name="tab_mvp_organizador">Org.</string>
+    <string name="mvp_org_info">Aguarda o voto do organizador…</string>
+    <string name="mvp_org_escolheu">Organizador escolheu: %s</string>
 
     <!-- ── Perfil ─────────────────────────────────────────────────────────── -->
     <string name="perfil_titulo">Perfil</string>
@@ -456,4 +462,13 @@
     <string name="col_pj">PJ</string>
     <string name="col_pts">Pts</string>
     <string name="col_dg">DG</string>
+
+    <!-- Bracket -->
+    <string name="tab_bracket">Bracket</string>
+    <string name="round_final">Final</string>
+    <string name="round_meia_final">Meia-Final</string>
+    <string name="round_quartos">Quartos</string>
+    <string name="round_oitavos">Oitavos</string>
+    <string name="round_numero">Ronda %d</string>
+    <string name="a_definir">A Definir</string>
 </resources>

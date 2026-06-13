@@ -263,7 +263,7 @@ class EquipaRepository @Inject constructor(
             val inscricoesAtivas = client.from("inscricao_equipa")
                 .select { filter {
                     eq("equipa_id", equipaIdInt)
-                    isIn("estado", listOf("Pendente", "Aceite", "Confirmada"))
+                    isIn("estado", listOf("Pendente", "Confirmada"))
                 } }
                 .decodeList<InscricaoEquipaDto>()
 

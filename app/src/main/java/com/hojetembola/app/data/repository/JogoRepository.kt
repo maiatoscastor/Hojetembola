@@ -37,8 +37,6 @@ import kotlinx.coroutines.flow.first
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.ceil
-import kotlin.math.sqrt
 
 /** One entry passed to [JogoRepository.definirTitulares] per player. */
 data class ConvocatoriaEntrada(
@@ -130,6 +128,15 @@ class JogoRepository @Inject constructor(
             // Mark active suspensions from previous games as cumprida — player sat out this game
             if (jogo != null) {
                 marcarSuspensoesCumpridas(jogo.torneioId, jogoId)
+                val torneio = torneioDao.getById(jogo.torneioId)
+                when (torneio?.formato) {
+                    "Eliminatorias", "eliminatorias" ->
+                        avancarEliminatorias(jogo.torneioId, jogo.jornadaId)
+                    "GruposEliminatorias", "grupos_eliminatorias" ->
+                        verificarFimGrupos(jogo.torneioId, jogo.jornadaId)
+                    "Liga", "liga", "TodosContraTodos", "todos_vs_todos" ->
+                        verificarFimLiga(jogo.torneioId)
+                }
             }
             Result.success(Unit)
         } catch (e: Exception) {
@@ -556,10 +563,15 @@ class JogoRepository @Inject constructor(
             val jornadas = client.from("jornada")
                 .select { filter { eq("torneio_id", tId) } }
                 .decodeList<JornadaDto>()
-            // Limpa cache antes de reinserir — garante que dados apagados remotamente
-            // não ficam em cache local (ex: calendário regenerado)
+            // Preserve local names before wiping (Supabase may not have the nome column yet)
+            val localNomes = jornadaDao.getByTorneioSuspend(torneioId).associate { it.id to it.nome }
             jornadaDao.deleteByTorneio(torneioId)
-            jornadaDao.insertAll(jornadas.map { it.toEntity() })
+            jornadaDao.insertAll(jornadas.map { dto ->
+                val entity = dto.toEntity()
+                val savedNome = localNomes[entity.id]
+                if (entity.nome.isBlank() && !savedNome.isNullOrBlank()) entity.copy(nome = savedNome)
+                else entity
+            })
 
             val jogos = client.from("jogo")
                 .select { filter { eq("torneio_id", tId) } }
@@ -741,6 +753,263 @@ class JogoRepository @Inject constructor(
     }
 
     /**
+     * Verifica se todos os jogos da jornada terminaram e, se sim, gera a próxima ronda
+     * com os vencedores emparelhados sequencialmente (jogo 1 vs jogo 2 → semi 1, etc.).
+     */
+    private suspend fun avancarEliminatorias(torneioId: String, jornadaId: String) {
+        try {
+            val torneioIdInt = torneioId.toIntOrNull() ?: return
+
+            val jogosRonda = jogoDao.getByJornada(jornadaId).first()
+                .sortedBy { it.id.toIntOrNull() ?: 0 }
+
+            if (jogosRonda.isEmpty() || jogosRonda.any { it.estado != "terminado" }) return
+
+            // Winners of this round's games
+            val vencedores = jogosRonda.map { jogo ->
+                if ((jogo.golosCasa ?: 0) >= (jogo.golosVisitante ?: 0)) jogo.equipaCasaId
+                else jogo.equipaVisitanteId
+            }.toMutableList()
+
+            // Propagate BYE teams (teams still alive that didn't play this round)
+            val formato = torneioDao.getById(torneioId)?.formato ?: ""
+            val teamsInRound = jogosRonda
+                .flatMap { listOf(it.equipaCasaId, it.equipaVisitanteId) }.toSet()
+            vencedores += calcByeTeams(torneioId, formato, jornadaId, teamsInRound)
+
+            // Only 1 team remaining → champion, tournament over
+            if (vencedores.size <= 1) {
+                try {
+                    torneioDao.updateEstado(torneioId, "Terminado")
+                    client.from("torneio")
+                        .update({ set("estado", "Terminado") }) { filter { eq("id", torneioIdInt) } }
+                    Log.i(TAG, "Torneio $torneioId concluído")
+                } catch (e: Exception) {
+                    Log.w(TAG, "Erro ao marcar torneio como Terminado: ${e.message}")
+                }
+                return
+            }
+
+            // Create next round jornada
+            val jornada = jornadaDao.getById(jornadaId)
+            val proximaRonda = (jornada?.numero ?: 0) + 1
+            val jornadaDto = client.from("jornada")
+                .insert(JornadaInsertDto(torneioId = torneioIdInt, nome = "Ronda $proximaRonda")) { select() }
+                .decodeSingle<JornadaDto>()
+            jornadaDao.insert(jornadaDto.toEntity())
+
+            // Pair consecutive teams; odd team out gets another BYE (no game created for them)
+            for (i in vencedores.indices step 2) {
+                if (i + 1 < vencedores.size) {
+                    inserirJogo(torneioIdInt, jornadaDto.id, vencedores[i].toInt(), vencedores[i + 1].toInt())
+                }
+            }
+
+            val numJogos = vencedores.size / 2
+            val numByes  = vencedores.size % 2
+            Log.i(TAG, "avancarEliminatorias: Ronda $proximaRonda — $numJogos jogos, $numByes BYE")
+        } catch (e: Exception) {
+            Log.w(TAG, "avancarEliminatorias falhou: ${e.message}")
+        }
+    }
+
+    /**
+     * Computes teams that had a BYE in [currentJornadaId] by walking the knockout round history.
+     *
+     * For pure Eliminatorias the initial pool is all confirmed inscricoes.
+     * For GruposEliminatorias the initial pool is the top-2 qualifiers from each group,
+     * so eliminated group-stage teams are never accidentally treated as BYE teams.
+     */
+    private suspend fun calcByeTeams(
+        torneioId: String,
+        formato: String,
+        currentJornadaId: String,
+        teamsInCurrentRound: Set<String>
+    ): List<String> {
+        val allJornadas = jornadaDao.getByTorneio(torneioId).first()
+            .filter { !it.nome.startsWith("Grupo") }
+            .sortedBy { it.numero }
+
+        var stillAlive: Set<String> =
+            if (formato.contains("Grupos", ignoreCase = true))
+                computeKnockoutPool(torneioId)
+            else
+                inscricaoEquipaDao.getByTorneioSuspend(torneioId)
+                    .filter { it.estado == "Confirmada" }
+                    .map { it.equipaId }
+                    .toSet()
+
+        for (jornada in allJornadas) {
+            if (jornada.id == currentJornadaId) break
+            val jogos = jogoDao.getByJornada(jornada.id).first()
+            val inRound = jogos.flatMap { listOf(it.equipaCasaId, it.equipaVisitanteId) }.toSet()
+            val byes    = stillAlive - inRound
+            val winners = jogos.map { j ->
+                if ((j.golosCasa ?: 0) >= (j.golosVisitante ?: 0)) j.equipaCasaId else j.equipaVisitanteId
+            }.toSet()
+            stillAlive = winners + byes
+        }
+
+        return (stillAlive - teamsInCurrentRound).toList()
+    }
+
+    /** Top-2 qualifiers from each group — the initial knockout bracket pool. */
+    private suspend fun computeKnockoutPool(torneioId: String): Set<String> {
+        val groupJornadas = jornadaDao.getByTorneio(torneioId).first()
+            .filter { it.nome.startsWith("Grupo") }
+        val groupGames = groupJornadas.flatMap { jogoDao.getByJornada(it.id).first() }
+
+        // Primary: grupo field on inscricoes
+        val inscricoes = inscricaoEquipaDao.getByTorneioSuspend(torneioId)
+            .filter { it.estado == "Confirmada" && !it.grupo.isNullOrBlank() }
+        var grupoMap: Map<String, List<String>> = inscricoes.groupBy({ it.grupo!! }, { it.equipaId })
+
+        // Fallback: derive from jornada names
+        if (grupoMap.keys.size < 2) {
+            val fallback = mutableMapOf<String, MutableSet<String>>()
+            for (j in groupJornadas) {
+                val grupoChar = j.nome.removePrefix("Grupo ").substringBefore(" ").trim()
+                if (grupoChar.isBlank()) continue
+                val ids = jogoDao.getByJornada(j.id).first()
+                    .flatMap { listOf(it.equipaCasaId, it.equipaVisitanteId) }
+                fallback.getOrPut(grupoChar) { mutableSetOf() }.addAll(ids)
+            }
+            if (fallback.keys.size >= 2) grupoMap = fallback.mapValues { it.value.toList() }
+        }
+
+        return grupoMap
+            .flatMap { (_, ids) -> calcGroupStandings(ids, groupGames).take(2).map { it.equipaId } }
+            .toSet()
+    }
+
+    private data class GroupEntry(
+        val equipaId: String,
+        var pts: Int = 0,
+        var gd: Int = 0,
+        var gf: Int = 0
+    )
+
+    private fun calcGroupStandings(equipaIds: List<String>, games: List<JogoEntity>): List<GroupEntry> {
+        val map = equipaIds.associateWith { GroupEntry(it) }
+        games.forEach { jogo ->
+            val ca = map[jogo.equipaCasaId] ?: return@forEach
+            val vi = map[jogo.equipaVisitanteId] ?: return@forEach
+            val gc = jogo.golosCasa ?: 0
+            val gv = jogo.golosVisitante ?: 0
+            when {
+                gc > gv -> ca.pts += 3
+                gc < gv -> vi.pts += 3
+                else    -> { ca.pts += 1; vi.pts += 1 }
+            }
+            ca.gd += gc - gv; ca.gf += gc
+            vi.gd += gv - gc; vi.gf += gv
+        }
+        return map.values.sortedWith(
+            compareByDescending<GroupEntry> { it.pts }
+                .thenByDescending { it.gd }
+                .thenByDescending { it.gf }
+        )
+    }
+
+    private suspend fun verificarFimLiga(torneioId: String) {
+        try {
+            val torneioIdInt = torneioId.toIntOrNull() ?: return
+            val jogos = jogoDao.getByTorneio(torneioId).first()
+            if (jogos.isEmpty() || jogos.any { it.estado != "terminado" }) return
+            torneioDao.updateEstado(torneioId, "Terminado")
+            try {
+                client.from("torneio")
+                    .update({ set("estado", "Terminado") }) { filter { eq("id", torneioIdInt) } }
+            } catch (e: Exception) {
+                Log.w(TAG, "verificarFimLiga Supabase sync falhou: ${e.message}")
+            }
+            Log.i(TAG, "Liga $torneioId concluída — todos os jogos terminados")
+        } catch (e: Exception) {
+            Log.w(TAG, "verificarFimLiga falhou: ${e.message}")
+        }
+    }
+
+    private suspend fun verificarFimGrupos(torneioId: String, jornadaId: String) {
+        try {
+            val torneioIdInt = torneioId.toIntOrNull() ?: return
+            val jornada = jornadaDao.getById(jornadaId) ?: return
+
+            // If already in knockout stage (jornada name doesn't start with "Grupo"), delegate
+            if (!jornada.nome.startsWith("Grupo")) {
+                avancarEliminatorias(torneioId, jornadaId)
+                return
+            }
+
+            // Check if ALL group games are done
+            val todasJornadas = jornadaDao.getByTorneio(torneioId).first()
+            val jornadasGrupo = todasJornadas.filter { it.nome.startsWith("Grupo") }
+            val todosJogosGrupo = jornadasGrupo.flatMap { j -> jogoDao.getByJornada(j.id).first() }
+
+            if (todosJogosGrupo.isEmpty() || todosJogosGrupo.any { it.estado != "terminado" }) return
+
+            // Get team→group mapping from inscricoes (primary source)
+            val inscricoes = inscricaoEquipaDao.getByTorneioSuspend(torneioId)
+                .filter { it.estado == "Confirmada" && !it.grupo.isNullOrBlank() }
+
+            var grupoMap: Map<String, List<String>> = inscricoes.groupBy({ it.grupo!! }, { it.equipaId })
+
+            // Fallback: derive groups from jornada names ("Grupo A — Jornada 1")
+            if (grupoMap.keys.size < 2) {
+                val fallback = mutableMapOf<String, MutableSet<String>>()
+                for (j in jornadasGrupo) {
+                    val grupoChar = j.nome.removePrefix("Grupo ").substringBefore(" ").trim()
+                    if (grupoChar.isBlank()) continue
+                    val ids = jogoDao.getByJornada(j.id).first()
+                        .flatMap { listOf(it.equipaCasaId, it.equipaVisitanteId) }
+                    fallback.getOrPut(grupoChar) { mutableSetOf() }.addAll(ids)
+                }
+                if (fallback.keys.size >= 2) {
+                    grupoMap = fallback.mapValues { it.value.toList() }
+                    Log.i(TAG, "verificarFimGrupos: grupos derivados dos nomes das jornadas — ${grupoMap.keys}")
+                }
+            }
+
+            val sortedGrupos = grupoMap.keys.sorted()
+            if (sortedGrupos.size < 2) {
+                Log.w(TAG, "verificarFimGrupos: menos de 2 grupos definidos")
+                return
+            }
+
+            val grupoA = sortedGrupos[0]
+            val grupoB = sortedGrupos[1]
+            val standA = calcGroupStandings(grupoMap[grupoA]!!, todosJogosGrupo)
+            val standB = calcGroupStandings(grupoMap[grupoB]!!, todosJogosGrupo)
+
+            if (standA.isEmpty() || standB.isEmpty()) {
+                Log.w(TAG, "verificarFimGrupos: algum grupo está vazio")
+                return
+            }
+
+            // Take up to top-2 from each group; null slots become BYEs via calcByeTeams later
+            val p1A = standA.getOrNull(0)?.equipaId
+            val p2A = standA.getOrNull(1)?.equipaId
+            val p1B = standB.getOrNull(0)?.equipaId
+            val p2B = standB.getOrNull(1)?.equipaId
+
+            // Create "Ronda 1" jornada
+            val jornadaDto = client.from("jornada")
+                .insert(JornadaInsertDto(torneioId = torneioIdInt, nome = "Ronda 1")) { select() }
+                .decodeSingle<JornadaDto>()
+            jornadaDao.insert(jornadaDto.toEntity())
+
+            // Cross-seeded: 1ºA vs 2ºB | 1ºB vs 2ºA — skip game if either slot is null (BYE)
+            if (p1A != null && p2B != null)
+                inserirJogo(torneioIdInt, jornadaDto.id, p1A.toInt(), p2B.toInt())
+            if (p1B != null && p2A != null)
+                inserirJogo(torneioIdInt, jornadaDto.id, p1B.toInt(), p2A.toInt())
+
+            Log.i(TAG, "verificarFimGrupos: Ronda 1 — 1º$grupoA=${p1A} vs 2º$grupoB=${p2B} | 1º$grupoB=${p1B} vs 2º$grupoA=${p2A}")
+        } catch (e: Exception) {
+            Log.w(TAG, "verificarFimGrupos falhou: ${e.message}")
+        }
+    }
+
+    /**
      * Gera apenas a 1ª ronda de eliminatórias com sorteio aleatório.
      * As rondas seguintes são geradas à medida que os resultados são registados.
      */
@@ -796,6 +1065,14 @@ class JogoRepository @Inject constructor(
                     )
             }
 
+        // Persist group assignments so verificarFimGrupos can distinguish phases later
+        val torneioId = torneioIdInt.toString()
+        gruposMap.forEach { (grupo, ids) ->
+            ids.forEach { equipaId ->
+                try { inscricaoEquipaDao.updateGrupo(torneioId, equipaId, grupo) } catch (_: Exception) {}
+            }
+        }
+
         var totalJogos = 0
         gruposMap.entries.forEachIndexed { idx, (grupo, ids) ->
             val offset = idx * ids.size // jornada offset for each group
@@ -833,7 +1110,5 @@ class JogoRepository @Inject constructor(
         return p
     }
 
-    /** Calcula o número de grupos ideal: grupos de 3-4 equipas. */
-    private fun calcNumGrupos(n: Int): Int =
-        maxOf(2, ceil(sqrt(n.toDouble())).toInt())
+    private fun calcNumGrupos(@Suppress("UNUSED_PARAMETER") n: Int): Int = 2
 }

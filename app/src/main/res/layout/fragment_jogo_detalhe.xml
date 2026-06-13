@@ -285,6 +285,19 @@
 
             </LinearLayout>
 
+            <!-- ── MVP Vote button (visible when votacaoMvpAtiva) ──────────── -->
+            <Button
+                android:id="@+id/btnVotarMvp"
+                style="@style/Widget.HojeTemBola.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginStart="@dimen/screen_padding"
+                android:layout_marginEnd="@dimen/screen_padding"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/votar_mvp"
+                android:visibility="gone" />
+
             <!-- ── Tab strip ─────────────────────────────────────────────── -->
             <com.google.android.material.button.MaterialButtonToggleGroup
                 android:id="@+id/tabGroupSecoes"

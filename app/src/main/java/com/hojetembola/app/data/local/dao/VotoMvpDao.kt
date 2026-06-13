@@ -10,8 +10,17 @@ interface VotoMvpDao {
     @Query("SELECT * FROM voto_mvp WHERE jogo_id = :jogoId")
     fun getByJogo(jogoId: String): Flow<List<VotoMvpEntity>>
 
+    @Query("SELECT * FROM voto_mvp WHERE jogo_id = :jogoId AND tipo_votante = :tipo")
+    fun getByJogoETipo(jogoId: String, tipo: String): Flow<List<VotoMvpEntity>>
+
     @Query("SELECT * FROM voto_mvp WHERE jogo_id = :jogoId AND votante_id = :votanteId LIMIT 1")
     suspend fun getVotoDoUtilizador(jogoId: String, votanteId: String): VotoMvpEntity?
+
+    @Query("SELECT * FROM voto_mvp WHERE jogo_id = :jogoId AND votante_id = :votanteId AND tipo_votante = :tipo LIMIT 1")
+    suspend fun getVotoDoUtilizadorETipo(jogoId: String, votanteId: String, tipo: String): VotoMvpEntity?
+
+    @Query("DELETE FROM voto_mvp WHERE jogo_id = :jogoId AND votante_id = :votanteId AND tipo_votante = :tipo")
+    suspend fun deleteVotoDoUtilizadorETipo(jogoId: String, votanteId: String, tipo: String)
 
     /** Contagem de votos por candidato num jogo (para calcular percentagens) */
     @Query("""

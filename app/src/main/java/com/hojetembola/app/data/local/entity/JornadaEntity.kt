@@ -12,6 +12,8 @@ data class JornadaEntity(
     @ColumnInfo(name = "torneio_id")
     val torneioId: String,
 
+    val nome: String = "",
+
     /** Número sequencial da jornada (1, 2, 3…) */
     val numero: Int,
 

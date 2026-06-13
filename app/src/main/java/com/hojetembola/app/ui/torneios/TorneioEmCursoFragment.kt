@@ -1,18 +1,23 @@
 package com.hojetembola.app.ui.torneios
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.SpannableString
+import android.text.TextUtils
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -27,8 +32,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.hojetembola.app.R
+import com.hojetembola.app.data.local.dao.JogoComEquipas
 import com.hojetembola.app.data.local.entity.InscricaoComEquipa
 import com.hojetembola.app.databinding.FragmentTorneioEmCursoBinding
+import com.hojetembola.app.databinding.ItemBracketMatchBinding
 import com.hojetembola.app.databinding.ItemEquipaTorneioBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -49,6 +56,14 @@ class TorneioEmCursoFragment : Fragment() {
     private lateinit var equipasAdapter: EquipasInscritasAdapter
 
     private var currentTab: Int = 0
+    private var isEliminationFormat: Boolean = false
+    private var isGruposEliminatorias: Boolean = false
+
+    private val tabListener = object : TabLayout.OnTabSelectedListener {
+        override fun onTabSelected(tab: TabLayout.Tab) { currentTab = tab.position; showTab(currentTab) }
+        override fun onTabUnselected(tab: TabLayout.Tab) = Unit
+        override fun onTabReselected(tab: TabLayout.Tab) = Unit
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -67,6 +82,8 @@ class TorneioEmCursoFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        isEliminationFormat = false
+        isGruposEliminatorias = false
         _binding = null
     }
 
@@ -82,20 +99,36 @@ class TorneioEmCursoFragment : Fragment() {
             binding.tabLayout.addTab(binding.tabLayout.newTab().setText(label))
         }
 
-        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) { currentTab = tab.position; showTab(currentTab) }
-            override fun onTabUnselected(tab: TabLayout.Tab) = Unit
-            override fun onTabReselected(tab: TabLayout.Tab) = Unit
-        })
+        binding.tabLayout.addOnTabSelectedListener(tabListener)
 
         showTab(currentTab)
     }
 
     private fun showTab(index: Int) {
-        binding.rvClassificacao.isVisible = index == 0
-        binding.rvJornadas.isVisible      = index == 1
-        binding.rvEquipas.isVisible       = index == 2
-        binding.scrollInfo.isVisible      = index == 3
+        if (isEliminationFormat) {
+            // Elimination layout: tab0=Bracket, tab1=Teams, tab2=Info (no Standings)
+            binding.rvClassificacao.isVisible = false
+            binding.scrollGrupos.isVisible    = false
+            binding.scrollBracket.isVisible   = index == 0
+            binding.rvJornadas.isVisible      = false
+            binding.rvEquipas.isVisible       = index == 1
+            binding.scrollInfo.isVisible      = index == 2
+        } else if (isGruposEliminatorias) {
+            // Groups+Knockout: tab0=Standings, tab1=Rounds, tab2=Bracket, tab3=Teams, tab4=Info
+            binding.rvClassificacao.isVisible = false
+            binding.scrollGrupos.isVisible    = index == 0
+            binding.rvJornadas.isVisible      = index == 1
+            binding.scrollBracket.isVisible   = index == 2
+            binding.rvEquipas.isVisible       = index == 3
+            binding.scrollInfo.isVisible      = index == 4
+        } else {
+            binding.rvClassificacao.isVisible = index == 0
+            binding.scrollGrupos.isVisible    = false
+            binding.rvJornadas.isVisible      = index == 1
+            binding.scrollBracket.isVisible   = false
+            binding.rvEquipas.isVisible       = index == 2
+            binding.scrollInfo.isVisible      = index == 3
+        }
     }
 
     // ── RecyclerViews ─────────────────────────────────────────────────────────
@@ -136,9 +169,23 @@ class TorneioEmCursoFragment : Fragment() {
                             binding.tvTorneioNome.text = torneio.nome
                             applyEstadoBadge(torneio.estado)
                             fillInfoPanel(torneio)
+
+                            val fmt = torneio.formato.trim().lowercase()
+                            val isElim = fmt == "eliminatorias"
+                            val isGrupos = fmt.contains("grupos") && fmt.contains("eliminatori")
+                            android.util.Log.d("TorneioFmt", "formato='${torneio.formato}' isElim=$isElim isGrupos=$isGrupos")
+                            if (isElim != isEliminationFormat || isGrupos != isGruposEliminatorias) {
+                                isEliminationFormat = isElim
+                                isGruposEliminatorias = isGrupos
+                                rebuildTabs(isElim)
+                            }
                         }
 
                         classificacaoAdapter.submitList(state.classificacao)
+
+                        if (isGruposEliminatorias) {
+                            renderGroupStandings(state.classificacao, state.equipas, state.jornadas)
+                        }
 
                         val items = mutableListOf<CalendarioItem>()
                         state.jornadas.forEach { jc ->
@@ -146,6 +193,45 @@ class TorneioEmCursoFragment : Fragment() {
                             jc.jogos.forEach { items.add(CalendarioItem.Match(it)) }
                         }
                         jornadasAdapter.submitList(items)
+
+                        when {
+                            isEliminationFormat -> {
+                                renderBracket(
+                                    state.jornadas,
+                                    viewModel.torneioId,
+                                    state.isOrganizador,
+                                    state.torneio?.estado ?: ""
+                                )
+                            }
+                            isGruposEliminatorias -> {
+                                // Bracket shows only knockout rounds
+                                val knockoutJornadas = state.jornadas
+                                    .filter { !it.jornada.nome.startsWith("Grupo") }
+                                renderBracket(
+                                    knockoutJornadas,
+                                    viewModel.torneioId,
+                                    state.isOrganizador,
+                                    state.torneio?.estado ?: ""
+                                )
+                            }
+                            else -> {
+                                // Liga / TodosContraTodos: champion banner from standings
+                                val torneioEstado = state.torneio?.estado ?: ""
+                                if (torneioEstado.lowercase() in listOf("terminado", "terminated")) {
+                                    val vencedor = state.classificacao.firstOrNull()
+                                    if (vencedor != null) {
+                                        binding.layoutCampeao.isVisible = true
+                                        binding.tvCampeaoNome.text = vencedor.equipaNome
+                                        val cor = try { Color.parseColor(vencedor.equipaCor) } catch (_: Exception) { Color.parseColor("#3D5A80") }
+                                        binding.vCorCampeao.background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(cor) }
+                                    } else {
+                                        binding.layoutCampeao.isVisible = false
+                                    }
+                                } else {
+                                    binding.layoutCampeao.isVisible = false
+                                }
+                            }
+                        }
 
                         equipasAdapter.updateData(state.equipas, state.jogadoresPorEquipa)
                     }
@@ -215,6 +301,344 @@ class TorneioEmCursoFragment : Fragment() {
         "GoloDeOuro",    "golo_de_ouro"  -> getString(R.string.golo_de_ouro)
         else -> this
     }
+
+    // ── Tab rebuild ───────────────────────────────────────────────────────────
+
+    private fun rebuildTabs(isElim: Boolean) {
+        binding.tabLayout.removeOnTabSelectedListener(tabListener)
+        binding.tabLayout.removeAllTabs()
+
+        val labels = when {
+            isElim -> listOf(
+                getString(R.string.tab_bracket),
+                getString(R.string.tab_equipas),
+                getString(R.string.tab_info)
+            )
+            isGruposEliminatorias -> listOf(
+                getString(R.string.tab_classificacao),
+                getString(R.string.tab_jornadas),
+                getString(R.string.tab_bracket),
+                getString(R.string.tab_equipas),
+                getString(R.string.tab_info)
+            )
+            else -> listOf(
+                getString(R.string.tab_classificacao),
+                getString(R.string.tab_jornadas),
+                getString(R.string.tab_equipas),
+                getString(R.string.tab_info)
+            )
+        }
+        labels.forEach { binding.tabLayout.addTab(binding.tabLayout.newTab().setText(it)) }
+        binding.tabLayout.addOnTabSelectedListener(tabListener)
+
+        // Select first tab (Bracket for elim, Standings for others)
+        currentTab = 0
+        binding.tabLayout.selectTab(binding.tabLayout.getTabAt(0))
+        showTab(0)
+    }
+
+    // ── Bracket ───────────────────────────────────────────────────────────────
+
+    private fun renderBracket(
+        jornadas: List<JornadaComJogos>,
+        torneioId: String,
+        isOrganizador: Boolean,
+        torneioEstado: String = ""
+    ) {
+        val container = binding.linearBracket
+        container.removeAllViews()
+
+        val rounds = jornadas.filter { it.jogos.isNotEmpty() }.sortedBy { it.jornada.numero }
+        if (rounds.isEmpty()) return
+        val firstRoundCount = rounds.first().jogos.size
+
+        val totalRounds = rounds.size
+        val columnWidthPx = dpToPx(172)
+        val gapPx = dpToPx(10)
+
+        // Show champion banner if tournament is finished
+        val isTorneioTerminado = torneioEstado.lowercase() in listOf("terminado", "terminated")
+        val finalJogo = rounds.lastOrNull()?.jogos?.firstOrNull()
+        if (isTorneioTerminado && finalJogo != null && finalJogo.estado == "terminado") {
+            val casaGanhou = (finalJogo.golosCasa ?: 0) >= (finalJogo.golosVisitante ?: 0)
+            val campeaoNome = if (casaGanhou) finalJogo.casaNome else finalJogo.visitanteNome
+            val campeaoCor  = if (casaGanhou) finalJogo.casaCor  else finalJogo.visitanteCor
+            binding.layoutCampeao.isVisible = true
+            binding.tvCampeaoNome.text = campeaoNome
+            val cor = try { Color.parseColor(campeaoCor) } catch (_: Exception) { Color.parseColor("#3D5A80") }
+            binding.vCorCampeao.background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(cor) }
+        } else {
+            binding.layoutCampeao.isVisible = false
+        }
+
+        rounds.forEachIndexed { ri, jc ->
+            val slotsPerMatch = 1.shl(ri) // 2^ri
+
+            val colLayout = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(columnWidthPx, LinearLayout.LayoutParams.MATCH_PARENT)
+            }
+
+            // Round name header
+            val tvHeader = TextView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                text = getRoundName(jc.jogos.size)
+                textSize = 11f
+                setTextColor(Color.parseColor("#8A9BB8"))
+                typeface = ResourcesCompat.getFont(requireContext(), R.font.poppins_semi_bold)
+                gravity = Gravity.CENTER_HORIZONTAL
+                setPadding(0, 0, 0, dpToPx(6))
+            }
+            colLayout.addView(tvHeader)
+
+            // Match slots (weight-based vertical distribution)
+            val matchesLayout = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
+                weightSum = firstRoundCount.toFloat()
+            }
+
+            jc.jogos.forEach { jogo ->
+                val slot = FrameLayout(requireContext()).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        0,
+                        slotsPerMatch.toFloat()
+                    )
+                }
+                val cardBinding = ItemBracketMatchBinding.inflate(layoutInflater, slot, false)
+                bindBracketCard(cardBinding, jogo, torneioId, isOrganizador)
+                cardBinding.root.layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                    Gravity.CENTER_VERTICAL
+                ).apply { setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4)) }
+                slot.addView(cardBinding.root)
+                matchesLayout.addView(slot)
+            }
+
+            colLayout.addView(matchesLayout)
+            container.addView(colLayout)
+
+            // Gap between columns
+            if (ri < totalRounds - 1) {
+                container.addView(View(requireContext()).apply {
+                    layoutParams = LinearLayout.LayoutParams(gapPx, LinearLayout.LayoutParams.MATCH_PARENT)
+                })
+            }
+        }
+    }
+
+    private fun bindBracketCard(
+        b: ItemBracketMatchBinding,
+        jogo: JogoComEquipas,
+        torneioId: String,
+        isOrganizador: Boolean
+    ) {
+        val casaNome = jogo.casaNome.ifBlank { getString(R.string.a_definir) }
+        val visitanteNome = jogo.visitanteNome.ifBlank { getString(R.string.a_definir) }
+        b.tvNomeCasa.text = casaNome
+        b.tvNomeVisitante.text = visitanteNome
+
+        val casaColor = try { Color.parseColor(jogo.casaCor) } catch (_: Exception) { Color.parseColor("#3D5A80") }
+        val visitanteColor = try { Color.parseColor(jogo.visitanteCor) } catch (_: Exception) { Color.parseColor("#3D5A80") }
+        b.vCorCasa.background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(casaColor) }
+        b.vCorVisitante.background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(visitanteColor) }
+
+        val hasScore = jogo.estado in listOf("ao_vivo", "terminado")
+        b.tvGoloCasa.text = if (hasScore) (jogo.golosCasa ?: 0).toString() else "-"
+        b.tvGoloVisitante.text = if (hasScore) (jogo.golosVisitante ?: 0).toString() else "-"
+
+        if (jogo.estado == "terminado" && jogo.golosCasa != null && jogo.golosVisitante != null) {
+            val casaWon = jogo.golosCasa > jogo.golosVisitante
+            b.tvNomeCasa.alpha = if (casaWon) 1f else 0.45f
+            b.tvGoloCasa.alpha = if (casaWon) 1f else 0.45f
+            b.vCorCasa.alpha = if (casaWon) 1f else 0.45f
+            b.tvNomeVisitante.alpha = if (!casaWon) 1f else 0.45f
+            b.tvGoloVisitante.alpha = if (!casaWon) 1f else 0.45f
+            b.vCorVisitante.alpha = if (!casaWon) 1f else 0.45f
+            val winnerScoreColor = Color.parseColor("#F57C00")
+            if (casaWon) b.tvGoloCasa.setTextColor(winnerScoreColor)
+            else b.tvGoloVisitante.setTextColor(winnerScoreColor)
+        }
+
+        b.root.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_torneioEmCursoFragment_to_jogoDetalheFragment,
+                bundleOf(
+                    "jogoId"        to jogo.jogoId,
+                    "torneioId"     to torneioId,
+                    "isOrganizador" to isOrganizador
+                )
+            )
+        }
+    }
+
+    private fun getRoundName(matchCount: Int): String {
+        return when (matchCount) {
+            1    -> getString(R.string.round_final)
+            2    -> getString(R.string.round_meia_final)
+            4    -> getString(R.string.round_quartos)
+            8    -> getString(R.string.round_oitavos)
+            else -> getString(R.string.round_numero, matchCount)
+        }
+    }
+
+    // ── Group standings ───────────────────────────────────────────────────────
+
+    private fun renderGroupStandings(
+        classificacao: List<ClassificacaoTorneioRow>,
+        equipas: List<InscricaoComEquipa>,
+        jornadas: List<JornadaComJogos>
+    ) {
+        val container = binding.linearGrupos
+        container.removeAllViews()
+        val ctx = requireContext()
+
+        // Primary: use grupo field from inscricao
+        var groupedEquipas: Map<String, List<InscricaoComEquipa>> = equipas
+            .filter { !it.grupo.isNullOrBlank() }
+            .groupBy { it.grupo!! }
+            .toSortedMap()
+
+        // Fallback: derive groups from jornada names ("Grupo A — Jornada 1")
+        if (groupedEquipas.isEmpty()) {
+            val grupoToEquipaIds = mutableMapOf<String, MutableSet<String>>()
+            for (jc in jornadas) {
+                val nome = jc.jornada.nome
+                if (!nome.startsWith("Grupo ")) continue
+                val grupoChar = nome.removePrefix("Grupo ").substringBefore(" ").trim()
+                if (grupoChar.isBlank()) continue
+                val ids = jc.jogos.flatMap { listOf(it.equipaCasaId, it.equipaVisitanteId) }
+                grupoToEquipaIds.getOrPut(grupoChar) { mutableSetOf() }.addAll(ids)
+            }
+            if (grupoToEquipaIds.isNotEmpty()) {
+                val equipaById = equipas.associateBy { it.equipaId }
+                groupedEquipas = grupoToEquipaIds
+                    .mapValues { (_, ids) -> ids.mapNotNull { equipaById[it] } }
+                    .toSortedMap()
+            }
+        }
+
+        if (groupedEquipas.isEmpty()) return
+
+        val classificacaoById = classificacao.associateBy { it.equipaId }
+
+        groupedEquipas.forEach { (grupo, membros) ->
+            // Group title
+            val tvGrupo = TextView(ctx).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).also { it.setMargins(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(6)) }
+                text = "Grupo $grupo"
+                textSize = 13f
+                setTextColor(Color.parseColor("#FFFFFF"))
+                typeface = ResourcesCompat.getFont(ctx, R.font.poppins_bold)
+            }
+            container.addView(tvGrupo)
+
+            // Header row
+            container.addView(makeStandingsRow(
+                ctx,
+                pos = "Pos", equipa = "Equipa", j = "J", v = "V",
+                e = "E", d = "D", gm = "GM", gs = "GS", pts = "Pts",
+                isHeader = true
+            ))
+
+            // Team rows
+            val membrosOrdenados = membros.sortedBy {
+                classificacaoById[it.equipaId]?.posicao ?: Int.MAX_VALUE
+            }
+            membrosOrdenados.forEachIndexed { idx, inscricao ->
+                val row = classificacaoById[inscricao.equipaId]
+                container.addView(makeStandingsRow(
+                    ctx,
+                    pos = (idx + 1).toString(),
+                    equipa = inscricao.nome,
+                    j = row?.jogos?.toString() ?: "0",
+                    v = row?.vitorias?.toString() ?: "0",
+                    e = row?.empates?.toString() ?: "0",
+                    d = row?.derrotas?.toString() ?: "0",
+                    gm = row?.golosMarcados?.toString() ?: "0",
+                    gs = row?.golosSofridos?.toString() ?: "0",
+                    pts = row?.pontos?.toString() ?: "0",
+                    isHeader = false
+                ))
+            }
+
+            // Divider between groups
+            container.addView(View(ctx).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1)
+                ).also { it.setMargins(dpToPx(16), dpToPx(12), dpToPx(16), 0) }
+                setBackgroundColor(Color.parseColor("#1E2D45"))
+            })
+        }
+    }
+
+    private fun makeStandingsRow(
+        ctx: Context,
+        pos: String, equipa: String, j: String, v: String, e: String,
+        d: String, gm: String, gs: String, pts: String,
+        isHeader: Boolean
+    ): LinearLayout {
+        val row = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).also { it.setMargins(dpToPx(6), 0, dpToPx(6), 0) }
+            setPadding(0, dpToPx(6), 0, dpToPx(6))
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        val headerColor = Color.parseColor("#8A9BB8")
+        val textColor   = if (isHeader) headerColor else Color.parseColor("#FFFFFF")
+        val ptsColor    = if (isHeader) headerColor else Color.parseColor("#FFFFFF")
+        val font        = if (isHeader) R.font.poppins_regular else R.font.poppins_regular
+        val ptsFont     = if (isHeader) R.font.poppins_regular else R.font.poppins_bold
+
+        fun cell(text: String, weight: Float, textCol: Int = textColor, fontRes: Int = font): TextView =
+            TextView(ctx).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight)
+                this.text = text
+                textSize = 11f
+                setTextColor(textCol)
+                gravity = Gravity.CENTER
+                typeface = ResourcesCompat.getFont(ctx, fontRes)
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+            }
+
+        val tvEquipa = TextView(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f)
+            text = equipa
+            textSize = 11f
+            setTextColor(if (isHeader) headerColor else Color.parseColor("#E0E8F4"))
+            typeface = ResourcesCompat.getFont(ctx, font)
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
+        }
+
+        row.addView(cell(pos, 0.6f))
+        row.addView(tvEquipa)
+        row.addView(cell(j, 1f))
+        row.addView(cell(v, 1f))
+        row.addView(cell(e, 1f))
+        row.addView(cell(d, 1f))
+        row.addView(cell(gm, 1f))
+        row.addView(cell(gs, 1f))
+        row.addView(cell(pts, 1f, ptsColor, ptsFont))
+
+        return row
+    }
+
+    private fun dpToPx(dp: Int): Int =
+        (dp * resources.displayMetrics.density).toInt()
 
     // ── EquipasInscritasAdapter ───────────────────────────────────────────────
 
@@ -289,7 +713,7 @@ class TorneioEmCursoFragment : Fragment() {
                         val row = LinearLayout(ctx).apply {
                             orientation = LinearLayout.HORIZONTAL
                             setPadding(0, 4, 0, 4)
-                            gravity = android.view.Gravity.CENTER_VERTICAL
+                            gravity = Gravity.CENTER_VERTICAL
                         }
                         val tvNome = TextView(ctx).apply {
                             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)

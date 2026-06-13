@@ -33,7 +33,7 @@ import com.hojetembola.app.data.local.entity.*
         VotoMvpEntity::class,
         NotificacaoEntity::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -91,6 +91,13 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_10_11 = object : Migration(10, 11) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE evento_jogo ADD COLUMN assistencia_id TEXT")
+            }
+        }
+
+        /** v11 → v12: adiciona nome à jornada (necessário para distinguir fase de grupos de knockout). */
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE jornada ADD COLUMN nome TEXT NOT NULL DEFAULT ''")
             }
         }
     }
